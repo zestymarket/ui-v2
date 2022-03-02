@@ -1,15 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
 import { useQuery } from '@apollo/client';
-import {
-  Grid,
-  Typography,
-  Chip,
-  Paper,
-  Checkbox,
-  FormControlLabel,
-} from '@mui/material';
-import { keyframes } from '@mui/styled-engine';
+import { Grid, Chip, Paper } from '@mui/material';
+import { styled } from '@mui/system';
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { GET_ACTIVE_SPACES } from '@/lib/queries';
@@ -27,12 +19,11 @@ import {
   hasOpenAuction,
 } from '@/utils/helpers';
 import { FormatCategories, getCategoryFromFormat } from '@/utils/formats';
-import { styled } from '@mui/system';
 import SpaceData from '@/utils/SpaceData';
 
 const format_options: Chip[] = [{ name: `All Formats` }];
 
-Object.keys(FormatCategories).map((key, value) => {
+Object.keys(FormatCategories).map((key) => {
   format_options.push({ name: key.split(` `)[0] });
 });
 
@@ -61,9 +52,9 @@ const StyledChipList = styled(Paper)(({ theme }) => ({
 const StyledChip = styled(Chip)(({ theme }) => ({
   margin: theme.spacing(0.5),
 }));
-const StyledCheckboxLabel = styled(FormControlLabel)({
-  textAlign: `right`,
-});
+// const StyledCheckboxLabel = styled(FormControlLabel)({
+//   textAlign: `right`,
+// });
 const StyledSpaceCardContainer = styled(Grid)({
   display: `grid`,
   gridTemplateColumns: `minmax(0,1fr)`,
@@ -81,49 +72,49 @@ const StyledSpaceCardContainer = styled(Grid)({
     gridGap: `32px`,
   },
 });
-const discordButtonMovement = keyframes`
-  from: {transform: "translateY(0px)"},
-  to: {transform: "translateY(10px)"}
-`;
+// const discordButtonMovement = keyframes`
+//   from: {transform: "translateY(0px)"},
+//   to: {transform: "translateY(10px)"}
+// `;
 
-const StyledDiscordButton = styled(`a`)({
-  position: `fixed`,
-  bottom: 10,
-  right: 0,
-  zIndex: 10,
-  display: `flex`,
-  justifyContent: `center`,
-  alignItems: `center`,
-  flexWrap: `wrap`,
-  height: 100,
-  width: 100,
-  borderRadius: `50%`,
-  boxShadow: `0 3px 4px rgb(117 117 117 / 40%), 0px 2px 4px rgb(117 117 117 / 12%), 0px 1px 4px rgb(117 117 117 / 14%)`,
-  backgroundColor: `#5865F2`,
-  margin: `2em`,
-  textDecoration: `none`,
-  overflow: `hidden`,
-  color: `white`,
-  transition: `0.3s ease-in-out`,
-  animationName: `${discordButtonMovement}`,
-  animationIterationCount: `infinite`,
-  animationDuration: `2s`,
-  animationDirection: `alternate`,
-  '&:hover': {
-    animationName: ``,
-    transform: `translateY(0) scale(1.1)`,
-  },
-  '@media (max-width: 960px)': {
-    display: `none`,
-  },
-});
+// const StyledDiscordButton = styled(`a`)({
+//   position: `fixed`,
+//   bottom: 10,
+//   right: 0,
+//   zIndex: 10,
+//   display: `flex`,
+//   justifyContent: `center`,
+//   alignItems: `center`,
+//   flexWrap: `wrap`,
+//   height: 100,
+//   width: 100,
+//   borderRadius: `50%`,
+//   boxShadow: `0 3px 4px rgb(117 117 117 / 40%), 0px 2px 4px rgb(117 117 117 / 12%), 0px 1px 4px rgb(117 117 117 / 14%)`,
+//   backgroundColor: `#5865F2`,
+//   margin: `2em`,
+//   textDecoration: `none`,
+//   overflow: `hidden`,
+//   color: `white`,
+//   transition: `0.3s ease-in-out`,
+//   animationName: `${discordButtonMovement}`,
+//   animationIterationCount: `infinite`,
+//   animationDuration: `2s`,
+//   animationDirection: `alternate`,
+//   '&:hover': {
+//     animationName: ``,
+//     transform: `translateY(0) scale(1.1)`,
+//   },
+//   '@media (max-width: 960px)': {
+//     display: `none`,
+//   },
+// });
 
 const Market = () => {
   const { chainId } = useWeb3React<Web3Provider>();
-  const { query } = useRouter();
+  // const { query } = useRouter();
   const client = chainId ? getClient(chainId) : undefined;
   // const { showLoading, hideLoading } = useContext(LoadingContext);
-  const [onlyShowActive, setOnlyShowActive] = useState<boolean>(true);
+  const [onlyShowActive] = useState<boolean>(true);
   const [marketData, setMarketData] = useState<SpaceData[]>([]);
   const [filteredMarketData, setFilteredMarketData] = useState<
     SpaceData[] | undefined[]
@@ -138,13 +129,13 @@ const Market = () => {
     undefined,
   ]);
   const [sortedMarketData, setSortedMarketData] = useState<SpaceData[]>([]);
-  const [selectedSort, setSelectedSort] = useState(`highest volume`);
+  const [selectedSort] = useState(`highest volume`);
   const [chipData, setChipData] = useState<Chip[]>([]);
 
   // query filtering
-  const [skip, setSkip] = useState<number>(0);
+  const [skip] = useState<number>(0);
 
-  const { data, loading, error, fetchMore } = useQuery<
+  const { data, loading, error } = useQuery<
     SellerNFTSettingQuery,
     SellerNFTSettingVars | TokenDataVars
   >(GET_ACTIVE_SPACES, {
@@ -162,13 +153,13 @@ const Market = () => {
     client: client,
   });
 
-  useEffect(() => {
-    if (query.verified) {
-      // enqueueSnackbar(`Your email address has been successfully verified!`, {
-      //   variant: `success`,
-      // });
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (query.verified) {
+  //     enqueueSnackbar(`Your email address has been successfully verified!`, {
+  //       variant: `success`,
+  //     });
+  //   }
+  // }, []);
 
   useEffect(() => {
     if (loading == false && !error && data) {
@@ -194,7 +185,7 @@ const Market = () => {
         setMarketData(newMarketData);
       });
     }
-  }, [data]);
+  }, [data, error, loading]);
 
   useEffect(() => {
     const newSortedData = [...marketData];
@@ -253,35 +244,35 @@ const Market = () => {
     setFilteredMarketData(newFilteredMarketData);
   }, [sortedMarketData, chipData, onlyShowActive]);
 
-  const handleSort = (chosen: Chip) => {
-    setSelectedSort(chosen.name);
-  };
+  // const handleSort = (chosen: Chip) => {
+  //   setSelectedSort(chosen.name);
+  // };
 
-  const handleOnlyActive = (
-    _ev: React.ChangeEvent<HTMLInputElement>,
-    value: boolean,
-  ) => {
-    setOnlyShowActive(value);
-  };
+  // const handleOnlyActive = (
+  //   _ev: React.ChangeEvent<HTMLInputElement>,
+  //   value: boolean,
+  // ) => {
+  //   setOnlyShowActive(value);
+  // };
 
-  const handleNewChip = (chosen: Chip) => {
-    let newChipData = chipData.length > 0 ? [...chipData] : [];
+  // const handleNewChip = (chosen: Chip) => {
+  //   let newChipData = chipData.length > 0 ? [...chipData] : [];
 
-    if (chosen.name === `All Formats`) {
-      newChipData = newChipData.filter(
-        (chip) => !isChipNameInFormatOptions(chip.name),
-      );
-    } else {
-      if (newChipData.includes(chosen)) {
-        const index = newChipData.indexOf(chosen);
-        newChipData.splice(index, 1);
-      } else {
-        newChipData.push(chosen);
-      }
-    }
+  //   if (chosen.name === `All Formats`) {
+  //     newChipData = newChipData.filter(
+  //       (chip) => !isChipNameInFormatOptions(chip.name),
+  //     );
+  //   } else {
+  //     if (newChipData.includes(chosen)) {
+  //       const index = newChipData.indexOf(chosen);
+  //       newChipData.splice(index, 1);
+  //     } else {
+  //       newChipData.push(chosen);
+  //     }
+  //   }
 
-    setChipData(newChipData);
-  };
+  //   setChipData(newChipData);
+  // };
 
   const showMarketContent = () => {
     return filteredMarketData.map((spaceData, index) => {
@@ -292,7 +283,7 @@ const Market = () => {
           key={spaceData?.id || index}
           sx={{ opacity: spaceData?.hasActiveAuctions ? 1 : 0.5 }}
         >
-          {/* <SpaceCard spaceData={spaceData} />  */}
+          {/* <SpaceCard spaceData={spaceData} /> */}
         </Grid>
       );
     });

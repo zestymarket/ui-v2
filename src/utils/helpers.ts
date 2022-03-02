@@ -77,6 +77,27 @@ export const INFURA_PREFIXES: { [key: number]: string } = {
   137: `polygon-mainnet`,
 };
 
+export function isOpenAuction(auction: SellerAuction) {
+  const currentTime = parseInt((Date.now() / 1000).toFixed(0));
+
+  const cancelled = auction.cancelled;
+  if (cancelled === true) return false;
+
+  const auctionStart = Number(auction.auctionTimeStart);
+  if (auctionStart > currentTime) return false;
+
+  const auctionEnd = Number(auction.auctionTimeEnd);
+  if (auctionEnd < currentTime) return false;
+
+  const approved = auction.buyerCampaignsApproved;
+  if (approved[approved.length - 1] === true) return false;
+
+  const pending = auction.buyerCampaignsPending;
+  if (pending[pending.length - 1] === true) return false;
+
+  return true;
+}
+
 export function getLowestAuctionPrice(auctions: SellerAuction[]) {
   const currentTime = parseInt((Date.now() / 1000).toFixed(0));
 
@@ -113,27 +134,6 @@ export function hasOpenAuction(auctions: SellerAuction[]) {
     if (isOpenAuction(auctions[i])) return true;
   }
   return false;
-}
-
-export function isOpenAuction(auction: SellerAuction) {
-  const currentTime = parseInt((Date.now() / 1000).toFixed(0));
-
-  const cancelled = auction.cancelled;
-  if (cancelled === true) return false;
-
-  const auctionStart = Number(auction.auctionTimeStart);
-  if (auctionStart > currentTime) return false;
-
-  const auctionEnd = Number(auction.auctionTimeEnd);
-  if (auctionEnd < currentTime) return false;
-
-  const approved = auction.buyerCampaignsApproved;
-  if (approved[approved.length - 1] === true) return false;
-
-  const pending = auction.buyerCampaignsPending;
-  if (pending[pending.length - 1] === true) return false;
-
-  return true;
 }
 
 export function formatTimeLeft(s: number): string {

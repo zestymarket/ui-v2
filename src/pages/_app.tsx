@@ -7,6 +7,7 @@ import { Web3ReactProvider } from '@web3-react/core';
 import client from '../lib/graphql';
 import { ApolloProvider } from '@apollo/client';
 
+// todo: Font
 const theme = createTheme({
   palette: {
     primary: {
