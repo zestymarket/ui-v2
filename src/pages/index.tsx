@@ -20,8 +20,19 @@ import {
 } from '@/utils/helpers';
 import { FormatCategories, getCategoryFromFormat } from '@/utils/formats';
 import SpaceData from '@/utils/SpaceData';
+import SpaceCard from '@/components/SpaceCard';
 
 const format_options: Chip[] = [{ name: `All Formats` }];
+const skeletonData = [
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+  undefined,
+];
 
 Object.keys(FormatCategories).map((key) => {
   format_options.push({ name: key.split(` `)[0] });
@@ -114,20 +125,10 @@ const Market = () => {
   // const { query } = useRouter();
   const client = chainId ? getClient(chainId) : undefined;
   // const { showLoading, hideLoading } = useContext(LoadingContext);
+  const [loadingData, setLoadingData] = useState<boolean>(true);
   const [onlyShowActive] = useState<boolean>(true);
   const [marketData, setMarketData] = useState<SpaceData[]>([]);
-  const [filteredMarketData, setFilteredMarketData] = useState<
-    SpaceData[] | undefined[]
-  >([
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-  ]);
+  const [filteredMarketData, setFilteredMarketData] = useState<SpaceData[]>([]);
   const [sortedMarketData, setSortedMarketData] = useState<SpaceData[]>([]);
   const [selectedSort] = useState(`highest volume`);
   const [chipData, setChipData] = useState<Chip[]>([]);
@@ -182,6 +183,7 @@ const Market = () => {
           } catch {}
         }),
       ).then(() => {
+        setLoadingData(false);
         setMarketData(newMarketData);
       });
     }
@@ -231,16 +233,19 @@ const Market = () => {
 
     let newFilteredMarketData = sortedMarketData;
     if (formats.length > 0) {
-      newFilteredMarketData = newFilteredMarketData.filter((spaceData) =>
-        formats.includes(getCategoryFromFormat(spaceData.format)),
+      newFilteredMarketData = newFilteredMarketData.filter(
+        (spaceData) =>
+          spaceData &&
+          formats.includes(getCategoryFromFormat(spaceData.format)),
       );
     }
 
     if (onlyShowActive) {
       newFilteredMarketData = newFilteredMarketData.filter(
-        (spaceData) => spaceData.hasActiveAuctions,
+        (spaceData) => spaceData && spaceData.hasActiveAuctions,
       );
     }
+
     setFilteredMarketData(newFilteredMarketData);
   }, [sortedMarketData, chipData, onlyShowActive]);
 
@@ -275,6 +280,14 @@ const Market = () => {
   // };
 
   const showMarketContent = () => {
+    if (loadingData) {
+      return skeletonData.map((d, index) => (
+        <Grid item xs key={index}>
+          <SpaceCard spaceData={d} />
+        </Grid>
+      ));
+    }
+
     return filteredMarketData.map((spaceData, index) => {
       return (
         <Grid
@@ -283,7 +296,7 @@ const Market = () => {
           key={spaceData?.id || index}
           sx={{ opacity: spaceData?.hasActiveAuctions ? 1 : 0.5 }}
         >
-          {/* <SpaceCard spaceData={spaceData} /> */}
+          <SpaceCard spaceData={spaceData} />
         </Grid>
       );
     });
