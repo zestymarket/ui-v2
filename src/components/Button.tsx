@@ -16,13 +16,13 @@ const StyledButton = styled(MuiButton)(({ theme }) => ({
   fontSize: 14,
   fontWeight: 400,
   borderRadius: theme.spacing(1),
-  '&.MuiButton-containedPrimary': {
-    background: `linear-gradient(112.17deg, #F89724 0%, #E23F26 100%)`,
-  },
-  '&.MuiButton-outlinedPrimary': {
-    borderImageSlice: 5,
-    borderImageSource: `linear-gradient(to right, #F89524, #E34126)`,
-  },
+  // '&.MuiButton-containedPrimary': {
+  //   background: `linear-gradient(112.17deg, #F89724 0%, #E23F26 100%)`,
+  // },
+  // '&.MuiButton-outlinedPrimary': {
+  //   borderImageSlice: 5,
+  //   borderImageSource: `linear-gradient(to right, #F89524, #E34126)`,
+  // },
 }));
 
 const Button: React.FC<ButtonProps> = ({ outlined, children, onClick }) => {
