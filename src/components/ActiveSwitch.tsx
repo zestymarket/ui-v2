@@ -13,6 +13,7 @@ const StyledSwitchWrapper = styled(`div`)({
   alignItems: `center`,
   justifyContent: `center`,
 });
+
 const StyledSwitch = styled(Switch)(({ theme }) => ({
   height: 54,
   width: 82,
@@ -55,7 +56,7 @@ const ActiveSwitch: React.FC<Props> = ({ label, enabled, onToggle }) => {
 
   return (
     <StyledSwitchWrapper>
-      <Typography>{label}</Typography>
+      <Typography color="text.secondary">{label}</Typography>
       <StyledSwitch
         disableRipple
         disableFocusRipple

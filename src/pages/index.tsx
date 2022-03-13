@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@apollo/client';
-import { Grid, Paper } from '@mui/material';
+import { Grid } from '@mui/material';
 import { styled } from '@mui/system';
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
@@ -26,6 +26,7 @@ import FormatFilters, {
   isFilterNameInFormatOptions,
 } from '@/components/FormatFilters';
 import ActiveSwitch from '@/components/ActiveSwitch';
+import Sort, { SORT } from '@/components/Sort';
 
 const skeletonData = [
   undefined,
@@ -70,7 +71,7 @@ const Market = () => {
   const [marketData, setMarketData] = useState<SpaceData[]>([]);
   const [filteredMarketData, setFilteredMarketData] = useState<SpaceData[]>([]);
   const [sortedMarketData, setSortedMarketData] = useState<SpaceData[]>([]);
-  const [selectedSort] = useState(`highest volume`);
+  const [selectedSort, setSelectedSort] = useState<SORT>(SORT.HIGHEST_VOLUME);
   const [selectedFilters, setSelectedFilters] = useState<FormatOption[]>([]);
 
   // query filtering
@@ -132,19 +133,19 @@ const Market = () => {
   useEffect(() => {
     const newSortedData = [...marketData];
 
-    if (selectedSort === `lowest price`) {
+    if (selectedSort === SORT.LOWEST_PRICE) {
       newSortedData.sort((a, b) => {
         const a_price = getLowestAuctionPrice(a.auctions);
         const b_price = getLowestAuctionPrice(b.auctions);
         return a_price - b_price;
       });
-    } else if (selectedSort === `ending soon`) {
+    } else if (selectedSort === SORT.ENDING_SOON) {
       newSortedData.sort((a, b) => {
         const a_time = getLowestAuctionEndTime(a.auctions);
         const b_time = getLowestAuctionEndTime(b.auctions);
         return a_time - b_time;
       });
-    } else if (selectedSort === `highest volume`) {
+    } else if (selectedSort === SORT.HIGHEST_VOLUME) {
       newSortedData.sort((a, b) => {
         const a_vol = a.volume;
         const b_vol = b.volume;
@@ -192,10 +193,6 @@ const Market = () => {
     setFilteredMarketData(newFilteredMarketData);
   }, [sortedMarketData, selectedFilters, onlyShowActive]);
 
-  // const handleSort = (chosen: Chip) => {
-  //   setSelectedSort(chosen.name);
-  // };
-
   const showMarketContent = () => {
     if (loadingData) {
       return skeletonData.map((d, index) => (
@@ -231,36 +228,34 @@ const Market = () => {
       alignItems="stretch"
       style={{ maxWidth: `1400px`, margin: `auto` }}
     >
-      {/* <Grid item container justifyContent="space-between" alignItems="center">
-        <Grid item xs>
-          <Typography variant="subtitle2">
-            {filteredMarketData.length || `-`} Space
-            {filteredMarketData.length > 1 ? `s` : ``} Available
-          </Typography>
+      <StyledHeader
+        item
+        container
+        flexDirection="row"
+        alignItems="center"
+        justifyContent="space-between"
+      >
+        <Grid item xs={4}>
+          <FormatFilters
+            selectedFilters={selectedFilters}
+            onSetFilters={setSelectedFilters}
+          />
         </Grid>
-
-        <Grid item xs container justifyContent="flex-end">
-          <Grid container justifyContent="flex-end" alignItems="center">
-            <Typography variant="subtitle2">Sort by</Typography>
-            <SimpleListMenu
-              options={sort_options}
-              outputSelected={handleSort}
-            />
-          </Grid>
+        <Grid
+          item
+          xs={8}
+          display="flex"
+          flexDirection="row"
+          alignItems="center"
+          justifyContent="flex-end"
+        >
+          <ActiveSwitch
+            label="Only active"
+            enabled={onlyShowActive}
+            onToggle={setOnlyShowActive}
+          />
+          <Sort selectedSort={selectedSort} onChangeSort={setSelectedSort} />
         </Grid>
-      </Grid>
-      */}
-
-      <StyledHeader item container>
-        <FormatFilters
-          selectedFilters={selectedFilters}
-          onSetFilters={setSelectedFilters}
-        />
-        <ActiveSwitch
-          label="Only active"
-          enabled={onlyShowActive}
-          onToggle={setOnlyShowActive}
-        />
       </StyledHeader>
       <StyledSpaceCardContainer item container>
         {showMarketContent()}
