@@ -9,6 +9,7 @@ interface Props {
 
 const StyledTabLabel = styled(`div`)(({ theme }) => ({
   color: theme.palette.text.primary,
+  cursor: `pointer`,
   fontSize: 18,
   marginRight: theme.spacing(2),
 }));

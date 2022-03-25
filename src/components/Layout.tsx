@@ -1,5 +1,6 @@
 import { styled } from '@mui/system';
 import React from 'react';
+import Footer from './Footer';
 import Header from './Header';
 
 interface Props {
@@ -7,7 +8,7 @@ interface Props {
 }
 
 const StyledContainer = styled(`div`)(({ theme }) => ({
-  backgroundColor: theme.palette.background.default,
+  backgroundColor: theme.palette.background.paper,
 }));
 
 const Layout: React.FC<Props> = ({ children }) => {
@@ -15,6 +16,7 @@ const Layout: React.FC<Props> = ({ children }) => {
     <StyledContainer>
       <Header />
       {children}
+      <Footer />
     </StyledContainer>
   );
 };
