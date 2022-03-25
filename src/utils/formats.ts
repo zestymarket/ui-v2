@@ -33,7 +33,8 @@ const oldFormatsObject: { [key: string]: SpaceFormats } = {
 
 const allowedFormatsString = [`Tall`, `Wide`, `Square`, `Twitch`];
 
-export const FormatCategories: { [key: string]: SpaceFormats[] } = {
+export type Format = 'Web/WebXR Formats' | 'Twitch Formats';
+export const FormatCategories: { [key in Format]: SpaceFormats[] } = {
   'Web/WebXR Formats': [
     SpaceFormats.Tall,
     SpaceFormats.Wide,
@@ -48,8 +49,8 @@ export const FormatCategories: { [key: string]: SpaceFormats[] } = {
  * @return        [Category of the supplied format, or empty if the format is invalid]
  */
 
-export function getCategoryFromFormat(format: string): string {
-  const categories = Object.keys(FormatCategories);
+export function getCategoryFromFormat(format: SpaceFormats): string {
+  const categories: Format[] = Object.keys(FormatCategories) as Format[];
   for (let i = 0; i < categories.length; i++) {
     for (let j = 0; j < FormatCategories[categories[i]].length; j++) {
       const currentFormat = FormatCategories[categories[i]][j];
