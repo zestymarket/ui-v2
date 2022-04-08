@@ -1,12 +1,18 @@
 import React, { useState } from 'react';
-import Grid from '@mui/material/Grid';
+import { styled, Grid } from '@mui/material';
 import Logo from './Logo';
 import HeaderTab from './HeaderTab';
 import Button from './Button';
 import ConnectWalletPopup from './ConnectWalletPopup';
+import { shortenHex } from '@/utils/helpers';
+
+const StyledButton = styled(Button)({
+  background: `linear-gradient(112.17deg, rgba(248, 151, 36, 0.16) 0%, rgba(226, 63, 38, 0.16) 100%)`,
+});
 
 const Header = () => {
-  const [connectWalletPopup, showConnectWalletPopup] = useState(false);
+  const [connectWalletPopup, showConnectWalletPopup] = useState<boolean>(false);
+  const [address, setAddress] = useState<string>(``);
 
   const onClickConnectWallet = () => showConnectWalletPopup(true);
   const onCloseConnectWallet = () => showConnectWalletPopup(false);
@@ -48,13 +54,22 @@ const Header = () => {
             <Button outlined onClick={() => null}>
               Network
             </Button>
-            <Button onClick={onClickConnectWallet}>Connect Wallet</Button>
+            {!address.length && (
+              <Button onClick={onClickConnectWallet}>Connect Wallet</Button>
+            )}
+            {!!address.length && (
+              <StyledButton outlined onClick={() => null}>
+                {address.endsWith(`.eth`) ? address : shortenHex(address, 4)}
+              </StyledButton>
+            )}
           </Grid>
         </Grid>
       </Grid>
-      {connectWalletPopup && (
-        <ConnectWalletPopup onClose={onCloseConnectWallet} />
-      )}
+      <ConnectWalletPopup
+        open={connectWalletPopup}
+        onClose={onCloseConnectWallet}
+        setAddress={setAddress}
+      />
     </>
   );
 };

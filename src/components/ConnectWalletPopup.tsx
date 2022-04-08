@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
+  Backdrop,
   Dialog,
   DialogContent,
   DialogContentText,
@@ -13,8 +14,25 @@ import CloseIcon from '@mui/icons-material/Close';
 import RightArrowIcon from '@mui/icons-material/ArrowForwardIos';
 import Image from 'next/image';
 
+import { Web3Provider } from '@ethersproject/providers';
+import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core';
+import { UserRejectedRequestError } from '@web3-react/injected-connector';
+import { UserRejectedRequestError as UserRejectedRequestErrorWalletConnect } from '@web3-react/walletconnect-connector';
+import { addRPC, getENSOrWallet } from '../utils/hooks';
+
+import {
+  injected,
+  walletconnect,
+  walletlink,
+  torus,
+} from '../utils/connectors';
+
+import MetaMaskOnboarding from '@metamask/onboarding';
+
 interface PopupProps {
+  open: boolean;
   onClose: () => void;
+  setAddress: (address: string) => void;
 }
 
 interface WalletProps {
@@ -31,6 +49,19 @@ const StyledDialog = styled(Dialog)({
     width: 440,
     backgroundColor: `#fff`,
   },
+});
+
+const StyledBackdrop = styled(Backdrop, {
+  name: `MuiModal`,
+  slot: `Backdrop`,
+  overridesResolver: (props, styles) => {
+    return styles.backdrop;
+  },
+})({
+  zIndex: -1,
+  background: `rgba(19, 16, 30, 0.8)`,
+  backdropFilter: `blur(18px)`,
+  webkitBackdropFilter: `blur(18px)`,
 });
 
 const StyledTitle = styled(DialogTitle)({
@@ -75,6 +106,14 @@ const StyledFooterLink = styled(Typography)(({ theme }) => ({
 const StyledWallet = styled(Grid)({
   borderBottom: `1px solid rgba(131, 124, 153, 0.2)`,
   padding: `12px 0`,
+  userSelect: `none`,
+  cursor: `pointer`,
+  '.imageContainer': {
+    transition: `padding-left 0.3s ease`,
+  },
+  ':hover .imageContainer': {
+    paddingLeft: 10,
+  },
 });
 
 const StyledWalletTitle = styled(Typography)({
@@ -102,7 +141,7 @@ const WalletOption: React.FC<WalletProps> = ({
 }) => {
   return (
     <StyledWallet container onClick={onSelect}>
-      <Grid item>
+      <Grid className={`imageContainer`} item>
         <Image src={image} alt={title} width={48} height={48} />
       </Grid>
       <Grid item flex={1} marginLeft={2}>
@@ -116,9 +155,55 @@ const WalletOption: React.FC<WalletProps> = ({
   );
 };
 
-const ConnectWalletPopup: React.FC<PopupProps> = ({ onClose }) => {
+const ConnectWalletPopup: React.FC<PopupProps> = ({
+  open,
+  onClose,
+  setAddress,
+}) => {
+  const { active, error, activate, library, account, setError } =
+    useWeb3React<Web3Provider>();
+  const [, setProvider] = useState<Web3Provider>();
+  const [, setConnecting] = useState<boolean>(false);
+
+  // initialize metamask onboarding
+  const onboarding = useRef<MetaMaskOnboarding>();
+  useEffect(() => {
+    onboarding.current = new MetaMaskOnboarding();
+  }, []);
+
+  // Stop onboarding if there's an error
+  useEffect(() => {
+    if (active || error) {
+      setConnecting(false);
+      onboarding.current?.stopOnboarding();
+      onClose();
+    }
+
+    if (active && !error && library) {
+      setProvider(new Web3Provider(library.provider));
+    } else if (!active) {
+      setAddress(``);
+    }
+  }, [active, error, library, onClose, setAddress]);
+
+  useEffect(() => {
+    if (account) {
+      setAddress(account);
+      getENSOrWallet(account).then((addr) => {
+        setAddress(addr);
+      });
+    }
+  }, [account, setAddress]);
+
   return (
-    <StyledDialog open onClose={onClose}>
+    <StyledDialog
+      BackdropComponent={StyledBackdrop}
+      BackdropProps={{
+        timeout: 500,
+      }}
+      open={open}
+      onClose={onClose}
+    >
       <StyledTitle>
         Connect Wallet
         <StyledIconButton aria-label="close" onClick={onClose}>
@@ -130,14 +215,84 @@ const ConnectWalletPopup: React.FC<PopupProps> = ({ onClose }) => {
         <WalletOption
           title="Metamask"
           subtitle="Connect using browser wallet"
-          image="/metamask-logo.png"
-          onSelect={() => null}
+          image="/logo/metamask-logo.png"
+          onSelect={() => {
+            if (error instanceof UnsupportedChainIdError) {
+              // Currently only Polygon and Rinkeby are supported, please switch networks and refresh before connecting// ,
+              return;
+            }
+
+            setConnecting(true);
+            activate(injected, undefined, true).catch((error) => {
+              // ignore the error if it's a user rejected request
+              if (error instanceof UserRejectedRequestError) {
+                setConnecting(false);
+              } else {
+                setError(error);
+              }
+            });
+            onClose();
+
+            // If not installed
+            // onboarding.current?.startOnboarding();
+          }}
         />
         <WalletOption
           title="Coinbase Wallet"
           subtitle="Connect using Coinbase wallet"
-          image="/coinbase-logo.png"
-          onSelect={() => null}
+          image="/logo/coinbase-logo.png"
+          onSelect={(): void => {
+            setConnecting(true);
+            activate(walletlink)
+              .then(() => {
+                addRPC(library, `polygon`);
+                setConnecting(false);
+              })
+              .catch((error) => {
+                setConnecting(false);
+                setError(error);
+              });
+            onClose();
+          }}
+        />
+        <WalletOption
+          title="Wallet Connect"
+          subtitle="Connect using Wallet Connect"
+          image="/logo/walletconnect-logo.png"
+          onSelect={(): void => {
+            console.log(`err`, error);
+            if (error instanceof UnsupportedChainIdError) {
+              // Currently only Polygon mainnet and Rinkeby testnet are supported, please switch networks and refresh before connecting
+              return;
+            }
+            // Subsequent calls to activate will be rejected, if user previously closed the prompt.
+            // This has been fixed in the latest package. Another bug causes crashing issues, so we stay at 6.2.8 for now
+            activate(walletconnect).catch((error) => {
+              if (error instanceof UserRejectedRequestErrorWalletConnect) {
+                setConnecting(false);
+              } else {
+                setError(error);
+              }
+            });
+          }}
+        />
+        <WalletOption
+          title="Torus (Web2 Auth)"
+          subtitle="Connect using Torus"
+          image="/logo/torus-logo.png"
+          onSelect={(): void => {
+            setConnecting(true);
+            activate(torus)
+              .then(() => {
+                setConnecting(false);
+                addRPC(library, `polygon`);
+              })
+              .catch((error) => {
+                setConnecting(false);
+                setError(error);
+              });
+            onClose();
+          }}
         />
         <StyledFooterTitle>New to Ethereum?</StyledFooterTitle>
         <StyledFooterLink>Learn more about wallets</StyledFooterLink>

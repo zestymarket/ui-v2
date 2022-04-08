@@ -3,6 +3,8 @@ import React from 'react';
 import Footer from './Footer';
 import Header from './Header';
 
+import { useEagerConnect, useInactiveListener } from '../utils/hooks';
+
 interface Props {
   children: React.ReactNode;
 }
@@ -12,6 +14,9 @@ const StyledContainer = styled(`div`)(({ theme }) => ({
 }));
 
 const Layout: React.FC<Props> = ({ children }) => {
+  const triedEager = useEagerConnect();
+  useInactiveListener(!triedEager);
+
   return (
     <StyledContainer>
       <Header />
