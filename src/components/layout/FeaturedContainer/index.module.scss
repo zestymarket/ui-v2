@@ -1,0 +1,16 @@
+.container {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  max-width: 1220px;
+
+  section.media {
+    flex-grow: 1;
+    margin-left: 50px;
+  }
+
+  section.content {
+    width: 30%;
+    min-width: 416px;
+  }
+}
