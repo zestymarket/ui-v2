@@ -27,8 +27,10 @@ export const theme = createTheme({
           background: `linear-gradient(112.17deg, #F89724 0%, #E23F26 100%)`,
         },
         outlinedPrimary: {
-          borderImageSlice: 5,
-          borderImageSource: `linear-gradient(to right, #F89524, #E34126)`,
+          borderColor: '#F89524',
+          '&:hover': {
+            backgroundColor: '#F8972480',
+          },
         },
       },
     },
