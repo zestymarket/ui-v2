@@ -7,6 +7,7 @@ import {
   Grid,
   Typography,
   styled,
+  CardActionArea,
 } from '@mui/material';
 import SpaceData from '@/utils/SpaceData';
 
@@ -29,7 +30,20 @@ const StyledCard = styled(Card)({
   position: `relative`,
   margin: `auto`,
   maxWidth: 290,
+  overflow: `hidden`,
 });
+
+const StyledActionArea = styled(CardActionArea)(({ theme }) => ({
+  borderRadius: `inherit`,
+  '& .MuiCardActionArea-focusHighlight': {
+    display: `none`,
+  },
+  '&:hover': {
+    borderStyle: `solid`,
+    borderWidth: 1,
+    borderColor: theme.palette.secondary.main,
+  },
+}));
 
 const StyledCardContent = styled(CardContent)({
   position: `absolute`,
@@ -37,6 +51,7 @@ const StyledCardContent = styled(CardContent)({
   left: 0,
   background: `linear-gradient(180deg, rgba(24, 21, 34, 0) 0%, #181522 80.73%)`,
   width: `100%`,
+  borderRadius: `inherit`,
 });
 
 const StyledFormat = styled(Typography)(({ theme }) => ({
@@ -90,46 +105,49 @@ const SpaceCard = (props: SpaceCardProps) => {
 
   return (
     <StyledCard>
-      <CardMedia
-        component="img"
-        image={spaceData?.image}
-        height={CARD_HEIGHT}
-      />
-      <StyledCardContent>
-        <Grid
-          container
-          direction="column"
-          justifyContent="space-between"
-          sx={{ height: `100%` }}
-        >
-          <Grid item>
-            <StyledFormat variant="caption">
-              {spaceData?.format === `Square` ||
-              spaceData?.format === `Tall` ||
-              spaceData?.format === `Wide`
-                ? `Web/WebXR`
-                : spaceData?.format}
-            </StyledFormat>
-          </Grid>
-          <Grid item>
-            <StyledName variant="h5">{spaceData?.name}</StyledName>
-          </Grid>
-          <StyledPrice item container>
+      <StyledActionArea>
+        <CardMedia
+          component="img"
+          image={spaceData?.image}
+          height={CARD_HEIGHT}
+          sx={{ borderRadius: `inherit` }}
+        />
+        <StyledCardContent>
+          <Grid
+            container
+            direction="column"
+            justifyContent="space-between"
+            sx={{ height: `100%` }}
+          >
             <Grid item>
-              <StyledPriceLabel variant="caption">
-                {lowestPrice == Number.MAX_VALUE
-                  ? `No Open Auctions`
-                  : `Starting at`}
-              </StyledPriceLabel>
+              <StyledFormat variant="caption">
+                {spaceData?.format === `Square` ||
+                spaceData?.format === `Tall` ||
+                spaceData?.format === `Wide`
+                  ? `Web/WebXR`
+                  : spaceData?.format}
+              </StyledFormat>
             </Grid>
             <Grid item>
-              <StyledPriceValue variant="caption">
-                {lowestPrice == Number.MAX_VALUE ? `` : price}
-              </StyledPriceValue>
+              <StyledName variant="h5">{spaceData?.name}</StyledName>
             </Grid>
-          </StyledPrice>
-        </Grid>
-      </StyledCardContent>
+            <StyledPrice item container>
+              <Grid item>
+                <StyledPriceLabel variant="caption">
+                  {lowestPrice == Number.MAX_VALUE
+                    ? `No Open Auctions`
+                    : `Starting at`}
+                </StyledPriceLabel>
+              </Grid>
+              <Grid item>
+                <StyledPriceValue variant="caption">
+                  {lowestPrice == Number.MAX_VALUE ? `` : price}
+                </StyledPriceValue>
+              </Grid>
+            </StyledPrice>
+          </Grid>
+        </StyledCardContent>
+      </StyledActionArea>
     </StyledCard>
   );
 };

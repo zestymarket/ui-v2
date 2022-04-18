@@ -16,6 +16,7 @@ const StyledButton = styled(MuiButton)(({ theme }) => ({
   fontSize: 14,
   fontWeight: 400,
   borderRadius: theme.spacing(1),
+  height: 40,
 }));
 
 const Button: React.FC<Props> = ({
