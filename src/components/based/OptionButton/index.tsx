@@ -1,31 +1,17 @@
-import Button, { ButtonProps } from '@mui/material/Button';
 import React, { FC } from 'react';
-import cls from 'classnames';
 
-import styles from './index.module.scss';
-
-interface IOptionButton extends ButtonProps {
-  selected: boolean;
-  disabled?: boolean;
-}
+import { CustomButton, IOptionButton } from './styles';
 
 const OptionButton: FC<IOptionButton> = ({
-  selected,
+  selected = false,
+  disabled = false,
   children,
-  disabled,
-  ...props
+  onClick,
 }) => {
   return (
-    <Button
-      className={cls(
-        styles.button,
-        { [styles.selected]: selected },
-        { [styles.disabled]: disabled },
-      )}
-      {...props}
-    >
+    <CustomButton selected={selected} disabled={disabled} onClick={onClick}>
       {children}
-    </Button>
+    </CustomButton>
   );
 };
 

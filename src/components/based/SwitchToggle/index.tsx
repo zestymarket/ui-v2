@@ -1,18 +1,18 @@
 import React, { FC } from 'react';
-import Switch, { SwitchProps } from '@mui/material/Switch';
+import { SwitchProps } from '@mui/material/Switch';
 
-import styles from './index.module.scss';
+import { CustomSwitch, Wrapper } from './styles';
 
 interface ISwitchToggle extends SwitchProps {
   label?: string;
 }
 
-const SwitchToggle: FC<ISwitchToggle> = ({ label = ``, ...props }) => {
+const SwitchToggle: FC<ISwitchToggle> = ({ label = `` }) => {
   return (
-    <div className={styles.wrapper}>
+    <Wrapper>
       {!!label && <label>{label}</label>}
-      <Switch className={styles.switch} disableRipple {...props} />
-    </div>
+      <CustomSwitch />
+    </Wrapper>
   );
 };
 

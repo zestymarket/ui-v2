@@ -1,6 +1,6 @@
 import React, { FC, ReactNode } from 'react';
 
-import styles from './index.module.scss';
+import { Container, ContentSection, MediaSection } from './styles';
 
 interface IFeaturedContainer {
   content: ReactNode;
@@ -9,10 +9,10 @@ interface IFeaturedContainer {
 
 const FeaturedContainer: FC<IFeaturedContainer> = ({ content, media }) => {
   return (
-    <div className={styles.container}>
-      <section className={styles.content}>{content}</section>
-      <section className={styles.media}>{media}</section>
-    </div>
+    <Container>
+      <ContentSection>{content}</ContentSection>
+      <MediaSection>{media}</MediaSection>
+    </Container>
   );
 };
 

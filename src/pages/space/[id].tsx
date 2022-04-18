@@ -1,7 +1,4 @@
 import React, { SyntheticEvent } from 'react';
-import Tabs from '@mui/material/Tabs';
-import Tab from '@mui/material/Tab';
-import Button from '@mui/material/Button';
 import SpaceFeaturedContent from '@/components/composed/space/SpaceFeaturedContent';
 import SpaceFeaturedMedia from '@/components/composed/space/SpaceFeaturedMedia';
 import FeaturedContainer from '@/components/layout/FeaturedContainer';
@@ -9,7 +6,17 @@ import OptionButtonGroup from '@/components/based/OptionButtonGroup';
 import SwitchToggle from '@/components/based/SwitchToggle';
 import AuctionDataTable from '@/components/based/AuctionDataTable';
 
-import styles from './index.module.scss';
+import {
+  BuyButton,
+  ConfigPanel,
+  Container,
+  ContentSection,
+  HeadingSection,
+  PageTab,
+  PageTabs,
+  SectionInner,
+  TabsWrapper,
+} from './styles';
 
 export default function SpaceDetailPage() {
   const [value, setValue] = React.useState(0);
@@ -19,33 +26,32 @@ export default function SpaceDetailPage() {
   };
 
   return (
-    <div className={styles.container}>
-      <section className={styles.heading}>
+    <Container>
+      <HeadingSection>
         <FeaturedContainer
           content={<SpaceFeaturedContent />}
           media={<SpaceFeaturedMedia />}
         />
-        <div className={styles.tabsWrapper}>
-          <Tabs
+        <TabsWrapper>
+          <PageTabs
             value={value}
             onChange={handleChange}
             indicatorColor="secondary"
             textColor="inherit"
             variant="fullWidth"
             aria-label="detail-tabs"
-            className={styles.tabs}
           >
-            <Tab label="Auctions" className={styles.tab} />
-            <Tab label="History" className={styles.tab} />
-            <Tab label="Analytics" className={styles.tab} />
-            <Tab label="About" className={styles.tab} />
-          </Tabs>
-          <Button className={styles.buy}>How do I buy?</Button>
-        </div>
-      </section>
-      <section className={styles.content}>
-        <div className={styles.inner}>
-          <div className={styles.config}>
+            <PageTab label="Auctions" />
+            <PageTab label="History" />
+            <PageTab label="Analytics" />
+            <PageTab label="About" />
+          </PageTabs>
+          <BuyButton>How do I buy?</BuyButton>
+        </TabsWrapper>
+      </HeadingSection>
+      <ContentSection>
+        <SectionInner>
+          <ConfigPanel>
             <OptionButtonGroup
               options={[
                 { value: 1, label: `THE FRONTPAGE 34` },
@@ -57,10 +63,10 @@ export default function SpaceDetailPage() {
               multiple
             />
             <SwitchToggle label="Only available" />
-          </div>
+          </ConfigPanel>
           <AuctionDataTable />
-        </div>
-      </section>
-    </div>
+        </SectionInner>
+      </ContentSection>
+    </Container>
   );
 }

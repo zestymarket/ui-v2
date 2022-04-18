@@ -1,19 +1,24 @@
 import React, { FC, useState } from 'react';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import TableSortLabel from '@mui/material/TableSortLabel';
 import Box from '@mui/material/Box';
 import visuallyHidden from '@mui/utils/visuallyHidden';
-import Pagination from '@mui/material/Pagination';
-import Button from '@mui/material/Button';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 
-import styles from './index.module.scss';
+import {
+  TableHeadCell,
+  TableCustomHead,
+  Wrapper,
+  TableBodyCell,
+  ActionSection,
+  CustomPagination,
+  Navigation,
+  NavigationButton,
+} from './styles';
 
 interface Data {
   id: number;
@@ -197,11 +202,10 @@ const DataTableHead: FC<IDataTableHead> = ({
     };
 
   return (
-    <TableHead className={styles.head}>
+    <TableCustomHead>
       <TableRow>
         {headCells.map((headCell) => (
-          <TableCell
-            className={styles.headCell}
+          <TableHeadCell
             key={headCell.id}
             align={headCell.numeric ? `right` : `left`}
             padding={headCell.disablePadding ? `none` : `normal`}
@@ -211,7 +215,6 @@ const DataTableHead: FC<IDataTableHead> = ({
               active={orderBy === headCell.id}
               direction={orderBy === headCell.id ? order : `asc`}
               onClick={createSortHandler(headCell.id)}
-              className={styles.headSortLabel}
             >
               {headCell.label}
               {orderBy === headCell.id ? (
@@ -220,10 +223,10 @@ const DataTableHead: FC<IDataTableHead> = ({
                 </Box>
               ) : null}
             </TableSortLabel>
-          </TableCell>
+          </TableHeadCell>
         ))}
       </TableRow>
-    </TableHead>
+    </TableCustomHead>
   );
 };
 
@@ -241,8 +244,8 @@ const DataTable = () => {
   };
 
   return (
-    <div className={styles.wrapper}>
-      <TableContainer className={styles.table}>
+    <Wrapper>
+      <TableContainer>
         <Table size="small">
           <DataTableHead
             order={order}
@@ -250,42 +253,29 @@ const DataTable = () => {
             onRequestSort={handleRequestSort}
           />
 
-          <TableBody className={styles.body}>
+          <TableBody>
             {stableSort(rows, getComparator(order, orderBy)).map(
               (row, index) => {
                 const labelId = `enhanced-table-checkbox-${index}`;
 
                 return (
                   <TableRow hover tabIndex={-1} key={row.id}>
-                    <TableCell
-                      className={styles.bodyCell}
+                    <TableBodyCell
                       component="th"
                       id={labelId}
                       scope="row"
                       padding="none"
                     >
                       {row.id}
-                    </TableCell>
-                    <TableCell className={styles.bodyCell} align="left">
+                    </TableBodyCell>
+                    <TableBodyCell align="left">
                       {row.contractStartTime}
-                    </TableCell>
-                    <TableCell
-                      className={styles.bodyCell}
-                      align="left"
-                    >{`${row.duration} day`}</TableCell>
-                    <TableCell className={styles.bodyCell} align="left">
-                      {row.format}
-                    </TableCell>
-                    <TableCell className={styles.bodyCell} align="left">
-                      {row.campaign}
-                    </TableCell>
-                    <TableCell
-                      className={styles.bodyCell}
-                      align="left"
-                    >{`${row.price} USDC`}</TableCell>
-                    <TableCell className={styles.bodyCell} align="left">
-                      {row.status}
-                    </TableCell>
+                    </TableBodyCell>
+                    <TableBodyCell align="left">{`${row.duration} day`}</TableBodyCell>
+                    <TableBodyCell align="left">{row.format}</TableBodyCell>
+                    <TableBodyCell align="left">{row.campaign}</TableBodyCell>
+                    <TableBodyCell align="left">{`${row.price} USDC`}</TableBodyCell>
+                    <TableBodyCell align="left">{row.status}</TableBodyCell>
                   </TableRow>
                 );
               },
@@ -293,24 +283,19 @@ const DataTable = () => {
           </TableBody>
         </Table>
       </TableContainer>
-      <div className={styles.action}>
-        <Pagination
-          className={styles.pagination}
-          count={10}
-          hidePrevButton
-          hideNextButton
-        />
-        <div className={styles.navigation}>
-          <Button className={styles.button}>
+      <ActionSection>
+        <CustomPagination count={10} hidePrevButton hideNextButton />
+        <Navigation>
+          <NavigationButton>
             <NavigateBeforeIcon /> Prev
-          </Button>
-          <Button className={styles.button}>
+          </NavigationButton>
+          <NavigationButton>
             Next
             <NavigateNextIcon />
-          </Button>
-        </div>
-      </div>
-    </div>
+          </NavigationButton>
+        </Navigation>
+      </ActionSection>
+    </Wrapper>
   );
 };
 

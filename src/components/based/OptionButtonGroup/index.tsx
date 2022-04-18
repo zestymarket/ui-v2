@@ -1,7 +1,6 @@
 import React, { FC, useState } from 'react';
 import OptionButton from '../OptionButton';
-
-import styles from './index.module.scss';
+import { ButtonGroup } from './styles';
 
 interface OptionType {
   label: string;
@@ -48,7 +47,7 @@ const OptionButtonGroup: FC<IOptionButtonGroup> = ({
   };
 
   return (
-    <div className={styles.group}>
+    <ButtonGroup>
       {allOption && (
         <OptionButton selected={selectedAll} onClick={handleClickAll}>
           {allLabel}
@@ -64,7 +63,7 @@ const OptionButtonGroup: FC<IOptionButtonGroup> = ({
           {option.label}
         </OptionButton>
       ))}
-    </div>
+    </ButtonGroup>
   );
 };
 
