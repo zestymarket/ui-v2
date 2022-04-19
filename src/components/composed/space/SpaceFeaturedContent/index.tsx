@@ -1,30 +1,39 @@
-import Image from 'next/image';
 import React from 'react';
 
-import styles from './index.module.scss';
+import {
+  Avatar,
+  Content,
+  CreatedInfo,
+  Description,
+  InfoSection,
+  MainSection,
+  TimestampInfo,
+  Title,
+  Wrapper,
+} from './styles';
 
 const SpaceFeaturedContent = () => {
   return (
-    <div className={styles.wrapper}>
-      <section className={styles.main}>
-        <div className={styles.title}>Back 2 Space</div>
+    <Wrapper>
+      <MainSection>
+        <Title>Back 2 Space</Title>
         <a href="constructarcade.com">constructarcade.com</a>
-        <div className={styles.description}>
+        <Description>
           Iron || Rails is A WebXR western arcade shooter, where the players try
           to reach the highest position on the leaderboards by shooting the
           attacking enemies.
-        </div>
-      </section>
-      <section className={styles.info}>
-        <div className={styles.avatar}></div>
-        <div className={styles.content}>
-          <div className={styles.created}>
+        </Description>
+      </MainSection>
+      <InfoSection>
+        <Avatar />
+        <Content>
+          <CreatedInfo>
             Created by <b>0x247...88a</b>
-          </div>
-          <div className={styles.timestamp}>15 September, 2021 18:49 UTC</div>
-        </div>
-      </section>
-    </div>
+          </CreatedInfo>
+          <TimestampInfo>15 September, 2021 18:49 UTC</TimestampInfo>
+        </Content>
+      </InfoSection>
+    </Wrapper>
   );
 };
 

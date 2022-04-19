@@ -1,10 +1,9 @@
-import Image from 'next/image';
 import React from 'react';
 
-import styles from './index.module.scss';
+import { Wrapper } from './styles';
 
 const SpaceFeaturedMedia = () => {
-  return <div className={styles.wrapper}></div>;
+  return <Wrapper />;
 };
 
 export default SpaceFeaturedMedia;
