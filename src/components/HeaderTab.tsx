@@ -5,12 +5,18 @@ import Grid from '@mui/material/Grid';
 interface Props {
   label: string;
   selected?: boolean;
+  highlighted?: boolean;
 }
+
+const StyledTab = styled(Grid)(({ theme }) => ({
+  borderRadius: 30,
+  padding: `${theme.spacing()} ${theme.spacing(2)}`,
+}));
 
 const StyledTabLabel = styled(`div`)(({ theme }) => ({
   color: theme.palette.text.primary,
+  cursor: `pointer`,
   fontSize: 18,
-  marginRight: theme.spacing(2),
 }));
 
 const StyledDot = styled(`div`)(({ theme }) => ({
@@ -21,11 +27,16 @@ const StyledDot = styled(`div`)(({ theme }) => ({
   right: 0,
 }));
 
-const HeaderTab: React.FC<Props> = ({ label, selected }) => (
-  <Grid item display="flex" position="relative">
+const HeaderTab: React.FC<Props> = ({ label, selected, highlighted }) => (
+  <StyledTab
+    item
+    display="flex"
+    position="relative"
+    sx={{ backgroundColor: selected ? `#000000` : `transparent` }}
+  >
     <StyledTabLabel>{label}</StyledTabLabel>
-    {selected && <StyledDot>•</StyledDot>}
-  </Grid>
+    {highlighted && <StyledDot>•</StyledDot>}
+  </StyledTab>
 );
 
 export default HeaderTab;

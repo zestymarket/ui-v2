@@ -7,7 +7,9 @@ const StyledLogoText = styled(`div`)(({ theme }) => ({
   color: theme.palette.text.primary,
   fontSize: 45,
   fontWeight: 600,
-  marginLeft: 8,
+  marginLeft: theme.spacing(),
+  marginBottom: theme.spacing(),
+  marginRight: theme.spacing(2),
   alignItems: `center`,
 }));
 
