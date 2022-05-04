@@ -8,6 +8,7 @@ import { useEagerConnect, useInactiveListener } from '../utils/hooks';
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { useRouter } from 'next/router';
+import { PageContext } from '../lib/context/page';
 
 const noAuthRoutes = new Set([
   `/`,
@@ -49,9 +50,11 @@ const Layout: React.FC<Props> = ({ children }) => {
     }, 2000);
   }, []);
 
+  const { name } = React.useContext(PageContext);
+
   return (
     <StyledContainer>
-      <Header />
+      <Header pageTitle={name || ``} />
       {typeof account === `string` && children}
       {typeof account !== `string` && noAuthRequired && children}
       {web3Loaded && typeof account !== `string` && !noAuthRequired && (
