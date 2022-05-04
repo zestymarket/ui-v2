@@ -6,8 +6,12 @@ import { ThemeProvider, CssBaseline } from '@mui/material';
 import { Web3Provider } from '@ethersproject/providers';
 import { Web3ReactProvider } from '@web3-react/core';
 import client from '../lib/graphql';
+import { Provider as ReduxProvider } from 'react-redux';
 import { ApolloProvider } from '@apollo/client';
 import ConnectWalletProvider from '@/components/ConnectWalletProvider';
+import { PageProvider } from '../lib/context/page';
+import { store, persistor } from '../lib/redux/rootReducer';
+import { PersistGate } from 'redux-persist/integration/react';
 
 function getLibrary(provider: any): Web3Provider {
   const library = new Web3Provider(provider);
@@ -21,10 +25,16 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
       <ApolloProvider client={client}>
         <ConnectWalletProvider>
           <ThemeProvider theme={theme}>
-            <CssBaseline />
-            <Layout>
-              <Component {...pageProps} />
-            </Layout>
+            <ReduxProvider store={store}>
+              <PersistGate loading={null} persistor={persistor}>
+                <PageProvider>
+                  <CssBaseline />
+                  <Layout>
+                    <Component {...pageProps} />
+                  </Layout>
+                </PageProvider>
+              </PersistGate>
+            </ReduxProvider>
           </ThemeProvider>
         </ConnectWalletProvider>
       </ApolloProvider>
