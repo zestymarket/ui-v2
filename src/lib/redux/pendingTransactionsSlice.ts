@@ -7,14 +7,14 @@ export const pendingTransactionsSlice = createSlice({
   },
   reducers: {
     addTransaction: (state, action) => {
-      const newTransactions = Object.assign({}, state.transactions);
+      const newTransactions: any = Object.assign({}, state.transactions);
       newTransactions[action.payload.id] = action.payload;
       return Object.assign({}, state, {
         transactions: newTransactions,
       });
     },
     removeTransaction: (state, action) => {
-      const newTransactions = Object.assign({}, state.transactions);
+      const newTransactions: any = Object.assign({}, state.transactions);
       delete newTransactions[action.payload];
       return Object.assign({}, state, {
         transactions: newTransactions,

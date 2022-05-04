@@ -1,19 +1,15 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useEffect } from 'react';
 import { Button, Grid } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
-import { styled } from '@mui/system';
-import { useWeb3React } from '@web3-react/core';
-import { getClient } from '@/lib/graphql';
 import { PageContext } from '../lib/context/page';
 import { addAuction } from '../lib/redux/auctionBasketSlice';
-
-const StyledHeader = styled(Grid)({
-  padding: `10px 50px`,
-});
+import { RootState } from '../lib/redux/rootReducer';
 
 const ReviewOrderPage = () => {
   const { setPageName } = React.useContext(PageContext);
-  const auctions = useSelector((state) => state.auctionBasketReducer.auctions);
+  const auctions = useSelector(
+    (state: RootState) => state.auctionBasketReducer.auctions,
+  );
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -23,7 +19,7 @@ const ReviewOrderPage = () => {
     //     });
     //   }
     setPageName(`Review Order`);
-  }, []);
+  }, [setPageName]);
 
   const mockAuction = { id: 1, data: `two` };
 
