@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useRouter } from 'next/router';
 import { styled, Grid } from '@mui/material';
 import Logo from './Logo';
 import HeaderTab from './HeaderTab';
@@ -11,6 +12,9 @@ const StyledButton = styled(Button)({
 });
 
 const Header = () => {
+  const { asPath } = useRouter();
+  const isLandingPage = asPath === `/landing`;
+
   const [connectWalletPopup, showConnectWalletPopup] = useState<boolean>(false);
   const [address, setAddress] = useState<string>(``);
 
@@ -25,7 +29,11 @@ const Header = () => {
         justifyContent="space-around"
         alignItems="center"
         spacing={2}
-        sx={{ py: 3, backgroundColor: `#181522` }}
+        sx={{
+          py: 3,
+          backgroundColor: isLandingPage ? `unset` : `#181522`,
+          position: isLandingPage ? `absolute` : `unset`,
+        }}
       >
         <Grid container sx={{ maxWidth: 1400, margin: `auto` }}>
           <Grid
