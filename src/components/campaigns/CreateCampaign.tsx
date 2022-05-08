@@ -1,15 +1,30 @@
-import { Box, Stack, StackProps, TextField, Typography } from '@mui/material';
-import { styled } from '@mui/system';
-import { DropzoneArea } from 'material-ui-dropzone';
 import React, { useState } from 'react';
+import {
+  Box,
+  Stack,
+  StackProps,
+  TextField,
+  Typography,
+  Select,
+  MenuItem,
+  ListSubheader,
+  FormHelperText,
+} from '@mui/material';
+import { styled } from '@mui/system';
+// https://github.com/lifeeric/material-ui-dropzone#installation
+import { DropzoneArea } from 'react-mui-dropzone';
+import validator from 'validator';
 import SubHeader from '../SubHeader';
 import Button from '../Button';
 import { readFile } from '@/utils/file';
-import { SpaceFormats } from '@/utils/formats';
+import {
+  Format,
+  FormatCategories,
+  SpaceFormatResolutions,
+  SpaceFormats,
+} from '@/utils/formats';
 import { getAspectFromFormat, getHeightFromFormat } from '@/utils/image';
 import { EPSILON } from '@/utils/helpers';
-import UploadIcon from '/icons/upload.svg';
-import NextImage from 'next/image';
 
 const StyledForm = styled(Box)({
   maxWidth: 1400,
@@ -23,11 +38,27 @@ const StyledLabel = styled(Typography)({
 
 const StyledTextField = styled(TextField)({
   width: 540,
+  minHeight: 56,
+  '& fieldset': {
+    borderColor: `#ffffff30`,
+    borderRadius: 8,
+  },
+});
+const StyledSelect = styled(Select)({
+  width: 540,
   height: 56,
   '& fieldset': {
     borderColor: `#ffffff30`,
     borderRadius: 8,
   },
+  '& svg': {
+    fill: `#ffffff30`,
+  },
+});
+const StyleHelperText = styled(FormHelperText)({
+  position: `absolute`,
+  bottom: -20,
+  right: 0,
 });
 const StyledDropzoneArea = styled(Stack)<StackProps>(({ theme }) => ({
   '& .dropzone': {
@@ -64,6 +95,7 @@ const StyledDropzoneArea = styled(Stack)<StackProps>(({ theme }) => ({
     textAlign: `left`,
     justifyContent: `center`,
     backgroundColor: theme.palette.background.paper,
+    margin: 0,
   },
   '& .MuiDropzonePreviewList-image': {
     display: `none`,
@@ -103,13 +135,35 @@ const formFieldProps: StackProps = {
   justifyContent: `space-between`,
   width: `100%`,
   maxWidth: 800,
-  sx: { mb: 3 },
+  position: `relative`,
+  marginBottom: `24px`,
+};
+
+const getFormatChoices = () => {
+  let index = 0;
+  return Object.keys(FormatCategories).map(
+    (group: string, choicesIdx: number) => {
+      const items = FormatCategories[group as Format].map((choice) => {
+        return (
+          <MenuItem key={index++} value={choice}>
+            {SpaceFormatResolutions[choice] || choice}
+          </MenuItem>
+        );
+      });
+      return [<ListSubheader key={choicesIdx}>{group}</ListSubheader>, items];
+    },
+  );
 };
 
 const CreateCampaign = () => {
-  const [format, setFormat] = useState<string>();
+  const [name, setName] = useState<string>(``);
+  const [format, setFormat] = useState<string>(``);
   const [dropzoneKey, setDropzoneKey] = useState<string>(`0`);
   const [image, setImage] = useState<string | null>(null);
+  const [url, setURL] = useState<string>(``);
+  const [description, setDescription] = useState<string>(``);
+
+  const [disableButton, setDisableButton] = useState<boolean>(false);
 
   const onImageUploaded = async (img: File[]) => {
     if (!img.length) {
@@ -142,8 +196,18 @@ const CreateCampaign = () => {
     }
   };
 
+  const isSubmitDisabled =
+    !name || !format || !image || !url || (url && !validator.isURL(url));
+
+  console.log(`= disabled???`, isSubmitDisabled, !name, !format, !image, !url);
+
   const onImageDelete = () => {
     console.log(`=del `);
+    setImage(null);
+  };
+
+  const onSubmit = () => {
+    console.log(`=submit`);
   };
 
   return (
@@ -161,12 +225,24 @@ const CreateCampaign = () => {
           <StyledTextField
             placeholder="Type a campaign name..."
             variant="outlined"
+            value={name}
+            onChange={(e) => {
+              setName(e.target.value);
+            }}
           />
         </Stack>
 
         <Stack {...formFieldProps}>
           <StyledLabel>Ad Formats</StyledLabel>
-          <StyledTextField variant="outlined" />
+          <StyledSelect
+            variant="outlined"
+            value={format}
+            onChange={(e) => {
+              setFormat(e.target.value as string);
+            }}
+          >
+            {getFormatChoices()}
+          </StyledSelect>
         </Stack>
 
         <StyledDropzoneArea {...formFieldProps}>
@@ -192,7 +268,14 @@ const CreateCampaign = () => {
           <StyledTextField
             placeholder="https://yourdomain.com/pageurl"
             variant="outlined"
+            value={url}
+            onChange={(e) => {
+              setURL(e.target.value);
+            }}
           />
+          {url && !validator.isURL(url) && (
+            <StyleHelperText>Invalid URL</StyleHelperText>
+          )}
         </Stack>
 
         <Stack {...formFieldProps}>
@@ -200,11 +283,18 @@ const CreateCampaign = () => {
           <StyledTextField
             placeholder="Type and enter description for your campaign"
             variant="outlined"
+            multiline
+            value={description}
+            onChange={(e) => {
+              setDescription(e.target.value);
+            }}
           />
         </Stack>
 
         <Stack justifyContent="center">
-          <Button onClick={() => null}>Create New Campaign</Button>
+          <Button disabled={isSubmitDisabled} onClick={onSubmit}>
+            Create New Campaign
+          </Button>
         </Stack>
       </StyledForm>
     </>
