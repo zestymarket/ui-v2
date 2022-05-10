@@ -1,7 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Web3Provider, getDefaultProvider } from '@ethersproject/providers';
+import { Contract } from '@ethersproject/contracts';
 import { injected } from './connectors';
 import { useWeb3React } from '@web3-react/core';
+import contractAddress from '../data/address.json';
+import zestyMarket_ERC20_V1_1_ABI from '../data/ZestyMarket_ERC20_V1_1.json';
 
 export async function getENSOrWallet(account: string) {
   const provider = getDefaultProvider(`mainnet`, {
@@ -154,4 +157,17 @@ export function addRPC(library: any, network = `polygon`) {
       alert(`You have to install MetaMask !`);
     }
   }
+}
+
+export function useZestyMarketUSDC(withSigner = false): Contract {
+  const { library, account, chainId } = useWeb3React();
+  return useMemo(
+    () =>
+      new Contract(
+        (contractAddress as any)[chainId ?? 1].zestyMarketUSDCAddress,
+        zestyMarket_ERC20_V1_1_ABI,
+        withSigner ? library?.getSigner(account).connectUnchecked() : library,
+      ),
+    [withSigner, library, account],
+  );
 }

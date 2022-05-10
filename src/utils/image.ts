@@ -1,5 +1,10 @@
 interface Format {
-  [key: string]: { aspect: number; height: number; pow2: boolean };
+  [key: string]: {
+    aspect: number;
+    height: number;
+    width: number;
+    pow2: boolean;
+  };
 }
 
 interface ZestyImage {
@@ -7,7 +12,7 @@ interface ZestyImage {
   height: number;
 }
 
-interface PixelCrop {
+export interface PixelCrop {
   width: number;
   height: number;
   x: number;
@@ -27,12 +32,12 @@ const setup = () => {
 };
 
 const formats: Format = {
-  Tall: { aspect: 0.75, height: 1024, pow2: true }, // 768/1024
-  Wide: { aspect: 4, height: 256, pow2: true }, // 1024/256
-  Twitch: { aspect: 2.75, height: 200, pow2: false }, // 550/200
-  Square: { aspect: 1.0, height: 500, pow2: false }, // 500/500
-  qr: { aspect: 1.0, height: 250, pow2: false }, // 256/256
-  qr500: { aspect: 1.0, height: 500, pow2: false }, // 500/500
+  Tall: { aspect: 0.75, height: 1024, width: 768, pow2: true }, // 768/1024
+  Wide: { aspect: 4, height: 256, width: 1024, pow2: true }, // 1024/256
+  Twitch: { aspect: 2.75, height: 200, width: 550, pow2: false }, // 550/200
+  Square: { aspect: 1.0, height: 500, width: 500, pow2: false }, // 500/500
+  qr: { aspect: 1.0, height: 250, width: 256, pow2: false }, // 256/256
+  qr500: { aspect: 1.0, height: 500, width: 500, pow2: false }, // 500/500
 };
 
 export function getAspectFromFormat(format: string) {
@@ -41,6 +46,10 @@ export function getAspectFromFormat(format: string) {
 
 export function getHeightFromFormat(format: string) {
   return formats[format].height;
+}
+
+export function getWidthFromFormat(format: string) {
+  return formats[format].width;
 }
 
 export function getIsFormatSquare(format: string) {

@@ -1,5 +1,4 @@
-import { Switch, Typography } from '@mui/material';
-import { styled } from '@mui/system';
+import { Switch, Typography, styled } from '@mui/material';
 import React from 'react';
 
 interface Props {

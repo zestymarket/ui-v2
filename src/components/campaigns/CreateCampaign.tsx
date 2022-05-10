@@ -9,8 +9,8 @@ import {
   MenuItem,
   ListSubheader,
   FormHelperText,
+  styled,
 } from '@mui/material';
-import { styled } from '@mui/system';
 // https://github.com/lifeeric/material-ui-dropzone#installation
 import { DropzoneArea } from 'react-mui-dropzone';
 import validator from 'validator';
@@ -23,8 +23,16 @@ import {
   SpaceFormatResolutions,
   SpaceFormats,
 } from '@/utils/formats';
-import { getAspectFromFormat, getHeightFromFormat } from '@/utils/image';
+import {
+  convertBase64ToFile,
+  getAspectFromFormat,
+  getHeightFromFormat,
+  getWidthFromFormat,
+} from '@/utils/image';
 import { EPSILON } from '@/utils/helpers';
+import { pinFileToIPFS, pinJSONToIPFS } from '@/lib/ipfs';
+import { useZestyMarketUSDC } from '@/utils/hooks';
+import ZestyImageDialog from '../ZestyImageDialog';
 
 const StyledForm = styled(Box)({
   maxWidth: 1400,
@@ -35,7 +43,12 @@ const StyledLabel = styled(Typography)({
   fontSize: 18,
   fontWeight: 600,
 });
-
+const StyledSubLabel = styled(Typography)({
+  fontSize: 16,
+  fontWeight: 400,
+  color: `#ffffff30`,
+  marginLeft: 8,
+});
 const StyledTextField = styled(TextField)({
   width: 540,
   minHeight: 56,
@@ -156,6 +169,8 @@ const getFormatChoices = () => {
 };
 
 const CreateCampaign = () => {
+  // const zestyMarketUSDC = useZestyMarketUSDC(true);
+
   const [name, setName] = useState<string>(``);
   const [format, setFormat] = useState<string>(``);
   const [dropzoneKey, setDropzoneKey] = useState<string>(`0`);
@@ -163,7 +178,14 @@ const CreateCampaign = () => {
   const [url, setURL] = useState<string>(``);
   const [description, setDescription] = useState<string>(``);
 
-  const [disableButton, setDisableButton] = useState<boolean>(false);
+  const [openImageDialog, setOpenImageDialog] = useState<boolean>(false);
+
+  const isSubmitDisabled =
+    !name ||
+    !format ||
+    image === null ||
+    !url ||
+    (url && !validator.isURL(url));
 
   const onImageUploaded = async (img: File[]) => {
     if (!img.length) {
@@ -171,7 +193,6 @@ const CreateCampaign = () => {
     }
     const file = img[0];
     const imageDataUrl = await readFile(file);
-    console.log(`== uplaoded file==`, file);
     if (format == SpaceFormats.Twitch && file.type === `image/gif`) {
       const img = new Image();
       img.onload = () => {
@@ -192,22 +213,67 @@ const CreateCampaign = () => {
       img.src = imageDataUrl;
     } else {
       setImage(imageDataUrl);
-      // setOpenImageDialog(true);
+      setOpenImageDialog(true);
     }
   };
 
-  const isSubmitDisabled =
-    !name || !format || !image || !url || (url && !validator.isURL(url));
-
-  console.log(`= disabled???`, isSubmitDisabled, !name, !format, !image, !url);
-
   const onImageDelete = () => {
-    console.log(`=del `);
     setImage(null);
   };
 
-  const onSubmit = () => {
-    console.log(`=submit`);
+  const onImageCropped = (img: string): void => {
+    setImage(img);
+  };
+
+  const onCloseDialog = (e: any) => {
+    setOpenImageDialog(false);
+    // Remove image if dialog was closed due to an event and
+    // not from a function call with false
+    if (e) {
+      setImage(null);
+      setDropzoneKey(dropzoneKey === `0` ? `1` : `0`);
+    }
+  };
+
+  const onSubmit = async () => {
+    if (image === null) {
+      return;
+    }
+
+    try {
+      // showloading
+      const file = convertBase64ToFile(image);
+      const formData = new FormData();
+      formData.append(`file`, file);
+
+      // snackbar  "Data is being uploaded to IPFS, please wait and do not close this window just yet"
+
+      const imgIPFSRes = await pinFileToIPFS(formData);
+      const newImageUrl = `ipfs://${imgIPFSRes.data.IpfsHash}`;
+      const campaignData = {
+        name: name.trim(),
+        description: description.trim(),
+        url: url.trim(),
+        image: newImageUrl,
+        format: format.trim(),
+      };
+
+      const ipfsDataRes = await pinJSONToIPFS(campaignData);
+      // snackbar `Data has been uploaded to IPFS, please approve the creation of the campaign on the contract`,
+
+      // const campaignCreationRes = await zestyMarketUSDC.buyerCampaignCreate(
+      //   `ipfs://` + ipfsDataRes.data.IpfsHash,
+      // );
+      // snackbar:  `Please wait for the data to be added on chain`
+
+      // await campaignCreationRes.wait();
+      // snackbar: `Successfully created a new campaign`
+      // show loading
+      // change route?
+    } catch (err) {
+      console.log(`Campaign creation error: `, err);
+      // snackbar: `An Error has occured`
+    }
   };
 
   return (
@@ -246,8 +312,14 @@ const CreateCampaign = () => {
         </Stack>
 
         <StyledDropzoneArea {...formFieldProps}>
-          <StyledLabel>The Frontpage</StyledLabel>
-          <StyledLabel>(150 x 600)</StyledLabel>
+          <Stack direction="row" alignItems="baseline">
+            <StyledLabel>The Frontpage</StyledLabel>
+            {format && (
+              <StyledSubLabel>
+                ({getWidthFromFormat(format)} x {getHeightFromFormat(format)})
+              </StyledSubLabel>
+            )}
+          </Stack>
           <DropzoneArea
             key={dropzoneKey}
             clearOnUnmount
@@ -262,7 +334,15 @@ const CreateCampaign = () => {
             onDelete={onImageDelete}
           />
         </StyledDropzoneArea>
-
+        {image && (
+          <ZestyImageDialog
+            format={format as Format}
+            open={openImageDialog}
+            onDialogClose={onCloseDialog}
+            image={image}
+            onImageCropped={onImageCropped}
+          />
+        )}
         <Stack {...formFieldProps}>
           <StyledLabel>Call to action URL</StyledLabel>
           <StyledTextField
@@ -279,7 +359,10 @@ const CreateCampaign = () => {
         </Stack>
 
         <Stack {...formFieldProps}>
-          <StyledLabel>Description (optional)</StyledLabel>
+          <Stack direction="row" alignItems="baseline">
+            <StyledLabel>Description</StyledLabel>
+            <StyledSubLabel>(Optional)</StyledSubLabel>
+          </Stack>
           <StyledTextField
             placeholder="Type and enter description for your campaign"
             variant="outlined"
@@ -292,7 +375,7 @@ const CreateCampaign = () => {
         </Stack>
 
         <Stack justifyContent="center">
-          <Button disabled={isSubmitDisabled} onClick={onSubmit}>
+          <Button disabled={!!isSubmitDisabled} onClick={onSubmit}>
             Create New Campaign
           </Button>
         </Stack>

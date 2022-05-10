@@ -1,8 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import Grid from '@mui/material/Grid';
-import { styled } from '@mui/system';
+import { Grid, styled } from '@mui/material';
 
 const StyledLogoText = styled(`div`)(({ theme }) => ({
   color: theme.palette.text.primary,

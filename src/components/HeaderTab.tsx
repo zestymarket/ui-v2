@@ -1,8 +1,6 @@
 import React from 'react';
 import { useRouter } from 'next/router';
-import Link from 'next/link';
-import { styled } from '@mui/system';
-import { Grid, Link } from '@mui/material';
+import { Grid, Link, styled } from '@mui/material';
 
 interface Props {
   label: string;

@@ -1,8 +1,7 @@
 import React from 'react';
-import MuiButton from '@mui/material/Button';
-import { styled } from '@mui/system';
+import { styled, Button as MuiButton, ButtonProps } from '@mui/material';
 
-interface Props {
+interface Props extends ButtonProps {
   outlined?: boolean;
   children: React.ReactNode;
   onClick: () => void;
