@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import Image from 'next/image';
 import Grid from '@mui/material/Grid';
 import { styled } from '@mui/system';
@@ -13,11 +14,18 @@ const StyledLogoText = styled(`div`)(({ theme }) => ({
   alignItems: `center`,
 }));
 
+const StyledGrid = styled(Grid)({
+  userSelect: `none`,
+  cursor: `pointer`,
+});
+
 const Logo = () => (
-  <Grid item flexDirection="row" display="flex" alignItems="center">
-    <Image src="/logo.png" alt="logo" width={40} height={40} />
-    <StyledLogoText>zesty</StyledLogoText>
-  </Grid>
+  <Link href="/" passHref>
+    <StyledGrid item flexDirection="row" display="flex" alignItems="center">
+      <Image src="/logo.png" alt="logo" width={40} height={40} />
+      <StyledLogoText>zesty</StyledLogoText>
+    </StyledGrid>
+  </Link>
 );
 
 export default Logo;

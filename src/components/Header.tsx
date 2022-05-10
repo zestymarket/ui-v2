@@ -36,9 +36,9 @@ const Header = () => {
             alignItems="center"
           >
             <Logo />
-            <HeaderTab label="Marketplace" selected />
-            <HeaderTab label="Dashboard" highlighted />
-            <HeaderTab label="Governance" />
+            <HeaderTab label="Marketplace" to="/" />
+            <HeaderTab label="Dashboard" to="/dashboard" />
+            <HeaderTab label="Governance" to="/governance" />
           </Grid>
 
           <Grid
