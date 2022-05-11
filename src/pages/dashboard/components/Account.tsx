@@ -14,6 +14,8 @@ import { BigNumber } from '@ethersproject/bignumber';
 import WalletBalance from './WalletBalance';
 import Image from 'next/image';
 
+declare let window: any;
+
 const StyledWrapper = styled(`div`)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
 }));
@@ -58,7 +60,7 @@ export default function Account() {
   const { onClickConnectWallet } = useContext(WalletConnectContext);
 
   useEffect(() => {
-    const { ethereum } = window;
+    const { ethereum } = window as any;
     const isMetaMask = !!(ethereum && ethereum.isMetaMask);
     const name = Object.keys(SUPPORTED_WALLETS)
       .filter(
