@@ -1,21 +1,24 @@
-import React, { useState } from 'react';
+import React, { useContext } from 'react';
 import { styled, Grid } from '@mui/material';
 import Logo from './Logo';
 import HeaderTab from './HeaderTab';
 import Button from './Button';
 import ConnectWalletPopup from './ConnectWalletPopup';
 import { shortenHex } from '@/utils/helpers';
+import { WalletConnectContext } from './Layout';
 
-const StyledButton = styled(Button)({
+export const StyledButton = styled(Button)({
   background: `linear-gradient(112.17deg, rgba(248, 151, 36, 0.16) 0%, rgba(226, 63, 38, 0.16) 100%)`,
 });
 
 const Header = () => {
-  const [connectWalletPopup, showConnectWalletPopup] = useState<boolean>(false);
-  const [address, setAddress] = useState<string>(``);
-
-  const onClickConnectWallet = () => showConnectWalletPopup(true);
-  const onCloseConnectWallet = () => showConnectWalletPopup(false);
+  const {
+    connectWalletPopup,
+    address,
+    setAddress,
+    onClickConnectWallet,
+    onCloseConnectWallet,
+  } = useContext(WalletConnectContext);
 
   return (
     <>
@@ -36,9 +39,9 @@ const Header = () => {
             alignItems="center"
           >
             <Logo />
-            <HeaderTab label="Marketplace" selected />
-            <HeaderTab label="Dashboard" highlighted />
-            <HeaderTab label="Governance" />
+            <HeaderTab label="Marketplace" to="/" />
+            <HeaderTab label="Dashboard" to="/dashboard" />
+            <HeaderTab label="Governance" to="/governance" />
           </Grid>
 
           <Grid
