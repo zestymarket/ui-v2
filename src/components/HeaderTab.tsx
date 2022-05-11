@@ -1,10 +1,12 @@
 import React from 'react';
+import { useRouter } from 'next/router';
+import Link from 'next/link';
 import { styled } from '@mui/system';
 import Grid from '@mui/material/Grid';
 
 interface Props {
   label: string;
-  selected?: boolean;
+  to: string;
   highlighted?: boolean;
 }
 
@@ -27,16 +29,22 @@ const StyledDot = styled(`div`)(({ theme }) => ({
   right: 0,
 }));
 
-const HeaderTab: React.FC<Props> = ({ label, selected, highlighted }) => (
-  <StyledTab
-    item
-    display="flex"
-    position="relative"
-    sx={{ backgroundColor: selected ? `#000000` : `transparent` }}
-  >
-    <StyledTabLabel>{label}</StyledTabLabel>
-    {highlighted && <StyledDot>•</StyledDot>}
-  </StyledTab>
-);
+const HeaderTab: React.FC<Props> = ({ label, to, highlighted }) => {
+  const { pathname } = useRouter();
+  const selected = to === pathname;
+  return (
+    <Link href={to} passHref>
+      <StyledTab
+        item
+        display="flex"
+        position="relative"
+        sx={{ backgroundColor: selected ? `#000000` : `transparent` }}
+      >
+        <StyledTabLabel>{label}</StyledTabLabel>
+        {highlighted && <StyledDot>•</StyledDot>}
+      </StyledTab>
+    </Link>
+  );
+};
 
 export default HeaderTab;

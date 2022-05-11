@@ -1,6 +1,6 @@
 import { SellerAuction } from '@/lib/types';
 import { BigNumber } from '@ethersproject/bignumber';
-import { formatEther } from '@ethersproject/units';
+import { formatUnits, formatEther } from '@ethersproject/units';
 
 export const EPSILON = 0.000001;
 
@@ -30,12 +30,12 @@ export function calcPrice(
   );
 }
 
-export function formatPrice(input: BigNumber, decimals = 4): number {
-  return parseFloat(parseFloat(formatEther(input)).toFixed(decimals));
+export function formatPrice(input: BigNumber, decimals = 4): string {
+  return parseFloat(formatEther(input)).toFixed(decimals);
 }
 
-export function formatUSDC(rawUsdc: number): string {
-  return Number(rawUsdc / 1000000).toFixed(2);
+export function formatUSDC(rawUsdc: BigNumber): string {
+  return Number(formatUnits(rawUsdc, 6)).toFixed(2);
 }
 
 //prepends https:// to a string if it does not already have http:// or https://
