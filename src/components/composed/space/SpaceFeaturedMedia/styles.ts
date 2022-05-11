@@ -1,7 +1,13 @@
 import { styled } from '@mui/system';
 
-export const Wrapper = styled(`div`)({
+interface WrapperProps {
+  src?: string;
+}
+
+export const Wrapper = styled(`div`, {
+  shouldForwardProp: (prop) => prop !== `src`,
+})<WrapperProps>(({ src }) => ({
   minHeight: 390,
-  background: `url('/assets/space/thumbnail.png')`,
+  background: `url('${src}')`,
   backgroundSize: `cover`,
-});
+}));

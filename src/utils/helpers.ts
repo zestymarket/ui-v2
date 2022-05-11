@@ -51,6 +51,11 @@ export function removeHttps(url: string) {
   return result;
 }
 
+export function getDomain(url: string) {
+  const u = new URL(addHttps(url));
+  return u.host;
+}
+
 export function formatIpfsUri(uri: string) {
   if (uri.substring(0, 4) === `ipfs`) {
     return `${process.env.NEXT_PUBLIC_IPFS_GATEWAY}/ipfs/${uri.substring(7)}`;

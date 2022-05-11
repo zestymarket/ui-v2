@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableContainer from '@mui/material/TableContainer';
@@ -8,6 +8,8 @@ import Box from '@mui/material/Box';
 import visuallyHidden from '@mui/utils/visuallyHidden';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import { Auction, getPrice } from '@/utils/types/Auctions';
+import { formatTimeLeft } from '@/utils/helpers';
 
 import {
   TableHeadCell,
@@ -19,11 +21,12 @@ import {
   Navigation,
   NavigationButton,
 } from './styles';
+import { create } from '@mui/material/styles/createTransitions';
 
 interface Data {
   id: number;
   contractStartTime: number;
-  duration: number;
+  duration: string;
   format: string;
   campaign: string;
   price: number;
@@ -33,7 +36,7 @@ interface Data {
 function createData(
   id: number,
   contractStartTime: number,
-  duration: number,
+  duration: string,
   format: string,
   campaign: string,
   price: number,
@@ -50,44 +53,44 @@ function createData(
   };
 }
 
-const rows = [
-  createData(
-    1294,
-    1644631200,
-    1,
-    `The Frontpage (150x600)`,
-    `Rebuff Reality`,
-    15.68,
-    `Active`,
-  ),
-  createData(
-    1295,
-    1644631200,
-    1,
-    `The Frontpage (150x600)`,
-    `Rebuff Reality`,
-    15.68,
-    `Active`,
-  ),
-  createData(
-    1296,
-    1644631200,
-    1,
-    `The Frontpage (150x600)`,
-    `Rebuff Reality`,
-    15.68,
-    `Active`,
-  ),
-  createData(
-    1297,
-    1644631200,
-    1,
-    `The Frontpage (150x600)`,
-    `Rebuff Reality`,
-    15.68,
-    `Active`,
-  ),
-];
+// const rows = [
+//   createData(
+//     1294,
+//     1644631200,
+//     1,
+//     `The Frontpage (150x600)`,
+//     `Rebuff Reality`,
+//     15.68,
+//     `Active`,
+//   ),
+//   createData(
+//     1295,
+//     1644631200,
+//     1,
+//     `The Frontpage (150x600)`,
+//     `Rebuff Reality`,
+//     15.68,
+//     `Active`,
+//   ),
+//   createData(
+//     1296,
+//     1644631200,
+//     1,
+//     `The Frontpage (150x600)`,
+//     `Rebuff Reality`,
+//     15.68,
+//     `Active`,
+//   ),
+//   createData(
+//     1297,
+//     1644631200,
+//     1,
+//     `The Frontpage (150x600)`,
+//     `Rebuff Reality`,
+//     15.68,
+//     `Active`,
+//   ),
+// ];
 
 interface HeadCell {
   disablePadding: boolean;
@@ -230,9 +233,37 @@ const DataTableHead: FC<IDataTableHead> = ({
   );
 };
 
-const DataTable = () => {
+interface Props {
+  auctions: Auction[];
+  format: string;
+}
+
+const DataTable: React.FC<Props> = ({ auctions, format }) => {
+  // const [activeAuctions, setActiveAuctions] = useState<Auction[]>([]);
+  const [rows, setRows] = useState<Data[]>([]);
   const [order, setOrder] = useState<Order>(`asc`);
   const [orderBy, setOrderBy] = useState<keyof Data>(`id`);
+
+  useEffect(() => {
+    const rowOut = [];
+    for (let i = 0; i < auctions.length; i++) {
+      const auction = auctions[i];
+      const row = createData(
+        Number(auction.id),
+        Number(auction.contractTimeStart),
+        formatTimeLeft(
+          Number(auction.contractTimeEnd) - Number(auction.contractTimeStart),
+        ),
+        format,
+        `campaign`,
+        getPrice(auction),
+        `auction_status`,
+      );
+      rowOut.push(row);
+    }
+
+    setRows(rowOut);
+  }, [auctions]);
 
   const handleRequestSort = (
     event: React.MouseEvent<unknown>,
@@ -242,6 +273,10 @@ const DataTable = () => {
     setOrder(isAsc ? `desc` : `asc`);
     setOrderBy(property);
   };
+
+  if (!rows.length) {
+    return <></>;
+  }
 
   return (
     <Wrapper>
@@ -254,7 +289,7 @@ const DataTable = () => {
           />
 
           <TableBody>
-            {stableSort(rows, getComparator(order, orderBy)).map(
+            {stableSort(activeAuctions, getComparator(order, orderBy)).map(
               (row, index) => {
                 const labelId = `enhanced-table-checkbox-${index}`;
 

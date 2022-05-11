@@ -1,5 +1,6 @@
 import { Stack } from '@mui/material';
 import { styled } from '@mui/system';
+import Image from 'next/image';
 
 export const Wrapper = styled(`div`)({
   display: `flex`,
@@ -55,12 +56,9 @@ export const InfoSection = styled(`div`)({
   alignItems: `center`,
 });
 
-export const Avatar = styled(`div`)({
+export const Avatar = styled(Image)({
   display: `block`,
-  width: 44,
-  height: 44,
   borderRadius: `50%`,
-  background: `#eee`,
 });
 
 export const Content = styled(`div`)({
