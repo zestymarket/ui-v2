@@ -1,7 +1,7 @@
 import TabsContainer from '@/components/TabsContainer';
-import Overview from './components/Overview';
+// import Overview from './components/Overview';
 import Account from './components/Account';
-import { StyledDashboard } from './styled';
+import StyledDashboard from './styled';
 
 export default function Dashboard() {
   return (
