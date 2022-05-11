@@ -82,7 +82,13 @@ interface Props {
   onImageCropped: (img: string) => void;
 }
 
-const ZestyImageDialog: React.FC<Props> = (props) => {
+const ZestyImageDialog: React.FC<Props> = ({
+  format,
+  open,
+  image,
+  onDialogClose,
+  onImageCropped,
+}) => {
   const [crop, setCrop] = React.useState<Point>({ x: 0, y: 0 });
   const [zoom, setZoom] = React.useState<number>(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = React.useState<Area | null>(
@@ -106,26 +112,26 @@ const ZestyImageDialog: React.FC<Props> = (props) => {
 
   const setCroppedImage = useCallback(async () => {
     try {
-      props.onDialogClose(false);
+      onDialogClose(false);
       const croppedImage = await getCroppedImg(
-        props.image,
+        image,
         croppedAreaPixels as PixelCrop,
-        getHeightFromFormat(props.format || getDefaultFormat()),
-        getIsFormatSquare(props.format || getDefaultFormat()),
+        getHeightFromFormat(format || getDefaultFormat()),
+        getIsFormatSquare(format || getDefaultFormat()),
       );
-      props.onImageCropped(croppedImage);
+      onImageCropped(croppedImage);
     } catch (e) {
       console.error(e);
     }
-  }, [props.image, croppedAreaPixels]);
+  }, [image, format, onDialogClose, onImageCropped, croppedAreaPixels]);
 
   return (
     <div>
       <StyledDialog
-        onClose={props.onDialogClose}
+        onClose={onDialogClose}
         scroll="body"
         aria-labelledby="customized-dialog-title"
-        open={props.open}
+        open={open}
       >
         <StyledDialogTitle>
           <StyledTitle>Crop Image</StyledTitle>
@@ -137,10 +143,10 @@ const ZestyImageDialog: React.FC<Props> = (props) => {
         <StyledDialogContent>
           <StyledCropWrapper>
             <Cropper
-              image={props.image}
+              image={image}
               crop={crop}
               zoom={zoom}
-              aspect={getAspectFromFormat(props.format || getDefaultFormat())}
+              aspect={getAspectFromFormat(format || getDefaultFormat())}
               onCropChange={onCropChange}
               onCropComplete={onCropComplete}
               onZoomChange={onZoomChange}

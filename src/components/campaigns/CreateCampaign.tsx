@@ -31,7 +31,7 @@ import {
 } from '@/utils/image';
 import { EPSILON } from '@/utils/helpers';
 import { pinFileToIPFS, pinJSONToIPFS } from '@/lib/ipfs';
-import { useZestyMarketUSDC } from '@/utils/hooks';
+// import { useZestyMarketUSDC } from '@/utils/hooks';
 import ZestyImageDialog from '../ZestyImageDialog';
 
 const StyledForm = styled(Box)({
@@ -258,7 +258,7 @@ const CreateCampaign = () => {
         format: format.trim(),
       };
 
-      const ipfsDataRes = await pinJSONToIPFS(campaignData);
+      await pinJSONToIPFS(campaignData);
       // snackbar `Data has been uploaded to IPFS, please approve the creation of the campaign on the contract`,
 
       // const campaignCreationRes = await zestyMarketUSDC.buyerCampaignCreate(

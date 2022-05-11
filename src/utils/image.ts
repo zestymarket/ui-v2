@@ -56,6 +56,37 @@ export function getIsFormatSquare(format: string) {
   return formats[format].pow2;
 }
 
+function toPowerOfTwo(num: number) {
+  return Math.pow(2, Math.ceil(Math.log(num) / Math.log(2)));
+}
+
+function createImage(url: string): Promise<ZestyImage> {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.addEventListener(`load`, () => resolve(image));
+    image.addEventListener(`error`, (error) => reject(error));
+    image.setAttribute(`crossOrigin`, `anonymous`); // needed to avoid cross-origin issues on CodeSandbox
+    image.src = url;
+  });
+}
+
+function resizeTo(canvas: HTMLCanvasElement, pct: number, isSquare: boolean) {
+  tctx?.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
+  const cw = canvas.width;
+  const ch = canvas.height;
+  tempCanvas.width = cw;
+  tempCanvas.height = ch;
+  tctx?.drawImage(canvas, 0, 0);
+  canvas.width *= pct;
+  canvas.height *= pct;
+  if (isSquare) {
+    canvas.width = toPowerOfTwo(canvas.width);
+    canvas.height = toPowerOfTwo(canvas.height);
+  }
+  const ctx = canvas.getContext(`2d`);
+  ctx?.drawImage(tempCanvas, 0, 0, cw, ch, 0, 0, canvas.width, canvas.height);
+}
+
 export async function getCroppedImg(
   imageSrc: string,
   pixelCrop: PixelCrop,
@@ -96,37 +127,6 @@ export async function getCroppedImg(
   // As Base64 string
 
   return canvas.toDataURL(`image/jpeg`);
-}
-
-function createImage(url: string): Promise<ZestyImage> {
-  return new Promise((resolve, reject) => {
-    const image = new Image();
-    image.addEventListener(`load`, () => resolve(image));
-    image.addEventListener(`error`, (error) => reject(error));
-    image.setAttribute(`crossOrigin`, `anonymous`); // needed to avoid cross-origin issues on CodeSandbox
-    image.src = url;
-  });
-}
-
-function resizeTo(canvas: HTMLCanvasElement, pct: number, isSquare: boolean) {
-  tctx?.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
-  const cw = canvas.width;
-  const ch = canvas.height;
-  tempCanvas.width = cw;
-  tempCanvas.height = ch;
-  tctx?.drawImage(canvas, 0, 0);
-  canvas.width *= pct;
-  canvas.height *= pct;
-  if (isSquare) {
-    canvas.width = toPowerOfTwo(canvas.width);
-    canvas.height = toPowerOfTwo(canvas.height);
-  }
-  const ctx = canvas.getContext(`2d`);
-  ctx?.drawImage(tempCanvas, 0, 0, cw, ch, 0, 0, canvas.width, canvas.height);
-}
-
-function toPowerOfTwo(num: number) {
-  return Math.pow(2, Math.ceil(Math.log(num) / Math.log(2)));
 }
 
 export const convertBase64ToFile = function (image: string) {

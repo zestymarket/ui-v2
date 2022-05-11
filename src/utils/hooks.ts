@@ -168,6 +168,6 @@ export function useZestyMarketUSDC(withSigner = false): Contract {
         zestyMarket_ERC20_V1_1_ABI,
         withSigner ? library?.getSigner(account).connectUnchecked() : library,
       ),
-    [withSigner, library, account],
+    [withSigner, library, account, chainId],
   );
 }
