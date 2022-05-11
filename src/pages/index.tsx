@@ -218,7 +218,7 @@ const Market = () => {
 
   if (error) {
     console.log(error);
-    return <p>{error}</p>;
+    return <p>{`An error has occured while fetching`}</p>;
   }
 
   return (
