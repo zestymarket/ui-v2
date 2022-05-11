@@ -176,7 +176,6 @@ const ConnectWalletPopup: React.FC<PopupProps> = ({
     if (active || error) {
       setConnecting(false);
       onboarding.current?.stopOnboarding();
-      onClose();
     }
 
     if (active && !error && library) {
@@ -184,7 +183,7 @@ const ConnectWalletPopup: React.FC<PopupProps> = ({
     } else if (!active) {
       setAddress(``);
     }
-  }, [active, error, library, onClose, setAddress]);
+  }, [active, error, library, setAddress]);
 
   useEffect(() => {
     if (account) {

@@ -6,6 +6,7 @@ interface Props {
   outlined?: boolean;
   children: React.ReactNode;
   onClick: () => void;
+  style?: any;
 }
 
 const StyledButton = styled(MuiButton)(({ theme }) => ({

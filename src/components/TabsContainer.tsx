@@ -1,10 +1,10 @@
 import React from 'react';
 import Image from 'next/image';
-import { Stack, Tabs, Box } from '@mui/material';
+import { Stack, Tabs, Box, Typography, styled } from '@mui/material';
 import MuiTab from '@mui/material/Tab';
-import { styled } from '@mui/system';
 
 interface TabContainerProps {
+  title?: string;
   tabs: TabProps[];
 }
 
@@ -28,14 +28,31 @@ const StyledTab = styled(MuiTab)<TabProps & { hasLink: boolean }>(
     fontWeight: 400,
     opacity: hasLink ? 0.5 : 1,
     textTransform: `none`,
+    padding: 0,
+    marginRight: theme.spacing(4),
     '&.Mui-selected': {
       color: theme.palette.primary.main,
     },
+    minWidth: 0,
   }),
 );
 const StyledRedirectIcon = styled(`div`)({
   marginLeft: 8,
 });
+
+const StyledTitleWrapper = styled(`div`)({
+  maxWidth: 1400,
+  width: `100%`,
+  margin: `auto`,
+});
+
+const StyledTitle = styled(Typography)(({ theme }) => ({
+  fontSize: 60,
+  lineHeight: `56px`,
+  fontWeight: 700,
+  letterSpacing: `-0.02em`,
+  margin: theme.spacing(0, 0, 3),
+}));
 
 const Tab: React.FC<TabProps> = (props: TabProps) => {
   let iconProps = {};
@@ -58,24 +75,25 @@ const TabPanel = (props: TabPanelProps) => {
 
   return (
     <div hidden={value !== index} id={`panel-${index}`} {...other}>
-      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+      {value === index && <Box sx={{ p: 0 }}>{children}</Box>}
     </div>
   );
 };
 
 const StyledWrapper = styled(Stack)({
-  maxWidth: 1400,
   margin: `auto`,
   width: `100%`,
 });
 
 const StyledTabHeader = styled(Stack)(({ theme }) => ({
   backgroundColor: theme.palette.background.default,
-  height: 64,
+  height: 48,
   width: `100%`,
+  margin: `auto`,
+  maxWidth: 1400,
 }));
 
-const TabsContainer: React.FC<TabContainerProps> = ({ tabs }) => {
+const TabsContainer: React.FC<TabContainerProps> = ({ title, tabs }) => {
   const [value, setValue] = React.useState(0);
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -91,6 +109,11 @@ const TabsContainer: React.FC<TabContainerProps> = ({ tabs }) => {
 
   return (
     <StyledWrapper flexDirection="column">
+      {title && (
+        <StyledTitleWrapper>
+          <StyledTitle>{title}</StyledTitle>
+        </StyledTitleWrapper>
+      )}
       <StyledTabHeader flexDirection="row">
         <Tabs
           value={value}
