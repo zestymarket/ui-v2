@@ -14,8 +14,8 @@ import {
 // https://github.com/lifeeric/material-ui-dropzone#installation
 import { DropzoneArea } from 'react-mui-dropzone';
 import validator from 'validator';
-import SubHeader from '../SubHeader';
-import Button from '../Button';
+import SubHeader from '@/components/SubHeader';
+import Button from '@/components/Button';
 import { readFile } from '@/utils/file';
 import {
   Format,
@@ -31,8 +31,11 @@ import {
 } from '@/utils/image';
 import { EPSILON } from '@/utils/helpers';
 import { pinFileToIPFS, pinJSONToIPFS } from '@/lib/ipfs';
-// import { useZestyMarketUSDC } from '@/utils/hooks';
-import ZestyImageDialog from '../ZestyImageDialog';
+import { useZestyMarketUSDC } from '@/utils/hooks';
+import ZestyImageDialog from '@/components//ZestyImageDialog';
+import { useRouter } from 'next/router';
+import { useWeb3React } from '@web3-react/core';
+import { Web3Provider } from '@ethersproject/providers';
 
 const StyledForm = styled(Box)({
   maxWidth: 1400,
@@ -169,7 +172,9 @@ const getFormatChoices = () => {
 };
 
 const CreateCampaign = () => {
-  // const zestyMarketUSDC = useZestyMarketUSDC(true);
+  const zestyMarketUSDC = useZestyMarketUSDC(true);
+
+  const router = useRouter();
 
   const [name, setName] = useState<string>(``);
   const [format, setFormat] = useState<string>(``);
@@ -258,18 +263,20 @@ const CreateCampaign = () => {
         format: format.trim(),
       };
 
-      await pinJSONToIPFS(campaignData);
+      const jsonIPFSHash = await pinJSONToIPFS(campaignData);
       // snackbar `Data has been uploaded to IPFS, please approve the creation of the campaign on the contract`,
 
-      // const campaignCreationRes = await zestyMarketUSDC.buyerCampaignCreate(
-      //   `ipfs://` + ipfsDataRes.data.IpfsHash,
-      // );
+      const campaignCreationRes = await zestyMarketUSDC.buyerCampaignCreate(
+        `ipfs://` + jsonIPFSHash.data.IpfsHash,
+      );
+
       // snackbar:  `Please wait for the data to be added on chain`
 
       // await campaignCreationRes.wait();
       // snackbar: `Successfully created a new campaign`
       // show loading
       // change route?
+      router.push(`/`);
     } catch (err) {
       console.log(`Campaign creation error: `, err);
       // snackbar: `An Error has occured`
@@ -324,6 +331,7 @@ const CreateCampaign = () => {
             key={dropzoneKey}
             clearOnUnmount
             showFileNames
+            showAlerts={false}
             filesLimit={1}
             maxFileSize={2097152} // 2MB
             dropzoneText={`Drag and Drop your files here`}

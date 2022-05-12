@@ -136,7 +136,7 @@ const ZestyImageDialog: React.FC<Props> = ({
         <StyledDialogTitle>
           <StyledTitle>Crop Image</StyledTitle>
           <StyledSubTitle>Move to crop your image</StyledSubTitle>
-          <StyledCloseButton>
+          <StyledCloseButton onClick={onDialogClose}>
             <CloseIcon />
           </StyledCloseButton>
         </StyledDialogTitle>
