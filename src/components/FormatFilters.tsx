@@ -1,6 +1,5 @@
 import React from 'react';
-import { Chip } from '@mui/material';
-import { styled } from '@mui/system';
+import { Chip, styled } from '@mui/material';
 import { Format, FormatCategories } from '@/utils/formats';
 
 export type FormatOption = Format | 'All';

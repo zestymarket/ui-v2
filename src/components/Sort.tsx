@@ -5,8 +5,8 @@ import {
   SelectChangeEvent,
   Stack,
   Typography,
+  styled,
 } from '@mui/material';
-import { styled } from '@mui/system';
 import { KeyboardArrowDown } from '@mui/icons-material';
 
 export enum SORT {

@@ -1,10 +1,21 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
-import { styled } from '@mui/system';
-import React, { Dispatch, SetStateAction, useState } from 'react';
+import { styled, Typography } from '@mui/material';
+import React, { Dispatch, SetStateAction, useState, useEffect } from 'react';
 import Footer from './Footer';
 import Header from './Header';
 
 import { useEagerConnect, useInactiveListener } from '../utils/hooks';
+import { useWeb3React } from '@web3-react/core';
+import { Web3Provider } from '@ethersproject/providers';
+import { useRouter } from 'next/router';
+
+const noAuthRoutes = new Set([
+  `/`,
+  `/space/[id]`,
+  `/campaigns/[id]`,
+  `/auth/discord/[id]`,
+  `/[id]`,
+]);
 
 interface Props {
   children: React.ReactNode;
@@ -29,33 +40,54 @@ export const WalletConnectContext = React.createContext<{
 });
 
 const Layout: React.FC<Props> = ({ children }) => {
+  const [noAuthRequired, setNoAuthRequired] = useState<boolean>(false);
+  const [web3Loaded, setWeb3Loaded] = useState<boolean>(false);
+  const { account } = useWeb3React<Web3Provider>();
+
   const triedEager = useEagerConnect();
   useInactiveListener(!triedEager);
+  const router = useRouter();
 
-  const [connectWalletPopup, showConnectWalletPopup] = useState<boolean>(false);
-  const [address, setAddress] = useState<string>(``);
+  useEffect(() => {
+    if (noAuthRoutes.has(router.pathname)) {
+      setNoAuthRequired(true);
+    } else {
+      setNoAuthRequired(false);
+    }
+  }, [router.pathname]);
 
-  const onClickConnectWallet = () => {
-    showConnectWalletPopup(true);
-  };
-  const onCloseConnectWallet = () => showConnectWalletPopup(false);
+  // Used for displaying wallet not connected message
+  useEffect(() => {
+    setTimeout(() => {
+      setWeb3Loaded(true);
+    }, 2000);
+  }, []);
+
+  // const [connectWalletPopup, showConnectWalletPopup] = useState<boolean>(false);
+  // const [address, setAddress] = useState<string>(``);
+
+  // const onClickConnectWallet = () => {
+  //   showConnectWalletPopup(true);
+  // };
+  // const onCloseConnectWallet = () => showConnectWalletPopup(false);
 
   return (
-    <WalletConnectContext.Provider
-      value={{
-        connectWalletPopup,
-        address,
-        setAddress,
-        onClickConnectWallet,
-        onCloseConnectWallet,
-      }}
-    >
-      <StyledContainer>
-        <Header />
-        {children}
-        <Footer />
-      </StyledContainer>
-    </WalletConnectContext.Provider>
+    <StyledContainer>
+      <Header />
+      {typeof account === `string` && children}
+      {typeof account !== `string` && noAuthRequired && children}
+      {web3Loaded && typeof account !== `string` && !noAuthRequired && (
+        // Add loading skeleton
+        <div>
+          <Typography variant="h1">Wallet Not Found</Typography>
+          <br />
+          <Typography variant="body1">
+            You are not connected to a wallet. Please connect to a wallet.
+          </Typography>
+        </div>
+      )}
+      <Footer />
+    </StyledContainer>
   );
 };
 

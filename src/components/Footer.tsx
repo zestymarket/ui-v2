@@ -1,6 +1,5 @@
 import React from 'react';
-import { Link, Stack, Typography } from '@mui/material';
-import { styled } from '@mui/system';
+import { Link, Stack, Typography, styled } from '@mui/material';
 import Image from 'next/image';
 
 const StyledWrapper = styled(Stack)(({ theme }) => ({
