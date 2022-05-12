@@ -35,7 +35,7 @@ const HeaderTab: React.FC<Props> = ({ label, to, highlighted }) => {
   const { pathname } = useRouter();
   const selected = to === pathname;
   return (
-    <StyledLink href={to} passHref>
+    <StyledLink href={to}>
       <StyledTab
         item
         display="flex"

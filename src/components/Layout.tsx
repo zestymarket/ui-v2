@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import { styled, Typography } from '@mui/material';
-import React, { Dispatch, SetStateAction, useState } from 'react';
+import React, { Dispatch, SetStateAction, useState, useEffect } from 'react';
 import Footer from './Footer';
 import Header from './Header';
 
@@ -63,13 +63,13 @@ const Layout: React.FC<Props> = ({ children }) => {
     }, 2000);
   }, []);
 
-  const [connectWalletPopup, showConnectWalletPopup] = useState<boolean>(false);
-  const [address, setAddress] = useState<string>(``);
+  // const [connectWalletPopup, showConnectWalletPopup] = useState<boolean>(false);
+  // const [address, setAddress] = useState<string>(``);
 
-  const onClickConnectWallet = () => {
-    showConnectWalletPopup(true);
-  };
-  const onCloseConnectWallet = () => showConnectWalletPopup(false);
+  // const onClickConnectWallet = () => {
+  //   showConnectWalletPopup(true);
+  // };
+  // const onCloseConnectWallet = () => showConnectWalletPopup(false);
 
   return (
     <StyledContainer>

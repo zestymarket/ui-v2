@@ -1,9 +1,11 @@
+import React from 'react';
 import { Button } from '@mui/material';
 import { styled } from '@mui/system';
 
 export interface IOptionButton {
   selected?: boolean;
   disabled?: boolean;
+  children?: React.ReactNode;
   onClick: () => void;
 }
 

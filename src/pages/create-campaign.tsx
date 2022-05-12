@@ -34,8 +34,6 @@ import { pinFileToIPFS, pinJSONToIPFS } from '@/lib/ipfs';
 import { useZestyMarketUSDC } from '@/utils/hooks';
 import ZestyImageDialog from '@/components//ZestyImageDialog';
 import { useRouter } from 'next/router';
-import { useWeb3React } from '@web3-react/core';
-import { Web3Provider } from '@ethersproject/providers';
 
 const StyledForm = styled(Box)({
   maxWidth: 1400,
@@ -266,7 +264,7 @@ const CreateCampaign = () => {
       const jsonIPFSHash = await pinJSONToIPFS(campaignData);
       // snackbar `Data has been uploaded to IPFS, please approve the creation of the campaign on the contract`,
 
-      const campaignCreationRes = await zestyMarketUSDC.buyerCampaignCreate(
+      await zestyMarketUSDC.buyerCampaignCreate(
         `ipfs://` + jsonIPFSHash.data.IpfsHash,
       );
 
