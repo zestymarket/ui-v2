@@ -12,6 +12,7 @@ import {
   styled,
 } from '@mui/material';
 import validator from 'validator';
+import { useRouter } from 'next/router';
 import SubHeader from '@/components/SubHeader';
 import Button from '@/components/Button';
 import {
@@ -25,6 +26,8 @@ import {
   getWidthFromFormat,
 } from '@/utils/image';
 import ZestyImageUploader from '@/components/ZestyImageUploader';
+import { pinFileToIPFS, pinJSONToIPFS } from '@/lib/ipfs';
+import { useZestyNFT } from '@/utils/hooks';
 
 const StyledForm = styled(Box)({
   maxWidth: 1400,
@@ -93,6 +96,9 @@ const getFormatChoices = () => {
 };
 
 const CreateSpace = () => {
+  const zestyNFT = useZestyNFT(true);
+  const router = useRouter();
+
   const [name, setName] = useState<string>(``);
   const [format, setFormat] = useState<string>(``);
   const [image, setImage] = useState<string | null>(null);
@@ -101,10 +107,51 @@ const CreateSpace = () => {
 
   const isSubmitDisabled =
     !name ||
+    !description ||
     !format ||
     image === null ||
     !url ||
     (url && !validator.isURL(url));
+
+  const onSubmit = async () => {
+    if (image === null) {
+      return;
+    }
+
+    try {
+      // showloading
+
+      const file = convertBase64ToFile(image);
+      const formData = new FormData();
+      formData.append(`file`, file);
+
+      const imgIPFSRes = await pinFileToIPFS(formData);
+      const newImageUrl = `ipfs://${imgIPFSRes.data.IpfsHash}`;
+
+      const tokenData = {
+        name: name.trim(),
+        description: description.trim(),
+        location: url.trim(),
+        image: newImageUrl,
+        format: format.trim(),
+      };
+
+      const dataUploadRes = await pinJSONToIPFS(tokenData);
+      // snackbar: `Data has been uploaded to IPFS, please approve the minting of the token`
+
+      const tokenMintRes = await zestyNFT.mint(
+        `ipfs://` + dataUploadRes.data.IpfsHash,
+      );
+      // snackbar: `Please wait for the token to be minted on chain`
+
+      await tokenMintRes.wait();
+      // showloading
+      router.push(`/`);
+    } catch (err) {
+      console.log(`Space creation error: `, err);
+      // snackbar: `An Error has occured`
+    }
+  };
 
   return (
     <>
@@ -170,7 +217,7 @@ const CreateSpace = () => {
           />
         </Stack>
 
-        {/* <Stack {...formFieldProps}>
+        <Stack {...formFieldProps}>
           <StyledLabel>Ad Formats</StyledLabel>
           <StyledSelect
             variant="outlined"
@@ -181,12 +228,12 @@ const CreateSpace = () => {
           >
             {getFormatChoices()}
           </StyledSelect>
-        </Stack> */}
+        </Stack>
 
         <Stack justifyContent="center">
-          {/* <Button disabled={!!isSubmitDisabled} onClick={onSubmit}>
-            Create New Campaign
-          </Button> */}
+          <Button disabled={!!isSubmitDisabled} onClick={onSubmit}>
+            Create New Space
+          </Button>
         </Stack>
       </StyledForm>
     </>

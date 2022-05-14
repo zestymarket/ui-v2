@@ -5,6 +5,7 @@ import { injected } from './connectors';
 import { useWeb3React } from '@web3-react/core';
 import contractAddress from '../data/address.json';
 import zestyMarket_ERC20_V1_1_ABI from '../data/ZestyMarket_ERC20_V1_1.json';
+import zestyNFTABI from '../data/ZestyNFT.json';
 
 export async function getENSOrWallet(account: string) {
   const provider = getDefaultProvider(`mainnet`, {
@@ -167,6 +168,19 @@ export function useZestyMarketUSDC(withSigner = false): Contract {
         (contractAddress as any)[chainId ?? 1].zestyMarketUSDCAddress,
         zestyMarket_ERC20_V1_1_ABI,
         withSigner ? library?.getSigner(account).connectUnchecked() : library,
+      ),
+    [withSigner, library, account, chainId],
+  );
+}
+
+export function useZestyNFT(withSigner = false): Contract {
+  const { library, account, chainId } = useWeb3React();
+  return useMemo(
+    () =>
+      new Contract(
+        (contractAddress as any)[chainId ?? 1].zestyNFTAddress,
+        zestyNFTABI,
+        withSigner ? library.getSigner(account).connectUnchecked() : library,
       ),
     [withSigner, library, account, chainId],
   );
