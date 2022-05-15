@@ -1,4 +1,5 @@
 import React from 'react';
+import Button from '@/components/Button';
 
 import {
   Avatar,
@@ -10,12 +11,25 @@ import {
   TimestampInfo,
   Title,
   Wrapper,
+  Actions,
 } from './styles';
+import DepositNFT from '@/components/DepositNFT';
 
-const SpaceFeaturedContent = () => {
+interface Props {
+  onDepositNFT: () => void;
+}
+
+const SpaceFeaturedContent: React.FC<Props> = ({ onDepositNFT }) => {
   return (
     <Wrapper>
       <MainSection>
+        <Actions
+          flexDirection="row"
+          alignItems="center"
+          justifyContent="flex-end"
+        >
+          <DepositNFT />
+        </Actions>
         <Title>Back 2 Space</Title>
         <a href="constructarcade.com">constructarcade.com</a>
         <Description>

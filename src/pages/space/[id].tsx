@@ -95,12 +95,15 @@ export default function SpaceDetailPage() {
   const handleChange = (_: SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
+  const handleDepositNFT = () => {
+    return;
+  };
 
   return (
     <Container>
       <HeadingSection>
         <FeaturedContainer
-          content={<SpaceFeaturedContent />}
+          content={<SpaceFeaturedContent onDepositNFT={handleDepositNFT} />}
           media={<SpaceFeaturedMedia />}
         />
         <TabsWrapper>
