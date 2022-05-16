@@ -5,7 +5,7 @@ import HeaderTab from './HeaderTab';
 import Button from './Button';
 import ConnectWalletPopup from './ConnectWalletPopup';
 import { shortenHex } from '@/utils/helpers';
-import { WalletConnectContext } from './Layout';
+import { ConnectWalletContext } from './ConnectWalletProvider';
 
 export const StyledButton = styled(Button)({
   background: `linear-gradient(112.17deg, rgba(248, 151, 36, 0.16) 0%, rgba(226, 63, 38, 0.16) 100%)`,
@@ -18,7 +18,7 @@ const Header = () => {
     setAddress,
     onClickConnectWallet,
     onCloseConnectWallet,
-  } = useContext(WalletConnectContext);
+  } = useContext(ConnectWalletContext);
 
   return (
     <>

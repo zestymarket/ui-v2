@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import { styled, Typography } from '@mui/material';
-import React, { Dispatch, SetStateAction, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Footer from './Footer';
 import Header from './Header';
 
@@ -25,20 +25,6 @@ const StyledContainer = styled(`div`)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
 }));
 
-export const WalletConnectContext = React.createContext<{
-  connectWalletPopup: boolean;
-  address: string;
-  setAddress: Dispatch<SetStateAction<string>>;
-  onClickConnectWallet: () => void;
-  onCloseConnectWallet: () => void;
-}>({
-  connectWalletPopup: false,
-  address: ``,
-  setAddress: () => {},
-  onClickConnectWallet: () => {},
-  onCloseConnectWallet: () => {},
-});
-
 const Layout: React.FC<Props> = ({ children }) => {
   const [noAuthRequired, setNoAuthRequired] = useState<boolean>(false);
   const [web3Loaded, setWeb3Loaded] = useState<boolean>(false);
@@ -62,14 +48,6 @@ const Layout: React.FC<Props> = ({ children }) => {
       setWeb3Loaded(true);
     }, 2000);
   }, []);
-
-  // const [connectWalletPopup, showConnectWalletPopup] = useState<boolean>(false);
-  // const [address, setAddress] = useState<string>(``);
-
-  // const onClickConnectWallet = () => {
-  //   showConnectWalletPopup(true);
-  // };
-  // const onCloseConnectWallet = () => showConnectWalletPopup(false);
 
   return (
     <StyledContainer>
