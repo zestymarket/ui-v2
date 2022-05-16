@@ -8,7 +8,7 @@ import { injected } from '@/utils/connectors';
 import { Grid, Stack } from '@mui/material';
 import Button from '@/components/Button';
 import { formatPrice, formatUSDC, shortenHex } from '@/utils/helpers';
-import { WalletConnectContext } from '@/components/Layout';
+import { ConnectWalletContext } from '@/components/ConnectWalletProvider';
 import { USDC_ABI, USDC_ADDRESS } from '@/lib/contracts';
 import { BigNumber } from '@ethersproject/bignumber';
 import WalletBalance from './WalletBalance';
@@ -57,7 +57,7 @@ export default function Account() {
   const [connectorName, setConnectorName] = useState(``);
   const [usdcBalance, setUsdcBalance] = useState(``);
   const [ethBalance, setEthBalance] = useState(``);
-  const { onClickConnectWallet } = useContext(WalletConnectContext);
+  const { onClickConnectWallet } = useContext(ConnectWalletContext);
 
   useEffect(() => {
     const { ethereum } = window as any;
