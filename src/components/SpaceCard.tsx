@@ -28,13 +28,13 @@ const StyledCardSkeleton = styled(Card)({
 const StyledCard = styled(Card)({
   borderRadius: 16,
   position: `relative`,
-  margin: `auto`,
   maxWidth: 290,
   overflow: `hidden`,
 });
 
 const StyledActionArea = styled(CardActionArea)(({ theme }) => ({
   borderRadius: `inherit`,
+  border: `1px solid transparent`,
   '& .MuiCardActionArea-focusHighlight': {
     display: `none`,
   },
