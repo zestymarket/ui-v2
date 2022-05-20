@@ -50,7 +50,14 @@ const Layout: React.FC<Props> = ({ children }) => {
     }, 2000);
   }, []);
 
+  const [connectWalletPopup, showConnectWalletPopup] = useState<boolean>(false);
+  const [address, setAddress] = useState<string>(``);
   const { name } = React.useContext(PageContext);
+
+  const onClickConnectWallet = () => {
+    showConnectWalletPopup(true);
+  };
+  const onCloseConnectWallet = () => showConnectWalletPopup(false);
 
   return (
     <StyledContainer>
