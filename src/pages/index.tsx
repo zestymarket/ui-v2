@@ -20,7 +20,7 @@ import {
   hasOpenAuction,
 } from '@/utils/helpers';
 import { getCategoryFromFormat, SpaceFormats } from '@/utils/formats';
-import SpaceData from '@/utils/SpaceData';
+import SpaceData from '@/utils/classes/SpaceData';
 import SpaceCard from '@/components/SpaceCard';
 import FormatFilters, {
   FormatOption,

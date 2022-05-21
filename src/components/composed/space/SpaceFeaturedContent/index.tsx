@@ -20,7 +20,7 @@ import { getENSOrWallet } from '@/utils/hooks';
 import moment from 'moment';
 import makeBlockie from 'ethereum-blockies-base64';
 
-const DATEFORMAT = `Do MMMM[,] YYYY h:mm [UTC]`;
+const DATEFORMAT = `Do MMMM[,] YYYY hh:mm [UTC]`;
 
 interface Props {
   spaceData: SpaceData | null;
@@ -37,9 +37,7 @@ const SpaceFeaturedContent: React.FC<Props> = ({ spaceData, onDepositNFT }) => {
         if (addr.endsWith(`.eth`)) setAddress(addr);
         else setAddress(shortenHex(addr, 3));
       });
-      setCreationDate(
-        moment.utc(spaceData.timeCreated * 1000).format(DATEFORMAT),
-      );
+      setCreationDate(moment.unix(spaceData.timeCreated).format(DATEFORMAT));
     }
   }, [spaceData, address]);
 

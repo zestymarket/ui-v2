@@ -1,5 +1,5 @@
 import { formatIpfsUri } from '../helpers';
-import { Auction } from '../types/Auctions';
+import Auction from './Auction';
 
 export default class SpaceData {
   id: number;
@@ -29,17 +29,19 @@ export default class SpaceData {
     this.volume = tokenData.cumulativeVolumeUSDC;
     this.burned = tokenData.burned;
 
-    this.auctions = tokenData.sellerNFTSetting?.sellerAuctions;
+    this.auctions = tokenData.sellerNFTSetting?.sellerAuctions.map(
+      (sellerAuction: any) => new Auction(sellerAuction),
+    );
 
     if (this.auctions) {
       const currentTime = Number((Date.now() / 1000).toFixed(0));
 
-      this.auctions.forEach((sellerAuction: Auction) => {
+      this.auctions.forEach((auction: Auction) => {
         if (
-          currentTime < Number(sellerAuction.contractTimeEnd) &&
-          sellerAuction.cancelled === false
+          currentTime < Number(auction.sellerAuction.contractTimeEnd) &&
+          auction.sellerAuction.cancelled === false
         )
-          this.activeAuctions.push(sellerAuction);
+          this.activeAuctions.push(auction);
       });
     }
   }

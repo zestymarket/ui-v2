@@ -7,7 +7,6 @@ import { Web3Provider } from '@ethersproject/providers';
 import SpaceFeaturedContent from '@/components/composed/space/SpaceFeaturedContent';
 import SpaceFeaturedMedia from '@/components/composed/space/SpaceFeaturedMedia';
 import FeaturedContainer from '@/components/layout/FeaturedContainer';
-import OptionButtonGroup from '@/components/based/OptionButtonGroup';
 import SwitchToggle from '@/components/based/SwitchToggle';
 import AuctionDataTable from '@/components/based/AuctionDataTable';
 import { Button, Tab, Tabs } from '@mui/material';
@@ -17,7 +16,7 @@ import { useEagerConnect, useInactiveListener } from '@/utils/hooks';
 import { GET_ONE_ZESTY_NFT } from '@/lib/queries';
 import { getClient } from '@/lib/graphql';
 import SpaceData from '@/utils/classes/SpaceData';
-import { shortenHex, removeHttps, formatIpfsUri } from '@/utils/helpers';
+import { formatIpfsUri } from '@/utils/helpers';
 
 export const Container = styled(`div`)({
   display: `flex`,
@@ -95,7 +94,8 @@ export const SectionInner = styled(`div`)({
 
 export const ConfigPanel = styled(`div`)({
   display: `flex`,
-  alignItems: `center`,
+  alignItems: `flex-end`,
+  flexDirection: `column`,
   justifyContent: `space-between`,
   marginBottom: 30,
 });
@@ -105,14 +105,14 @@ export default function SpaceDetailPage({
   data,
   uri,
 }: InferGetServerSidePropsType<typeof getServerSideProps>): JSX.Element {
-  const { account, chainId } = useWeb3React<Web3Provider>();
+  const { account } = useWeb3React<Web3Provider>();
   const [value, setValue] = useState(0);
   const [spaceData, setSpaceData] = useState<SpaceData | null>(null);
 
-  const [isCreator, setIsCreator] = useState<boolean>(false);
+  const [, setIsCreator] = useState<boolean>(false);
 
-  const [pendingBalance, setPendingBalance] = useState<number>(0);
-  const [claimableBalance, setClaimableBalance] = useState<number>(0);
+  const [, setPendingBalance] = useState<number>(0);
+  const [, setClaimableBalance] = useState<number>(0);
 
   const handleChange = (_: SyntheticEvent, newValue: number) => {
     setValue(newValue);
@@ -122,13 +122,13 @@ export default function SpaceDetailPage({
   };
 
   useEffect(() => {
-    if (!uri || !data) return;
+    if (!uri || !data || !id) return;
 
     const newSpaceData = new SpaceData(data.tokenData, uri);
 
     // if (newSpaceData.activeAuctions.length > 0) setHasActiveAuctions(true);
     setSpaceData(newSpaceData);
-  }, [data, uri]);
+  }, [data, uri, id]);
 
   useEffect(() => {
     if (!account || !spaceData) return;
@@ -144,7 +144,8 @@ export default function SpaceDetailPage({
         spaceData?.auctions.forEach((auction) => {
           const { contract } = auction;
           if (contract?.withdrawn === false) {
-            const isClaimable = now - Number(auction.auctionTimeEnd) > 0;
+            const isClaimable =
+              now - Number(auction.sellerAuction.auctionTimeEnd) > 0;
             if (isClaimable === true) {
               claimable += Number(contract.contractValue);
               // idsToWithdraw.push(contract.id);
@@ -190,7 +191,7 @@ export default function SpaceDetailPage({
       <ContentSection>
         <SectionInner>
           <ConfigPanel>
-            <OptionButtonGroup
+            {/* <OptionButtonGroup
               options={[
                 { value: 1, label: `THE FRONTPAGE 34` },
                 { value: 2, label: `LEFT SIDEBAR 24` },
@@ -199,13 +200,10 @@ export default function SpaceDetailPage({
               allLabel="ALL 123"
               allOption
               multiple
-            />
+            /> */}
             <SwitchToggle label="Only available" />
           </ConfigPanel>
-          <AuctionDataTable
-            auctions={spaceData?.activeAuctions || []}
-            format={`test`}
-          />
+          <AuctionDataTable auctions={spaceData?.activeAuctions || []} />
         </SectionInner>
       </ContentSection>
     </Container>

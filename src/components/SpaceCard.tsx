@@ -9,7 +9,7 @@ import {
   styled,
   CardActionArea,
 } from '@mui/material';
-import SpaceData from '@/utils/SpaceData';
+import SpaceData from '@/utils/classes/SpaceData';
 
 const CARD_HEIGHT = 354;
 

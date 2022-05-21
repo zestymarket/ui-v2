@@ -10,4 +10,5 @@ export const Wrapper = styled(`div`, {
   minHeight: 390,
   background: `url('${src}')`,
   backgroundSize: `cover`,
+  backgroundPosition: `center center`,
 }));
