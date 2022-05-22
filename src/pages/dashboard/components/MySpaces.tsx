@@ -10,6 +10,12 @@ import { styled } from '@mui/material';
 import SpaceCard from '@/components/SpaceCard';
 import Button from '@/components/Button';
 import Head from 'next/head';
+import throttle from 'lodash.throttle';
+import LoadingBar from 'react-top-loading-bar';
+import { Box, CircularProgress } from '@mui/material';
+let lastScrollTop = 0;
+const PAGE_LIMIT = 20;
+let timeout = -1;
 
 const Header = styled(`header`)({
   display: `flex`,
@@ -41,32 +47,67 @@ const StyledWrapper = styled(`div`)(({ theme }) => ({
 export default function MySpaces() {
   const { account, chainId } = useWeb3React<Web3Provider>();
   const client = getClient(chainId ?? 0);
+  const [loadingMore, setLoadingMore] = useState<boolean>(false);
+  const [loadingData, setLoadingData] = useState<boolean>(true);
+  const [skip, setSkip] = useState<number>(0);
   const [spacesData, setSpacesData] = useState([] as SpaceData[]);
   const { data, loading, error } = useQuery(GET_ZESTY_NFT_BY_CREATOR, {
     variables: {
       creator: account,
-      first: 20,
-      skip: 0,
+      first: PAGE_LIMIT,
+      skip,
     },
     fetchPolicy: `network-only`,
     client: client,
+    onError: () => setLoadingMore(false),
   });
+  const handleScroll = async () => {
+    if (
+      window.pageYOffset + window.innerHeight >=
+      document.documentElement.scrollHeight - 10
+    ) {
+      const scrollTop = document.documentElement.scrollTop;
+      if (lastScrollTop && scrollTop < lastScrollTop) return;
+      lastScrollTop = scrollTop;
+      if (loadingMore) return;
+      setSkip(skip + PAGE_LIMIT);
+      setLoadingMore(true);
+      timeout = window.setTimeout(() => setLoadingMore(false), 5000);
+    }
+  };
+
+  const throttledHandler = throttle(handleScroll, 500, { leading: true });
+
   useEffect(() => {
+    // if (loadingData) return;
+    window.addEventListener(`scroll`, throttledHandler);
+    return () => window.removeEventListener(`scroll`, throttledHandler);
+  }, []);
+
+  useEffect(() => {
+    window.clearTimeout(timeout);
     if (loading == false && !error && data) {
-      const _spacesData: SpaceData[] = [];
+      const _spacesData: SpaceData[] = spacesData.slice();
+      const array = data?.tokenDatas ?? [];
+      if (!array.length) setLoadingMore(false);
       Promise.all(
-        data.tokenDatas.map(async (tokenData: any) => {
+        array.map(async (tokenData: any) => {
           const url = formatIpfsUri(tokenData.uri);
           const uri = await (await fetch(url)).json();
           _spacesData.push(new SpaceData(tokenData, uri));
         }),
-      ).then(() => setSpacesData(_spacesData));
+      ).then(() => {
+        setSpacesData(_spacesData);
+        setLoadingMore(false);
+        setLoadingData(false);
+      });
     }
   }, [data, loading, error]);
 
   if (error) console.error(error);
   return (
     <StyledWrapper>
+      <LoadingBar progress={loadingMore ? 50 : 100} />
       <Head>
         <title>My Spaces</title>
       </Head>
@@ -77,14 +118,25 @@ export default function MySpaces() {
         </Button>
       </Header>
       <Container>
-        {!loading &&
+        {!loadingData &&
           spacesData?.length > 0 &&
-          Array(100)
-            .fill(spacesData[0])
-            .map((spaceData, i) => {
-              return <SpaceCard key={i} spaceData={spaceData} />;
-            })}
-        {!loading && spacesData?.length === 0 && <div>No Spaces Created</div>}
+          spacesData.map((spaceData, i) => {
+            return <SpaceCard key={i} spaceData={spaceData} />;
+          })}
+        {loadingData && (
+          <Box
+            display="flex"
+            justifyContent="center"
+            width="100%"
+            marginTop="50px"
+            paddingBottom="100px"
+          >
+            <CircularProgress />
+          </Box>
+        )}
+        {!loadingData && spacesData?.length === 0 && (
+          <div>No Spaces Created</div>
+        )}
       </Container>
     </StyledWrapper>
   );
