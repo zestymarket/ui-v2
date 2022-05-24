@@ -1,3 +1,4 @@
+import { SellerAuction } from '@/lib/types';
 import { BigNumber } from '@ethersproject/bignumber';
 import { formatUnits } from '@ethersproject/units';
 import moment from 'moment';
@@ -55,7 +56,7 @@ export function getAuctionStatus(auction: any) {
 export default class Auction {
   buyerCampaign: BuyerCampaign;
   buyerCampaignUri: any;
-  sellerAuction: any;
+  sellerAuction: SellerAuction;
   status: AUCTION_STATUS;
   contract: Contract;
 

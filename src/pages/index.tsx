@@ -187,8 +187,8 @@ const Market = () => {
     }
 
     newSortedData.sort((a, b) => {
-      a.hasActiveAuctions = hasOpenAuction(a.auctions);
-      b.hasActiveAuctions = hasOpenAuction(b.auctions);
+      // a.hasActiveAuctions = hasOpenAuction(a.auctions);
+      // b.hasActiveAuctions = hasOpenAuction(b.auctions);
       return a.hasActiveAuctions === b.hasActiveAuctions
         ? 0
         : a.hasActiveAuctions

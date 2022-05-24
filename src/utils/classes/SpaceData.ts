@@ -15,6 +15,7 @@ export default class SpaceData {
   volume: number;
   auctions: Auction[];
   activeAuctions: Auction[] = [];
+  hasActiveAuctions: boolean;
 
   constructor(tokenData: any, uri: any) {
     this.id = tokenData.id;
@@ -28,6 +29,7 @@ export default class SpaceData {
     this.timeCreated = tokenData.timeCreated;
     this.volume = tokenData.cumulativeVolumeUSDC;
     this.burned = tokenData.burned;
+    this.hasActiveAuctions = false;
 
     this.auctions = tokenData.sellerNFTSetting?.sellerAuctions.map(
       (sellerAuction: any) => new Auction(sellerAuction),
@@ -40,8 +42,10 @@ export default class SpaceData {
         if (
           currentTime < Number(auction.sellerAuction.contractTimeEnd) &&
           auction.sellerAuction.cancelled === false
-        )
+        ) {
+          this.hasActiveAuctions = true;
           this.activeAuctions.push(auction);
+        }
       });
     }
   }
