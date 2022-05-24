@@ -129,7 +129,7 @@ const headCells: readonly HeadCell[] = [
   },
   {
     id: `campaign`,
-    numeric: true,
+    numeric: false,
     disablePadding: true,
     label: `Campaign`,
   },
@@ -303,6 +303,7 @@ const DataTable: React.FC<Props> = ({ auctions }) => {
                     </TableBodyCell>
                     <TableBodyCell align="left">{`${row.duration}`}</TableBodyCell>
                     <AuctionDataCampaingCell
+                      align="left"
                       status={row.status}
                       campaignUris={campaignUris}
                       id={row.campaign}

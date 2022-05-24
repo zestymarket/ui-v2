@@ -5,12 +5,14 @@ import React, { FC, useEffect, useState } from 'react';
 import { TableBodyCell } from './styles';
 
 export interface ICampaignCell {
+  align: 'left' | 'center' | 'right' | 'justify' | 'inherit' | undefined;
   status: AUCTION_STATUS;
   campaignUris: any;
   id: number;
 }
 
 const AuctionDataCampaingCell: FC<ICampaignCell> = ({
+  align,
   status,
   campaignUris,
   id,
@@ -23,14 +25,12 @@ const AuctionDataCampaingCell: FC<ICampaignCell> = ({
   }, [campaignUris, id]);
 
   return (
-    <TableBodyCell align="left">
+    <TableBodyCell align={align}>
       {status === AUCTION_STATUS.awaiting_approval ||
       status === AUCTION_STATUS.active ||
       status === AUCTION_STATUS.bought ||
       status === AUCTION_STATUS.finished ? (
-        <Link href={`/campaigns/${id}?chainId=${chainId}`} color="inherit">
-          {name}
-        </Link>
+        <Link href={`/campaigns/${id}?chainId=${chainId}`}>{name}</Link>
       ) : (
         `None`
       )}
