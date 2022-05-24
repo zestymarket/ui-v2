@@ -61,27 +61,28 @@ export default function MySpaces() {
     client: client,
     onError: () => setLoadingMore(false),
   });
-  const handleScroll = async () => {
-    if (
-      window.pageYOffset + window.innerHeight >=
-      document.documentElement.scrollHeight - 10
-    ) {
-      const scrollTop = document.documentElement.scrollTop;
-      if (lastScrollTop && scrollTop < lastScrollTop) return;
-      lastScrollTop = scrollTop;
-      if (loadingMore) return;
-      setSkip(skip + PAGE_LIMIT);
-      setLoadingMore(true);
-      timeout = window.setTimeout(() => setLoadingMore(false), 5000);
-    }
-  };
-
-  const throttledHandler = throttle(handleScroll, 500, { leading: true });
-
   useEffect(() => {
-    // if (loadingData) return;
+    const throttledHandler = throttle(
+      async () => {
+        if (
+          window.pageYOffset + window.innerHeight >=
+          document.documentElement.scrollHeight - 10
+        ) {
+          const scrollTop = document.documentElement.scrollTop;
+          if (lastScrollTop && scrollTop < lastScrollTop) return;
+          lastScrollTop = scrollTop;
+          if (loadingMore) return;
+          setSkip(skip + PAGE_LIMIT);
+          setLoadingMore(true);
+          timeout = window.setTimeout(() => setLoadingMore(false), 5000);
+        }
+      },
+      500,
+      { leading: true },
+    );
     window.addEventListener(`scroll`, throttledHandler);
     return () => window.removeEventListener(`scroll`, throttledHandler);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -102,6 +103,7 @@ export default function MySpaces() {
         setLoadingData(false);
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, loading, error]);
 
   if (error) console.error(error);

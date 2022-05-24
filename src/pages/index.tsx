@@ -100,27 +100,28 @@ const Market = () => {
     client: client,
   });
 
-  const handleScroll = async () => {
-    if (
-      window.pageYOffset + window.innerHeight >=
-      document.documentElement.scrollHeight - 10
-    ) {
-      const scrollTop = document.documentElement.scrollTop;
-      if (lastScrollTop && scrollTop < lastScrollTop) return;
-      lastScrollTop = scrollTop;
-      if (loadingMore) return;
-      setSkip(skip + PAGE_LIMIT);
-      setLoadingMore(true);
-      timeout = window.setTimeout(() => setLoadingMore(false), 5000);
-    }
-  };
-
-  const throttledHandler = throttle(handleScroll, 500, { leading: true });
-
   useEffect(() => {
-    // if (loadingData) return;
+    const throttledHandler = throttle(
+      async () => {
+        if (
+          window.pageYOffset + window.innerHeight >=
+          document.documentElement.scrollHeight - 10
+        ) {
+          const scrollTop = document.documentElement.scrollTop;
+          if (lastScrollTop && scrollTop < lastScrollTop) return;
+          lastScrollTop = scrollTop;
+          if (loadingMore) return;
+          setSkip(skip + PAGE_LIMIT);
+          setLoadingMore(true);
+          timeout = window.setTimeout(() => setLoadingMore(false), 5000);
+        }
+      },
+      500,
+      { leading: true },
+    );
     window.addEventListener(`scroll`, throttledHandler);
     return () => window.removeEventListener(`scroll`, throttledHandler);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // useEffect(() => {
@@ -159,6 +160,7 @@ const Market = () => {
         setLoadingMore(false);
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, error, loading]);
 
   useEffect(() => {
