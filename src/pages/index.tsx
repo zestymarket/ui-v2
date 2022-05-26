@@ -6,6 +6,7 @@ import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { GET_ACTIVE_SPACES } from '@/lib/queries';
 import { getClient } from '@/lib/graphql';
+import throttle from 'lodash.throttle';
 import {
   SellerNFTSettingQuery,
   SellerNFTSettingVars,
@@ -27,6 +28,7 @@ import FormatFilters, {
 } from '@/components/FormatFilters';
 import ActiveSwitch from '@/components/ActiveSwitch';
 import Sort, { SORT } from '@/components/Sort';
+import LoadingBar from 'react-top-loading-bar';
 
 const skeletonData = [
   undefined,
@@ -60,7 +62,9 @@ const StyledSpaceCardContainer = styled(Grid)({
     gridGap: `32px`,
   },
 });
-
+let lastScrollTop = 0;
+const PAGE_LIMIT = 100;
+let timeout = -1;
 const Market = () => {
   const { chainId } = useWeb3React<Web3Provider>();
   // const { query } = useRouter();
@@ -73,16 +77,16 @@ const Market = () => {
   const [sortedMarketData, setSortedMarketData] = useState<SpaceData[]>([]);
   const [selectedSort, setSelectedSort] = useState<SORT>(SORT.HIGHEST_VOLUME);
   const [selectedFilters, setSelectedFilters] = useState<FormatOption[]>([]);
-
+  const [loadingMore, setLoadingMore] = useState<boolean>(false);
   // query filtering
-  const [skip] = useState<number>(0);
+  const [skip, setSkip] = useState<number>(0);
 
   const { data, loading, error } = useQuery<
     SellerNFTSettingQuery,
     SellerNFTSettingVars | TokenDataVars
   >(GET_ACTIVE_SPACES, {
     variables: {
-      first: 100,
+      first: PAGE_LIMIT,
       skip: skip,
       cancelled: false,
       burned: false,
@@ -92,8 +96,33 @@ const Market = () => {
     fetchPolicy: `network-only`,
     // onCompleted: hideLoading
     onCompleted: () => undefined,
+    onError: () => setLoadingMore(false),
     client: client,
   });
+
+  useEffect(() => {
+    const throttledHandler = throttle(
+      async () => {
+        if (
+          window.pageYOffset + window.innerHeight >=
+          document.documentElement.scrollHeight - 10
+        ) {
+          const scrollTop = document.documentElement.scrollTop;
+          if (lastScrollTop && scrollTop < lastScrollTop) return;
+          lastScrollTop = scrollTop;
+          if (loadingMore) return;
+          setSkip(skip + PAGE_LIMIT);
+          setLoadingMore(true);
+          timeout = window.setTimeout(() => setLoadingMore(false), 5000);
+        }
+      },
+      500,
+      { leading: true },
+    );
+    window.addEventListener(`scroll`, throttledHandler);
+    return () => window.removeEventListener(`scroll`, throttledHandler);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // useEffect(() => {
   //   if (query.verified) {
@@ -104,11 +133,13 @@ const Market = () => {
   // }, []);
 
   useEffect(() => {
+    window.clearTimeout(timeout);
     if (loading == false && !error && data) {
-      const newMarketData: SpaceData[] = [];
-
+      const aggregateMarketData: SpaceData[] = marketData.slice();
+      const array = data.sellerNFTSettings || [];
+      if (!array.length) setLoadingMore(false);
       Promise.all(
-        (data.sellerNFTSettings || []).map(async (setting) => {
+        array.map(async (setting) => {
           const tokenData: TokenData = { ...setting.tokenData };
 
           if (tokenData.burned === true) return;
@@ -120,14 +151,16 @@ const Market = () => {
             const uri = await (await fetch(url)).json();
             const spaceData = new SpaceData(tokenData, uri);
 
-            newMarketData.push(spaceData);
+            aggregateMarketData.push(spaceData);
           } catch {}
         }),
       ).then(() => {
         setLoadingData(false);
-        setMarketData(newMarketData);
+        setMarketData(aggregateMarketData);
+        setLoadingMore(false);
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, error, loading]);
 
   useEffect(() => {
@@ -228,6 +261,7 @@ const Market = () => {
       alignItems="stretch"
       style={{ maxWidth: `1400px`, margin: `auto` }}
     >
+      <LoadingBar progress={loadingMore ? 50 : 100} />
       <StyledHeader
         item
         container
