@@ -16,3 +16,11 @@ a {
 * {
   box-sizing: border-box;
 }
+
+.notistack-variant_info.SnackbarItem-variantInfo {
+  background-color: #F2B132;
+}
+
+.notistack-variant_success.SnackbarItem-variantSuccess {
+  background-color: #28D659;
+}

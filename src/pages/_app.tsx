@@ -12,6 +12,11 @@ import ConnectWalletProvider from '@/components/ConnectWalletProvider';
 import { PageProvider } from '../lib/context/page';
 import { store, persistor } from '../lib/redux/rootReducer';
 import { PersistGate } from 'redux-persist/integration/react';
+import { SnackbarProvider } from 'notistack';
+import {
+  SNACKBAR_CLASSES,
+  SNACKBAR_DEFAULT_ANCHOR_ORIGIN,
+} from '@/lib/snackbar';
 
 function getLibrary(provider: any): Web3Provider {
   const library = new Web3Provider(provider);
@@ -25,16 +30,21 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
       <ApolloProvider client={client}>
         <ConnectWalletProvider>
           <ThemeProvider theme={theme}>
-            <ReduxProvider store={store}>
-              <PersistGate loading={null} persistor={persistor}>
-                <PageProvider>
-                  <CssBaseline />
-                  <Layout>
-                    <Component {...pageProps} />
-                  </Layout>
-                </PageProvider>
-              </PersistGate>
-            </ReduxProvider>
+            <SnackbarProvider
+              classes={SNACKBAR_CLASSES}
+              anchorOrigin={SNACKBAR_DEFAULT_ANCHOR_ORIGIN}
+            >
+              <ReduxProvider store={store}>
+                <PersistGate loading={null} persistor={persistor}>
+                  <PageProvider>
+                    <CssBaseline />
+                    <Layout>
+                      <Component {...pageProps} />
+                    </Layout>
+                  </PageProvider>
+                </PersistGate>
+              </ReduxProvider>
+            </SnackbarProvider>
           </ThemeProvider>
         </ConnectWalletProvider>
       </ApolloProvider>

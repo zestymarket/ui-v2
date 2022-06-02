@@ -12,6 +12,7 @@ import {
   styled,
 } from '@mui/material';
 import validator from 'validator';
+import { useSnackbar } from 'notistack';
 import SubHeader from '@/components/SubHeader';
 import Button from '@/components/Button';
 import {
@@ -69,6 +70,10 @@ const StyleHelperText = styled(FormHelperText)({
   right: 0,
 });
 
+const StyledProgress1Button = styled(Button)({
+  color: `#fff`,
+});
+
 const formFieldProps: StackProps = {
   direction: `row`,
   alignItems: `center`,
@@ -95,15 +100,19 @@ const getFormatChoices = () => {
   );
 };
 
+type ButtonVariants = 'DEFAULT' | 'LOADING_1' | 'LOADING_2';
+
 const CreateCampaign = () => {
   const zestyMarketUSDC = useZestyMarketUSDC(true);
   const router = useRouter();
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
   const [name, setName] = useState<string>(``);
   const [format, setFormat] = useState<string>(``);
   const [image, setImage] = useState<string | null>(null);
   const [url, setURL] = useState<string>(``);
   const [description, setDescription] = useState<string>(``);
+  const [buttonVariant, setButtonVariant] = useState<ButtonVariants>(`DEFAULT`);
 
   const isSubmitDisabled =
     !name ||
@@ -123,8 +132,18 @@ const CreateCampaign = () => {
       const formData = new FormData();
       formData.append(`file`, file);
 
-      // snackbar  "Data is being uploaded to IPFS, please wait and do not close this window just yet"
+      const snackbarKey1 = enqueueSnackbar(
+        `Data is being uploaded to IPFS, please wait and DO NOT close this window.`,
+        {
+          variant: `info`,
+          anchorOrigin: {
+            horizontal: `center`,
+            vertical: `bottom`,
+          },
+        },
+      );
 
+      setButtonVariant(`LOADING_1`);
       const imgIPFSRes = await pinFileToIPFS(formData);
       const newImageUrl = `ipfs://${imgIPFSRes.data.IpfsHash}`;
       const campaignData = {
@@ -136,23 +155,99 @@ const CreateCampaign = () => {
       };
 
       const jsonIPFSHash = await pinJSONToIPFS(campaignData);
-      // snackbar `Data has been uploaded to IPFS, please approve the creation of the campaign on the contract`,
+      const snackbarKey2 = enqueueSnackbar(
+        `Data has been uploaded to IPFS, please approve the creation of the campaign on the contract`,
+        {
+          variant: `success`,
+          autoHideDuration: 2000,
+          anchorOrigin: {
+            horizontal: `center`,
+            vertical: `top`,
+          },
+        },
+      );
+      closeSnackbar(snackbarKey1);
 
       await zestyMarketUSDC.buyerCampaignCreate(
         `ipfs://` + jsonIPFSHash.data.IpfsHash,
       );
+      const snackbarKey3 = enqueueSnackbar(
+        `Please wait for the data to be added on chain`,
+        {
+          variant: `info`,
+          autoHideDuration: 2000,
+          anchorOrigin: {
+            horizontal: `center`,
+            vertical: `bottom`,
+          },
+        },
+      );
+      closeSnackbar(snackbarKey2);
+      setButtonVariant(`LOADING_2`);
 
-      // snackbar:  `Please wait for the data to be added on chain`
+      enqueueSnackbar(`Successfully created a new campaign`, {
+        variant: `success`,
+        anchorOrigin: {
+          horizontal: `center`,
+          vertical: `bottom`,
+        },
+      });
+      closeSnackbar(snackbarKey3);
 
-      // await campaignCreationRes.wait();
-      // snackbar: `Successfully created a new campaign`
       // show loading
       // change route?
       router.push(`/`);
     } catch (err) {
       console.log(`Campaign creation error: `, err);
-      // snackbar: `An Error has occured`
+      enqueueSnackbar((err as any).message || `Campaign creation error`, {
+        variant: `error`,
+        autoHideDuration: 2000,
+        anchorOrigin: {
+          horizontal: `center`,
+          vertical: `bottom`,
+        },
+      });
     }
+  };
+
+  const renderSubmitButton = () => (
+    <Button disabled={!!isSubmitDisabled} onClick={onSubmit}>
+      Create New Campaign
+    </Button>
+  );
+
+  const renderSubmitButtonProgress1 = () => (
+    <StyledProgress1Button outlined onClick={() => null}>
+      <Stack flexDirection="row">
+        <img
+          src="/icons/loading.svg"
+          width={24}
+          height={24}
+          style={{ marginRight: 8 }}
+        />
+        <span>1/2 Campaign creating...</span>
+      </Stack>
+    </StyledProgress1Button>
+  );
+
+  const renderSubmitButtonProgress2 = () => (
+    <StyledProgress1Button outlined onClick={() => null}>
+      <Stack flexDirection="row">
+        <img
+          src="/icons/loading.svg"
+          width={24}
+          height={24}
+          style={{ marginRight: 8 }}
+        />
+        <span>2/2 Campaign creating...</span>
+      </Stack>
+    </StyledProgress1Button>
+  );
+
+  const buttonRenderer: { [key in ButtonVariants]: () => JSX.Element } = {
+    DEFAULT: renderSubmitButton,
+    LOADING_1: renderSubmitButtonProgress1,
+    LOADING_2: renderSubmitButtonProgress2,
   };
 
   return (
@@ -233,11 +328,7 @@ const CreateCampaign = () => {
           />
         </Stack>
 
-        <Stack justifyContent="center">
-          <Button disabled={!!isSubmitDisabled} onClick={onSubmit}>
-            Create New Campaign
-          </Button>
-        </Stack>
+        <Stack justifyContent="center">{buttonRenderer[buttonVariant]()}</Stack>
       </StyledForm>
     </>
   );
