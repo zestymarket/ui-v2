@@ -111,7 +111,7 @@ interface IDataTableHead {
 const headCells: readonly HeadCell[] = [
   {
     id: `id`,
-    numeric: false,
+    numeric: true,
     disablePadding: true,
     label: `ID`,
   },
@@ -210,6 +210,7 @@ const DataTable: React.FC<Props> = ({ auctions }) => {
   );
 
   useEffect(() => {
+    if (!auctions) return;
     const rowOut = [];
     for (let i = 0; i < auctions.length; i++) {
       const auction = auctions[i];
@@ -291,6 +292,7 @@ const DataTable: React.FC<Props> = ({ auctions }) => {
                 return (
                   <TableRow hover tabIndex={-1} key={row.id}>
                     <TableBodyCell
+                      align="right"
                       component="th"
                       id={labelId}
                       scope="row"

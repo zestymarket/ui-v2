@@ -9,7 +9,7 @@ import SpaceFeaturedMedia from '@/components/composed/space/SpaceFeaturedMedia';
 import FeaturedContainer from '@/components/layout/FeaturedContainer';
 import SwitchToggle from '@/components/based/SwitchToggle';
 import AuctionDataTable from '@/components/based/AuctionDataTable';
-import { Button, Tab, Tabs } from '@mui/material';
+import { Button, Grid, Tab, Tabs } from '@mui/material';
 import { styled } from '@mui/system';
 import { useEagerConnect, useInactiveListener } from '@/utils/hooks';
 
@@ -17,6 +17,8 @@ import { GET_ONE_ZESTY_NFT } from '@/lib/queries';
 import { getClient } from '@/lib/graphql';
 import SpaceData from '@/utils/classes/SpaceData';
 import { formatIpfsUri } from '@/utils/helpers';
+import { current } from '@reduxjs/toolkit';
+import SpaceHistoricalChart from '@/components/composed/space/SpaceHistoricalChart';
 
 export const Container = styled(`div`)({
   display: `flex`,
@@ -100,22 +102,52 @@ export const ConfigPanel = styled(`div`)({
   marginBottom: 30,
 });
 
+export const AssetContainer = styled(Grid)(({ theme }) => ({
+  backgroundColor: theme.palette.background.default,
+  height: 156,
+  textAlign: `center`,
+  borderRadius: 8,
+  display: `flex`,
+}));
+
+export const AssetContainerLabelText = styled(`div`)(({ theme }) => ({
+  fontFamily: `Inter`,
+  fontStyle: `normal`,
+  fontWeight: 600,
+  fontSize: 18,
+  color: theme.palette.secondary.contrastText,
+}));
+
+export const AssetContainerAssetText = styled(`div`)(({ theme }) => ({
+  fontFamily: `Inter`,
+  fontStyle: `normal`,
+  fontWeight: 700,
+  fontSize: 48,
+}));
+
+export const HistoricalHeader = styled(`div`)(({ theme }) => ({
+  fontFamily: `Inter`,
+  fontStyle: `normal`,
+  fontWeight: 700,
+  fontSize: 26,
+  lineHeight: `60px`,
+}));
+
 export default function SpaceDetailPage({
   id,
   data,
   uri,
 }: InferGetServerSidePropsType<typeof getServerSideProps>): JSX.Element {
   const { account } = useWeb3React<Web3Provider>();
-  const [value, setValue] = useState(0);
+  const [currentTab, setCurrentTab] = useState(0);
   const [spaceData, setSpaceData] = useState<SpaceData | null>(null);
 
   const [, setIsCreator] = useState<boolean>(false);
 
-  const [, setPendingBalance] = useState<number>(0);
-  const [, setClaimableBalance] = useState<number>(0);
+  const [pendingBalance, setPendingBalance] = useState<number>(0);
 
-  const handleChange = (_: SyntheticEvent, newValue: number) => {
-    setValue(newValue);
+  const handleTabChange = (_: SyntheticEvent, newValue: number) => {
+    setCurrentTab(newValue);
   };
   const handleDepositNFT = () => {
     return;
@@ -156,7 +188,7 @@ export default function SpaceDetailPage({
     }
 
     setPendingBalance(pending / 10 ** 6);
-    setClaimableBalance(claimable / 10 ** 6);
+    // setClaimableBalance(claimable / 10 ** 6);
   }, [spaceData, account]);
 
   return (
@@ -173,8 +205,8 @@ export default function SpaceDetailPage({
         />
         <TabsWrapper>
           <PageTabs
-            value={value}
-            onChange={handleChange}
+            value={currentTab}
+            onChange={handleTabChange}
             indicatorColor="secondary"
             textColor="inherit"
             variant="fullWidth"
@@ -185,13 +217,25 @@ export default function SpaceDetailPage({
             <PageTab label="Analytics" />
             <PageTab label="About" />
           </PageTabs>
-          <BuyButton>How do I buy?</BuyButton>
+          <BuyButton
+            onClick={() => {
+              window
+                .open(
+                  `https://docs.zesty.market/guides/for-advertisers/bid`,
+                  `_blank`,
+                )
+                .focus();
+            }}
+          >
+            How do I buy?
+          </BuyButton>
         </TabsWrapper>
       </HeadingSection>
       <ContentSection>
-        <SectionInner>
-          <ConfigPanel>
-            {/* <OptionButtonGroup
+        {currentTab === 0 && (
+          <SectionInner>
+            <ConfigPanel>
+              {/* <OptionButtonGroup
               options={[
                 { value: 1, label: `THE FRONTPAGE 34` },
                 { value: 2, label: `LEFT SIDEBAR 24` },
@@ -201,10 +245,42 @@ export default function SpaceDetailPage({
               allOption
               multiple
             /> */}
-            <SwitchToggle label="Only available" />
-          </ConfigPanel>
-          <AuctionDataTable auctions={spaceData?.activeAuctions || []} />
-        </SectionInner>
+              <SwitchToggle label="Only available" />
+            </ConfigPanel>
+            <AuctionDataTable auctions={spaceData?.activeAuctions || []} />
+          </SectionInner>
+        )}
+        {currentTab === 1 && (
+          <SectionInner>
+            <SpaceHistoricalChart id={id} />
+            <Grid container pt={4} justifyContent="space-between" spacing={2}>
+              <Grid item xs={12} md={6}>
+                <AssetContainer flexDirection="column" justifyContent="center">
+                  <AssetContainerLabelText>
+                    Total Revenue
+                  </AssetContainerLabelText>
+                  <AssetContainerAssetText>
+                    ${(Number(spaceData.volume) / 10 ** 6).toFixed(2)}
+                  </AssetContainerAssetText>
+                </AssetContainer>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <AssetContainer flexDirection="column" justifyContent="center">
+                  <AssetContainerLabelText>Pending</AssetContainerLabelText>
+                  <AssetContainerAssetText>
+                    ${pendingBalance.toFixed(2)}
+                  </AssetContainerAssetText>
+                </AssetContainer>
+              </Grid>
+              <Grid item xs={12} pt={6}>
+                <HistoricalHeader>Past Auctions</HistoricalHeader>
+                <AuctionDataTable auctions={spaceData?.auctions || []} />
+              </Grid>
+            </Grid>
+          </SectionInner>
+        )}
+        {currentTab === 2 && <SectionInner></SectionInner>}
+        {currentTab === 3 && <SectionInner></SectionInner>}
       </ContentSection>
     </Container>
   );

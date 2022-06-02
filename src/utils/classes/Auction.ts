@@ -171,10 +171,12 @@ export default class Auction {
   }
 
   contractDuration(): string {
-    if (this.currentTime() > this.sellerAuction.contractTimeStart) {
-      return formatTimeLeft(
-        this.sellerAuction.contractTimeEnd - this.currentTime(),
-      );
+    const currentTime = this.currentTime();
+    if (
+      currentTime > this.sellerAuction.contractTimeStart &&
+      currentTime < this.sellerAuction.contractTimeEnd
+    ) {
+      return formatTimeLeft(this.sellerAuction.contractTimeEnd - currentTime);
     } else {
       return formatTimeLeft(
         this.sellerAuction.contractTimeEnd -
