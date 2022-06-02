@@ -1,3 +1,4 @@
+import { Stack } from '@mui/material';
 import { styled } from '@mui/system';
 
 export const Wrapper = styled(`div`)({
@@ -25,6 +26,10 @@ export const MainSection = styled(`section`)({
     },
   },
 });
+
+export const Actions = styled(Stack)(({ theme }) => ({
+  marginBottom: theme.spacing(2),
+}));
 
 export const Title = styled(`div`)({
   fontFamily: `Inter`,

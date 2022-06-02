@@ -25,6 +25,10 @@ export const theme = createTheme({
       styleOverrides: {
         containedPrimary: {
           background: `linear-gradient(112.17deg, #F89724 0%, #E23F26 100%)`,
+          '&.Mui-disabled': {
+            color: '#fff',
+            opacity: 0.6,
+          },
         },
         outlinedPrimary: {
           borderColor: '#F89524',

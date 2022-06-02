@@ -7,6 +7,7 @@ import SwitchToggle from '@/components/based/SwitchToggle';
 import AuctionDataTable from '@/components/based/AuctionDataTable';
 import { Button, Tab, Tabs } from '@mui/material';
 import { styled } from '@mui/system';
+import { useEagerConnect, useInactiveListener } from '@/utils/hooks';
 
 export const Container = styled(`div`)({
   display: `flex`,
@@ -90,17 +91,23 @@ export const ConfigPanel = styled(`div`)({
 });
 
 export default function SpaceDetailPage() {
+  const triedEager = useEagerConnect();
+  useInactiveListener(!triedEager);
+
   const [value, setValue] = React.useState(0);
 
   const handleChange = (_: SyntheticEvent, newValue: number) => {
     setValue(newValue);
+  };
+  const handleDepositNFT = () => {
+    return;
   };
 
   return (
     <Container>
       <HeadingSection>
         <FeaturedContainer
-          content={<SpaceFeaturedContent />}
+          content={<SpaceFeaturedContent onDepositNFT={handleDepositNFT} />}
           media={<SpaceFeaturedMedia />}
         />
         <TabsWrapper>

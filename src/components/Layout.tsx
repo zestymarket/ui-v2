@@ -8,7 +8,7 @@ import { useEagerConnect, useInactiveListener } from '../utils/hooks';
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { useRouter } from 'next/router';
-import { PageContext } from '../lib/context/page';
+import { PageContext } from '@/lib/context/page';
 
 const noAuthRoutes = new Set([
   `/`,
@@ -51,7 +51,6 @@ const Layout: React.FC<Props> = ({ children }) => {
   }, []);
 
   const { name } = React.useContext(PageContext);
-
   return (
     <StyledContainer>
       <Header pageTitle={name || ``} />
