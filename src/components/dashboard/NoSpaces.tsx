@@ -2,7 +2,7 @@ import { Stack, styled, Typography } from '@mui/material';
 import Image from 'next/image';
 import React from 'react';
 import { useRouter } from 'next/router';
-import Button from '../Button';
+import Button from '@/components/Button';
 
 const StyledNoSpacesWrapper = styled(Stack)({
   width: 400,

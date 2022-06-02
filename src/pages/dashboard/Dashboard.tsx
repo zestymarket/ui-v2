@@ -1,9 +1,8 @@
 import TabsContainer from '@/components/TabsContainer';
-import Overview from './components/Overview';
+import Overview from '@/components/dashboard/Overview';
 import Account from '@/components/dashboard/Account';
 import MySpaces from '@/components/dashboard/MySpaces';
 import StyledDashboard from './styled';
-import MySpaces from './components/MySpaces';
 
 export default function Dashboard() {
   return (
@@ -11,11 +10,6 @@ export default function Dashboard() {
       <TabsContainer
         title="Dashboard"
         tabs={[
-          {
-            id: `overview`,
-            label: `Overview`,
-            PanelComponent: Overview,
-          },
           {
             id: `my-spaces`,
             label: `My Spaces`,
@@ -35,11 +29,6 @@ export default function Dashboard() {
             id: `account-management`,
             label: `Account Management`,
             PanelComponent: Account,
-          },
-          {
-            id: `spaces`,
-            label: `My Spaces`,
-            PanelComponent: MySpaces,
           },
         ]}
       />
