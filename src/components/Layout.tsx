@@ -8,7 +8,7 @@ import { useEagerConnect, useInactiveListener } from '../utils/hooks';
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { useRouter } from 'next/router';
-import { PageContext } from '../lib/context/page';
+import { PageContext } from '@/lib/context/page';
 
 const noAuthRoutes = new Set([
   `/`,
@@ -50,15 +50,7 @@ const Layout: React.FC<Props> = ({ children }) => {
     }, 2000);
   }, []);
 
-  const [connectWalletPopup, showConnectWalletPopup] = useState<boolean>(false);
-  const [address, setAddress] = useState<string>(``);
   const { name } = React.useContext(PageContext);
-
-  const onClickConnectWallet = () => {
-    showConnectWalletPopup(true);
-  };
-  const onCloseConnectWallet = () => showConnectWalletPopup(false);
-
   return (
     <StyledContainer>
       <Header pageTitle={name || ``} />

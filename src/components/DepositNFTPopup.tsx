@@ -11,6 +11,7 @@ import {
   styled,
   Typography,
 } from '@mui/material';
+import Image from 'next/image';
 import CloseIcon from '@mui/icons-material/Close';
 import Button from './Button';
 import { useZestyMarketUSDC, useZestyNFT } from '@/utils/hooks';
@@ -147,7 +148,7 @@ const Step: React.FC<StepProps> = ({
     <StyledStep container onClick={onSelect}>
       <Grid className={`imageContainer`} item>
         <StyledStepIcon isCompleted={!!isCompleted}>
-          <img src={icon} alt={title} width={16} height={16} />
+          <Image src={icon} alt={title} width={16} height={16} />
         </StyledStepIcon>
       </Grid>
       <Grid item flex={1} marginLeft={2}>
@@ -155,7 +156,7 @@ const Step: React.FC<StepProps> = ({
         <StyledStepSubtitle>{title}</StyledStepSubtitle>
         {isCompleted ? (
           <Stack flexDirection="row" alignItems="center">
-            <img
+            <Image
               src="/icons/check.svg"
               alt="step-complete"
               width={16}
