@@ -13,6 +13,7 @@ interface Props {
 
 export const PageProvider = ({ children }: Props) => {
   const setPageName = (newName: string) => {
+    // eslint-disable-next-line @typescript-eslint/no-use-before-define
     setPageData((prevState) => {
       return {
         ...prevState,

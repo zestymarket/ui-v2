@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { useRouter } from 'next/router';
 import { styled, Grid } from '@mui/material';
 import Logo from './Logo';
@@ -72,9 +72,9 @@ const Header = ({ pageTitle }: HeaderProps) => {
                 alignItems="center"
               >
                 <Logo />
-                <HeaderTab label="Marketplace" selected />
-                <HeaderTab label="Dashboard" highlighted />
-                <HeaderTab label="Governance" />
+                <HeaderTab label="Marketplace" to="/" />
+                <HeaderTab label="Dashboard" to="/dashboard" />
+                <HeaderTab label="Governance" to="/governance" />
               </Grid>
 
               <Grid
