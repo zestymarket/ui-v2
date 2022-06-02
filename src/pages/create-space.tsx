@@ -12,6 +12,7 @@ import {
   styled,
 } from '@mui/material';
 import validator from 'validator';
+import { useRouter } from 'next/router';
 import SubHeader from '@/components/SubHeader';
 import Button from '@/components/Button';
 import {
@@ -24,10 +25,9 @@ import {
   getHeightFromFormat,
   getWidthFromFormat,
 } from '@/utils/image';
-import { pinFileToIPFS, pinJSONToIPFS } from '@/lib/ipfs';
-import { useZestyMarketUSDC } from '@/utils/hooks';
-import { useRouter } from 'next/router';
 import ZestyImageUploader from '@/components/ZestyImageUploader';
+import { pinFileToIPFS, pinJSONToIPFS } from '@/lib/ipfs';
+import { useZestyNFT } from '@/utils/hooks';
 
 const StyledForm = styled(Box)({
   maxWidth: 1400,
@@ -95,8 +95,8 @@ const getFormatChoices = () => {
   );
 };
 
-const CreateCampaign = () => {
-  const zestyMarketUSDC = useZestyMarketUSDC(true);
+const CreateSpace = () => {
+  const zestyNFT = useZestyNFT(true);
   const router = useRouter();
 
   const [name, setName] = useState<string>(``);
@@ -107,6 +107,7 @@ const CreateCampaign = () => {
 
   const isSubmitDisabled =
     !name ||
+    !description ||
     !format ||
     image === null ||
     !url ||
@@ -119,45 +120,42 @@ const CreateCampaign = () => {
 
     try {
       // showloading
+
       const file = convertBase64ToFile(image);
       const formData = new FormData();
       formData.append(`file`, file);
 
-      // snackbar  "Data is being uploaded to IPFS, please wait and do not close this window just yet"
-
       const imgIPFSRes = await pinFileToIPFS(formData);
       const newImageUrl = `ipfs://${imgIPFSRes.data.IpfsHash}`;
-      const campaignData = {
+
+      const tokenData = {
         name: name.trim(),
         description: description.trim(),
-        url: url.trim(),
+        location: url.trim(),
         image: newImageUrl,
         format: format.trim(),
       };
 
-      const jsonIPFSHash = await pinJSONToIPFS(campaignData);
-      // snackbar `Data has been uploaded to IPFS, please approve the creation of the campaign on the contract`,
+      const dataUploadRes = await pinJSONToIPFS(tokenData);
+      // snackbar: `Data has been uploaded to IPFS, please approve the minting of the token`
 
-      await zestyMarketUSDC.buyerCampaignCreate(
-        `ipfs://` + jsonIPFSHash.data.IpfsHash,
+      const tokenMintRes = await zestyNFT.mint(
+        `ipfs://` + dataUploadRes.data.IpfsHash,
       );
+      // snackbar: `Please wait for the token to be minted on chain`
 
-      // snackbar:  `Please wait for the data to be added on chain`
-
-      // await campaignCreationRes.wait();
-      // snackbar: `Successfully created a new campaign`
-      // show loading
-      // change route?
+      await tokenMintRes.wait();
+      // showloading
       router.push(`/`);
     } catch (err) {
-      console.log(`Campaign creation error: `, err);
+      console.log(`Space creation error: `, err);
       // snackbar: `An Error has occured`
     }
   };
 
   return (
     <>
-      <SubHeader label="New Campaign" />
+      <SubHeader label="New Space" />
       <StyledForm
         component="form"
         sx={{
@@ -166,13 +164,55 @@ const CreateCampaign = () => {
         }}
       >
         <Stack {...formFieldProps}>
-          <StyledLabel>Campaign Name</StyledLabel>
+          <StyledLabel>Space Name</StyledLabel>
           <StyledTextField
-            placeholder="Type a campaign name..."
+            placeholder="Type a space name..."
             variant="outlined"
             value={name}
             onChange={(e) => {
               setName(e.target.value);
+            }}
+          />
+        </Stack>
+
+        <Stack {...formFieldProps}>
+          <Stack direction="row" alignItems="baseline">
+            <StyledLabel>Image</StyledLabel>
+            {format && (
+              <StyledSubLabel>
+                ({getWidthFromFormat(format)} x {getHeightFromFormat(format)})
+              </StyledSubLabel>
+            )}
+          </Stack>
+          <ZestyImageUploader format={format} onImageUpdate={setImage} />
+        </Stack>
+
+        <Stack {...formFieldProps}>
+          <StyledLabel>Location URL</StyledLabel>
+          <StyledTextField
+            placeholder="https://yourdomain.com/pageurl"
+            variant="outlined"
+            value={url}
+            onChange={(e) => {
+              setURL(e.target.value);
+            }}
+          />
+          {url && !validator.isURL(url) && (
+            <StyleHelperText>Invalid URL</StyleHelperText>
+          )}
+        </Stack>
+
+        <Stack {...formFieldProps}>
+          <Stack direction="row" alignItems="baseline">
+            <StyledLabel>Description</StyledLabel>
+          </Stack>
+          <StyledTextField
+            placeholder="Type and enter description for your space"
+            variant="outlined"
+            multiline
+            value={description}
+            onChange={(e) => {
+              setDescription(e.target.value);
             }}
           />
         </Stack>
@@ -190,52 +230,9 @@ const CreateCampaign = () => {
           </StyledSelect>
         </Stack>
 
-        <Stack {...formFieldProps}>
-          <Stack direction="row" alignItems="baseline">
-            <StyledLabel>The Frontpage</StyledLabel>
-            {format && (
-              <StyledSubLabel>
-                ({getWidthFromFormat(format)} x {getHeightFromFormat(format)})
-              </StyledSubLabel>
-            )}
-          </Stack>
-          <ZestyImageUploader format={format} onImageUpdate={setImage} />
-        </Stack>
-
-        <Stack {...formFieldProps}>
-          <StyledLabel>Call to action URL</StyledLabel>
-          <StyledTextField
-            placeholder="https://yourdomain.com/pageurl"
-            variant="outlined"
-            value={url}
-            onChange={(e) => {
-              setURL(e.target.value);
-            }}
-          />
-          {url && !validator.isURL(url) && (
-            <StyleHelperText>Invalid URL</StyleHelperText>
-          )}
-        </Stack>
-
-        <Stack {...formFieldProps}>
-          <Stack direction="row" alignItems="baseline">
-            <StyledLabel>Description</StyledLabel>
-            <StyledSubLabel>(Optional)</StyledSubLabel>
-          </Stack>
-          <StyledTextField
-            placeholder="Type and enter description for your campaign"
-            variant="outlined"
-            multiline
-            value={description}
-            onChange={(e) => {
-              setDescription(e.target.value);
-            }}
-          />
-        </Stack>
-
         <Stack justifyContent="center">
           <Button disabled={!!isSubmitDisabled} onClick={onSubmit}>
-            Create New Campaign
+            Create New Space
           </Button>
         </Stack>
       </StyledForm>
@@ -243,4 +240,4 @@ const CreateCampaign = () => {
   );
 };
 
-export default CreateCampaign;
+export default CreateSpace;
