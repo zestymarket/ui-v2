@@ -9,11 +9,6 @@ import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { useRouter } from 'next/router';
 import { PageContext } from '@/lib/context/page';
-import { SnackbarProvider } from 'notistack';
-import {
-  SNACKBAR_CLASSES,
-  SNACKBAR_DEFAULT_ANCHOR_ORIGIN,
-} from '@/lib/snackbar';
 
 const noAuthRoutes = new Set([
   `/`,
@@ -57,27 +52,22 @@ const Layout: React.FC<Props> = ({ children }) => {
 
   const { name } = React.useContext(PageContext);
   return (
-    <SnackbarProvider
-      classes={SNACKBAR_CLASSES}
-      anchorOrigin={SNACKBAR_DEFAULT_ANCHOR_ORIGIN}
-    >
-      <StyledContainer>
-        <Header pageTitle={name || ``} />
-        {typeof account === `string` && children}
-        {typeof account !== `string` && noAuthRequired && children}
-        {web3Loaded && typeof account !== `string` && !noAuthRequired && (
-          // Add loading skeleton
-          <div>
-            <Typography variant="h1">Wallet Not Found</Typography>
-            <br />
-            <Typography variant="body1">
-              You are not connected to a wallet. Please connect to a wallet.
-            </Typography>
-          </div>
-        )}
-        <Footer />
-      </StyledContainer>
-    </SnackbarProvider>
+    <StyledContainer>
+      <Header pageTitle={name || ``} />
+      {typeof account === `string` && children}
+      {typeof account !== `string` && noAuthRequired && children}
+      {web3Loaded && typeof account !== `string` && !noAuthRequired && (
+        // Add loading skeleton
+        <div>
+          <Typography variant="h1">Wallet Not Found</Typography>
+          <br />
+          <Typography variant="body1">
+            You are not connected to a wallet. Please connect to a wallet.
+          </Typography>
+        </div>
+      )}
+      <Footer />
+    </StyledContainer>
   );
 };
 
