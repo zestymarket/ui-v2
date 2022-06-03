@@ -1,25 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Grid,
-  Typography,
-  Card,
-  CardMedia,
-  Select,
-  ListSubheader,
-  MenuItem,
-} from '@mui/material';
+import { Grid, Card, CardMedia, Select, MenuItem } from '@mui/material';
 import { styled, useTheme } from '@mui/styles';
 import { getClient } from '../../../lib/graphql';
 import { useWeb3React } from '@web3-react/core';
 import { useQuery } from '@apollo/client';
 import { GET_AUCTION_BY_NFT } from '../../../lib/queries';
 import Line from 'react-chartjs-2';
+import { ChartOptions } from 'chart.js';
 
 import { MS_IN_DAY, SECONDS_IN_DAY } from '@/utils/timeConstants';
-import Auction, {
-  AUCTION_STATUS,
-  getAuctionStatus,
-} from '@/utils/classes/Auction';
+import { AUCTION_STATUS, getAuctionStatus } from '@/utils/classes/Auction';
 import { SellerAuction } from '@/lib/types';
 
 export const Title = styled(`div`)({
@@ -33,8 +23,10 @@ export const Title = styled(`div`)({
   color: `#BDB9C8`,
 });
 
-const hex2rgba = (hex, alpha = 1) => {
-  const [r, g, b] = hex.match(/\w\w/g).map((x) => parseInt(x, 16));
+const hex2rgba = (hex: string, alpha = 1) => {
+  const [r, g, b] = hex.match(/\w\w/g)?.map((x) => parseInt(x, 16)) || [
+    255, 255, 255,
+  ];
   return `rgba(${r},${g},${b},${alpha})`;
 };
 
@@ -73,25 +65,25 @@ const SpaceHistoricalChart: React.FC<Props> = ({ id }) => {
   const theme = useTheme();
 
   const { chainId } = useWeb3React();
-  const client = getClient(chainId);
+  const client = getClient(chainId || 137);
 
   const [activeData, setActiveData] = useState<any>(undefined);
   const [timeframe, setTimeframe] = useState(30);
 
   const secondary = theme.palette.secondary.main;
   const secondaryRGBA = hex2rgba(secondary, 1.0);
-  const secondaryLight = theme.palette.secondary.light;
-  const secondaryLightRGBA = secondaryLight
-    .replace(/rgb/i, `rgba`)
-    .replace(/\)/i, `,0.7)`);
+  // const secondaryLight = theme.palette.secondary.light;
+  // const secondaryLightRGBA = secondaryLight
+  //   .replace(/rgb/i, `rgba`)
+  //   .replace(/\)/i, `,0.7)`);
   const primary = theme.palette.primary.main;
   const primaryRGBA = hex2rgba(primary, 1.0);
-  const primaryLight = theme.palette.primary.light;
-  const primaryLightRGBA = primaryLight
-    .replace(/rgb/i, `rgba`)
-    .replace(/\)/i, `,0.5)`);
+  // const primaryLight = theme.palette.primary.light;
+  // const primaryLightRGBA = primaryLight
+  //   .replace(/rgb/i, `rgba`)
+  //   .replace(/\)/i, `,0.5)`);
 
-  const { data, loading, error, refetch } = useQuery(GET_AUCTION_BY_NFT, {
+  const { data, loading, error } = useQuery(GET_AUCTION_BY_NFT, {
     variables: {
       id: id,
       first: 512,
@@ -112,9 +104,10 @@ const SpaceHistoricalChart: React.FC<Props> = ({ id }) => {
 
       const newAuctions = filteredAuctions.map((auction: SellerAuction) => {
         const length =
-          (auction.contractTimeEnd - auction.contractTimeStart) /
+          (Number(auction.contractTimeEnd) -
+            Number(auction.contractTimeStart)) /
           SECONDS_IN_DAY;
-        const price = auction.priceEnd / 10 ** 6;
+        const price = Number(auction.priceEnd) / 10 ** 6;
         const rate = price / length;
 
         const obj = { ...auction };
@@ -166,12 +159,13 @@ const SpaceHistoricalChart: React.FC<Props> = ({ id }) => {
 
       setActiveData(newPriceData);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, timeframe]);
 
-  const width = window.innerWidth;
-  const height = window.innerHeight;
+  // const width = window.innerWidth;
+  // const height = window.innerHeight;
 
-  const getChartData = (canvas: HTMLCanvasElement) => {
+  const getChartData = () => {
     if (!activeData) return { datasets: [] };
 
     return activeData;
@@ -179,7 +173,7 @@ const SpaceHistoricalChart: React.FC<Props> = ({ id }) => {
 
   const getChoices = () => {
     let index = 0;
-    return timeframeOptions.map((timeframe: any, choicesIdx: number) => {
+    return timeframeOptions.map((timeframe: any) => {
       return (
         <MenuItem key={index++} value={timeframe.days}>
           {timeframe.name}
@@ -188,9 +182,8 @@ const SpaceHistoricalChart: React.FC<Props> = ({ id }) => {
     });
   };
 
-  const options = {
+  const options: ChartOptions = {
     responsive: true,
-    tension: 0.1,
     maintainAspectRatio: false,
     plugins: {
       legend: {
@@ -237,7 +230,9 @@ const SpaceHistoricalChart: React.FC<Props> = ({ id }) => {
             weight: `600`,
             size: 12,
           },
-          callback: function (value, index, values) {
+          callback: function (value: any): any {
+            if (isNaN(value)) return;
+
             if (timeframe === 30) {
               if (value % 4 !== 0) return;
               return this.getLabelForValue(value);
@@ -283,8 +278,8 @@ const SpaceHistoricalChart: React.FC<Props> = ({ id }) => {
             options={options}
             data={getChartData}
             type="line"
-            height={null}
-            width={null}
+            height={undefined}
+            width={undefined}
           />
         </div>
       </CardMedia>

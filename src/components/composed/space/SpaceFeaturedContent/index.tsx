@@ -27,7 +27,7 @@ interface Props {
   onDepositNFT: () => void;
 }
 
-const SpaceFeaturedContent: React.FC<Props> = ({ spaceData, onDepositNFT }) => {
+const SpaceFeaturedContent: React.FC<Props> = ({ spaceData }) => {
   const [address, setAddress] = useState<string>(``);
   const [creationDate, setCreationDate] = useState<string>(``);
 

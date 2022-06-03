@@ -1,15 +1,16 @@
 import { createTheme } from '@mui/material';
+import { Theme } from '@mui/material/styles';
 
 // todo: Font
 export const theme = createTheme({
   palette: {
     primary: {
       main: `#F89C24`,
-      contrastText: '#BDB9C8',
+      contrastText: `#BDB9C8`,
     },
     secondary: {
       main: `#8647D6`,
-      contrastText: '#BDB9C8',
+      contrastText: `#BDB9C8`,
     },
     text: {
       primary: `#fff`,
@@ -17,7 +18,7 @@ export const theme = createTheme({
     },
     background: {
       default: `#181522`,
-      paper: '#211c35',
+      paper: `#211c35`,
     },
   },
   components: {
@@ -26,14 +27,14 @@ export const theme = createTheme({
         containedPrimary: {
           background: `linear-gradient(112.17deg, #F89724 0%, #E23F26 100%)`,
           '&.Mui-disabled': {
-            color: '#fff',
+            color: `#fff`,
             opacity: 0.6,
           },
         },
         outlinedPrimary: {
-          borderColor: '#F89524',
+          borderColor: `#F89524`,
           '&:hover': {
-            backgroundColor: '#F8972480',
+            backgroundColor: `#F8972480`,
           },
         },
       },
@@ -41,19 +42,44 @@ export const theme = createTheme({
     MuiChip: {
       styleOverrides: {
         root: {
-          textTransform: 'uppercase',
+          textTransform: `uppercase`,
           borderRadius: 4,
-          color: '#fff',
+          color: `#fff`,
         },
         colorPrimary: {
           background: `linear-gradient(112.17deg, #F89724 0%, #E23F26 100%)`,
         },
         outlinedPrimary: {
-          background: 'transparent',
-          color: '#BDB9C8',
-          borderColor: 'rgba(131, 124, 153, 0.4)',
+          background: `transparent`,
+          color: `#BDB9C8`,
+          borderColor: `rgba(131, 124, 153, 0.4)`,
         },
       },
     },
   },
 });
+
+declare module '@mui/styles/defaultTheme' {
+  interface DefaultTheme extends Theme {
+    palette: {
+      primary: {
+        main: string;
+        light: string;
+        contrastText: string;
+      };
+      secondary: {
+        main: string;
+        light: string;
+        contrastText: string;
+      };
+      text: {
+        main: string;
+        secondary: string;
+      };
+      background: {
+        default: string;
+        paper: string;
+      };
+    };
+  }
+}

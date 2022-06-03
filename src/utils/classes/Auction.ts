@@ -67,7 +67,7 @@ export default class Auction {
     this.contract = sellerAuction.contract;
   }
 
-  async getBuyercampaignUri(cb) {
+  async getBuyercampaignUri(cb: any) {
     if (this.buyerCampaign) {
       const url = formatIpfsUri(this.buyerCampaign.uri);
       return fetch(url).then((res) => {
@@ -98,7 +98,7 @@ export default class Auction {
 
   auctionStartsIn(): string {
     const dur = moment.duration(
-      moment.unix(this.sellerAuction.contractTimeStart).diff(moment()),
+      moment.unix(Number(this.sellerAuction.contractTimeStart)).diff(moment()),
     );
 
     const monthsRemain = dur.months();
@@ -146,41 +146,43 @@ export default class Auction {
 
   auctionEndsIn(): string {
     return formatTimeLeft(
-      this.sellerAuction.auctionTimeEnd - this.currentTime(),
+      Number(this.sellerAuction.auctionTimeEnd) - this.currentTime(),
     );
   }
 
   contractStartsIn(): string {
     return formatTimeLeft(
-      this.sellerAuction.contractTimeStart - this.currentTime(),
+      Number(this.sellerAuction.contractTimeStart) - this.currentTime(),
     );
   }
 
   contractEndsIn(): string {
     return formatTimeLeft(
-      this.sellerAuction.contractTimeEnd - this.currentTime(),
+      Number(this.sellerAuction.contractTimeEnd) - this.currentTime(),
     );
   }
 
   contractStartDateTime(): string {
-    if (this.currentTime() > this.sellerAuction.contractTimeStart) {
+    if (this.currentTime() > Number(this.sellerAuction.contractTimeStart)) {
       return toDate(this.currentTime());
     } else {
-      return toDate(this.sellerAuction.contractTimeStart);
+      return toDate(Number(this.sellerAuction.contractTimeStart));
     }
   }
 
   contractDuration(): string {
     const currentTime = this.currentTime();
     if (
-      currentTime > this.sellerAuction.contractTimeStart &&
-      currentTime < this.sellerAuction.contractTimeEnd
+      currentTime > Number(this.sellerAuction.contractTimeStart) &&
+      currentTime < Number(this.sellerAuction.contractTimeEnd)
     ) {
-      return formatTimeLeft(this.sellerAuction.contractTimeEnd - currentTime);
+      return formatTimeLeft(
+        Number(this.sellerAuction.contractTimeEnd) - currentTime,
+      );
     } else {
       return formatTimeLeft(
-        this.sellerAuction.contractTimeEnd -
-          this.sellerAuction.contractTimeStart,
+        Number(this.sellerAuction.contractTimeEnd) -
+          Number(this.sellerAuction.contractTimeStart),
       );
     }
   }

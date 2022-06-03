@@ -17,7 +17,6 @@ import {
   formatIpfsUri,
   getLowestAuctionEndTime,
   getLowestAuctionPrice,
-  hasOpenAuction,
 } from '@/utils/helpers';
 import { getCategoryFromFormat, SpaceFormats } from '@/utils/formats';
 import SpaceData from '@/utils/classes/SpaceData';

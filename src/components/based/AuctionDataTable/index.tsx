@@ -20,7 +20,6 @@ import {
   Navigation,
   NavigationButton,
 } from './styles';
-import { useWeb3React } from '@web3-react/core';
 import AuctionDataCampaingCell from './AuctionDataCampaingCell';
 import { useTheme } from '@mui/styles';
 

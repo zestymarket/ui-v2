@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Image from 'next/image';
 import {
   Box,
   Stack,
@@ -219,12 +220,14 @@ const CreateCampaign = () => {
   const renderSubmitButtonProgress1 = () => (
     <StyledProgress1Button outlined onClick={() => null}>
       <Stack flexDirection="row">
-        <img
-          src="/icons/loading.svg"
-          width={24}
-          height={24}
-          style={{ marginRight: 8 }}
-        />
+        <div style={{ marginRight: 8 }}>
+          <Image
+            src="/icons/loading.svg"
+            alt="loading image"
+            width={24}
+            height={24}
+          />
+        </div>
         <span>1/2 Campaign creating...</span>
       </Stack>
     </StyledProgress1Button>
@@ -233,12 +236,14 @@ const CreateCampaign = () => {
   const renderSubmitButtonProgress2 = () => (
     <StyledProgress1Button outlined onClick={() => null}>
       <Stack flexDirection="row">
-        <img
-          src="/icons/loading.svg"
-          width={24}
-          height={24}
-          style={{ marginRight: 8 }}
-        />
+        <div style={{ marginRight: 8 }}>
+          <Image
+            src="/icons/loading.svg"
+            alt="loading image"
+            width={24}
+            height={24}
+          />
+        </div>
         <span>2/2 Campaign creating...</span>
       </Stack>
     </StyledProgress1Button>

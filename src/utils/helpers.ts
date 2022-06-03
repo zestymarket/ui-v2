@@ -65,6 +65,10 @@ export function formatIpfsUri(uri: string) {
   }
 }
 
+export function openNewTab(url: string) {
+  window?.open(url, `_blank`)?.focus();
+}
+
 export const CHAIN_ID_NAMES: { [key: number]: string } = {
   1: `Mainnet`,
   3: `Ropsten`,

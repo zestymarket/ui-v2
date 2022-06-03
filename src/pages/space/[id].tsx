@@ -11,13 +11,11 @@ import SwitchToggle from '@/components/based/SwitchToggle';
 import AuctionDataTable from '@/components/based/AuctionDataTable';
 import { Button, Grid, Tab, Tabs } from '@mui/material';
 import { styled } from '@mui/system';
-import { useEagerConnect, useInactiveListener } from '@/utils/hooks';
 
 import { GET_ONE_ZESTY_NFT } from '@/lib/queries';
 import { getClient } from '@/lib/graphql';
 import SpaceData from '@/utils/classes/SpaceData';
-import { formatIpfsUri } from '@/utils/helpers';
-import { current } from '@reduxjs/toolkit';
+import { formatIpfsUri, openNewTab } from '@/utils/helpers';
 import SpaceHistoricalChart from '@/components/composed/space/SpaceHistoricalChart';
 
 export const Container = styled(`div`)({
@@ -118,20 +116,20 @@ export const AssetContainerLabelText = styled(`div`)(({ theme }) => ({
   color: theme.palette.secondary.contrastText,
 }));
 
-export const AssetContainerAssetText = styled(`div`)(({ theme }) => ({
+export const AssetContainerAssetText = styled(`div`)({
   fontFamily: `Inter`,
   fontStyle: `normal`,
   fontWeight: 700,
   fontSize: 48,
-}));
+});
 
-export const HistoricalHeader = styled(`div`)(({ theme }) => ({
+export const HistoricalHeader = styled(`div`)({
   fontFamily: `Inter`,
   fontStyle: `normal`,
   fontWeight: 700,
   fontSize: 26,
   lineHeight: `60px`,
-}));
+});
 
 export default function SpaceDetailPage({
   id,
@@ -169,7 +167,7 @@ export default function SpaceDetailPage({
     const now = Date.now() / 10 ** 3;
 
     let pending = 0;
-    let claimable = 0;
+    // const claimable = 0;
 
     if (spaceData) {
       if (spaceData.auctions.length > 0) {
@@ -179,7 +177,7 @@ export default function SpaceDetailPage({
             const isClaimable =
               now - Number(auction.sellerAuction.auctionTimeEnd) > 0;
             if (isClaimable === true) {
-              claimable += Number(contract.contractValue);
+              // claimable += Number(contract.contractValue);
               // idsToWithdraw.push(contract.id);
             } else pending += Number(contract.contractValue);
           }
@@ -219,12 +217,9 @@ export default function SpaceDetailPage({
           </PageTabs>
           <BuyButton
             onClick={() => {
-              window
-                .open(
-                  `https://docs.zesty.market/guides/for-advertisers/bid`,
-                  `_blank`,
-                )
-                .focus();
+              openNewTab(
+                `https://docs.zesty.market/guides/for-advertisers/bid`,
+              );
             }}
           >
             How do I buy?
@@ -260,7 +255,7 @@ export default function SpaceDetailPage({
                     Total Revenue
                   </AssetContainerLabelText>
                   <AssetContainerAssetText>
-                    ${(Number(spaceData.volume) / 10 ** 6).toFixed(2)}
+                    ${(Number(spaceData?.volume || 0.0) / 10 ** 6).toFixed(2)}
                   </AssetContainerAssetText>
                 </AssetContainer>
               </Grid>
