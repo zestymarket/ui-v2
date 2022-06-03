@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 import {
   Avatar,
@@ -14,11 +14,37 @@ import {
 } from './styles';
 import DepositNFT from '@/components/DepositNFT';
 
+import SpaceData from '@/utils/classes/SpaceData';
+import { getDomain, shortenHex } from '@/utils/helpers';
+import { getENSOrWallet } from '@/utils/hooks';
+import moment from 'moment';
+import makeBlockie from 'ethereum-blockies-base64';
+
+const DATEFORMAT = `Do MMMM[,] YYYY hh:mm [UTC]`;
+
 interface Props {
+  spaceData: SpaceData | null;
   onDepositNFT: () => void;
 }
 
-const SpaceFeaturedContent: React.FC<Props> = ({ onDepositNFT }) => {
+const SpaceFeaturedContent: React.FC<Props> = ({ spaceData }) => {
+  const [address, setAddress] = useState<string>(``);
+  const [creationDate, setCreationDate] = useState<string>(``);
+
+  useEffect(() => {
+    if (spaceData && !address) {
+      getENSOrWallet(spaceData.creator).then((addr: string) => {
+        if (addr.endsWith(`.eth`)) setAddress(addr);
+        else setAddress(shortenHex(addr, 3));
+      });
+      setCreationDate(moment.unix(spaceData.timeCreated).format(DATEFORMAT));
+    }
+  }, [spaceData, address]);
+
+  if (!spaceData) {
+    return <></>;
+  }
+
   return (
     <Wrapper>
       <MainSection>
@@ -29,21 +55,23 @@ const SpaceFeaturedContent: React.FC<Props> = ({ onDepositNFT }) => {
         >
           <DepositNFT />
         </Actions>
-        <Title>Back 2 Space</Title>
-        <a href="constructarcade.com">constructarcade.com</a>
-        <Description>
-          Iron || Rails is A WebXR western arcade shooter, where the players try
-          to reach the highest position on the leaderboards by shooting the
-          attacking enemies.
-        </Description>
+        <Title>{spaceData.name}</Title>
+        <a href={spaceData.location}>{getDomain(spaceData.location)}</a>
+        <Description>{spaceData.description}</Description>
       </MainSection>
       <InfoSection>
-        <Avatar />
+        <Avatar
+          width={44}
+          height={44}
+          alt="Avatar image of the owner of the space"
+          src={makeBlockie(spaceData.creator)}
+        />
         <Content>
           <CreatedInfo>
-            Created by <b>0x247...88a</b>
+            Created by <b>{address || shortenHex(spaceData.creator, 3)}</b>
           </CreatedInfo>
-          <TimestampInfo>15 September, 2021 18:49 UTC</TimestampInfo>
+          <TimestampInfo>{creationDate}</TimestampInfo>
+          {/* <TimestampInfo>15 September, 2021 18:49 UTC</TimestampInfo> */}
         </Content>
       </InfoSection>
     </Wrapper>

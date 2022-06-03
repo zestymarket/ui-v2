@@ -2,8 +2,12 @@ import React from 'react';
 
 import { Wrapper } from './styles';
 
-const SpaceFeaturedMedia = () => {
-  return <Wrapper />;
+interface Props {
+  src: string | undefined;
+}
+
+const SpaceFeaturedMedia: React.FC<Props> = ({ src }) => {
+  return <Wrapper src={src} />;
 };
 
 export default SpaceFeaturedMedia;

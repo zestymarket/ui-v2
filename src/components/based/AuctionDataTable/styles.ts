@@ -21,16 +21,18 @@ export const TableHeadCell = styled(TableCell)({
   padding: `13px 21px`,
 });
 
-export const TableBodyCell = styled(TableCell)({
+export const TableBodyCell = styled(TableCell, {
+  shouldForwardProp: (prop) => prop !== `color`,
+})(({ color }) => ({
   fontFamily: `Inter`,
   fontStyle: `normal`,
   fontWeight: 400,
   fontSize: 15,
   lineHeight: `18px`,
-  color: `#bdb9c8`,
+  color: color,
   padding: `22px 21px`,
   borderBottom: `1px solid rgba(131, 124, 153, 0.18)`,
-});
+}));
 
 export const ActionSection = styled(`section`)({
   display: `flex`,

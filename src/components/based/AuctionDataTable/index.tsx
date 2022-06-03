@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useCallback, useEffect, useState } from 'react';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableContainer from '@mui/material/TableContainer';
@@ -8,6 +8,7 @@ import Box from '@mui/material/Box';
 import visuallyHidden from '@mui/utils/visuallyHidden';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import Auction, { AUCTION_STATUS } from '@/utils/classes/Auction';
 
 import {
   TableHeadCell,
@@ -19,75 +20,35 @@ import {
   Navigation,
   NavigationButton,
 } from './styles';
+import AuctionDataCampaingCell from './AuctionDataCampaingCell';
+import { useTheme } from '@mui/styles';
 
 interface Data {
   id: number;
-  contractStartTime: number;
-  duration: number;
-  format: string;
-  campaign: string;
+  contractStartTime: string;
+  duration: string;
+  campaign: number;
   price: number;
-  status: string;
+  status: AUCTION_STATUS;
 }
 
 function createData(
   id: number,
-  contractStartTime: number,
-  duration: number,
-  format: string,
-  campaign: string,
+  contractStartTime: string,
+  duration: string,
+  campaign: number,
   price: number,
-  status: string,
+  status: AUCTION_STATUS,
 ): Data {
   return {
     id,
     contractStartTime,
     duration,
-    format,
     campaign,
     price,
     status,
   };
 }
-
-const rows = [
-  createData(
-    1294,
-    1644631200,
-    1,
-    `The Frontpage (150x600)`,
-    `Rebuff Reality`,
-    15.68,
-    `Active`,
-  ),
-  createData(
-    1295,
-    1644631200,
-    1,
-    `The Frontpage (150x600)`,
-    `Rebuff Reality`,
-    15.68,
-    `Active`,
-  ),
-  createData(
-    1296,
-    1644631200,
-    1,
-    `The Frontpage (150x600)`,
-    `Rebuff Reality`,
-    15.68,
-    `Active`,
-  ),
-  createData(
-    1297,
-    1644631200,
-    1,
-    `The Frontpage (150x600)`,
-    `Rebuff Reality`,
-    15.68,
-    `Active`,
-  ),
-];
 
 interface HeadCell {
   disablePadding: boolean;
@@ -149,7 +110,7 @@ interface IDataTableHead {
 const headCells: readonly HeadCell[] = [
   {
     id: `id`,
-    numeric: false,
+    numeric: true,
     disablePadding: true,
     label: `ID`,
   },
@@ -164,12 +125,6 @@ const headCells: readonly HeadCell[] = [
     numeric: false,
     disablePadding: true,
     label: `Duration`,
-  },
-  {
-    id: `format`,
-    numeric: false,
-    disablePadding: true,
-    label: `Format`,
   },
   {
     id: `campaign`,
@@ -230,9 +185,49 @@ const DataTableHead: FC<IDataTableHead> = ({
   );
 };
 
-const DataTable = () => {
+interface Props {
+  auctions: Auction[];
+}
+
+const DataTable: React.FC<Props> = ({ auctions }) => {
+  const [rows, setRows] = useState<Data[]>([]);
+  const theme = useTheme();
+  const [campaignUris, setCampaignUris] = useState<any>(new Map());
   const [order, setOrder] = useState<Order>(`asc`);
   const [orderBy, setOrderBy] = useState<keyof Data>(`id`);
+
+  const addCampaignUri = useCallback(
+    (id: number, campaignUri: any) => {
+      if (campaignUris.has(id)) return;
+
+      const map = new Map(campaignUris);
+      map.set(Number(id), campaignUri);
+
+      setCampaignUris(map);
+    },
+    [campaignUris],
+  );
+
+  useEffect(() => {
+    if (!auctions) return;
+    const rowOut = [];
+    for (let i = 0; i < auctions.length; i++) {
+      const auction = auctions[i];
+      const row = createData(
+        Number(auction.sellerAuction.id),
+        auction.auctionStartsIn(),
+        auction.contractDuration(),
+        Number(auction.buyerCampaign?.id) ?? Number.MAX_VALUE,
+        auction.price(),
+        auction.status,
+      );
+
+      auction.getBuyercampaignUri(addCampaignUri);
+      rowOut.push(row);
+    }
+
+    setRows(rowOut);
+  }, [auctions, addCampaignUri]);
 
   const handleRequestSort = (
     event: React.MouseEvent<unknown>,
@@ -242,6 +237,41 @@ const DataTable = () => {
     setOrder(isAsc ? `desc` : `asc`);
     setOrderBy(property);
   };
+
+  function getColor(status: AUCTION_STATUS) {
+    const primary = theme.palette.primary.main;
+    if (false) {
+      if (status === AUCTION_STATUS.active) return primary;
+      if (status === AUCTION_STATUS.awaiting_approval) return primary;
+      if (status === AUCTION_STATUS.bought) return `lightgrey`;
+      if (status === AUCTION_STATUS.expired) return `grey`;
+      if (status === AUCTION_STATUS.no_bids) return `grey`;
+      if (status === AUCTION_STATUS.not_started) return `grey`;
+
+      if (status === AUCTION_STATUS.finished) {
+        // if (historical === true) return 'lightgrey';
+        return `grey`;
+      }
+    } else {
+      if (status === AUCTION_STATUS.active) return `#bdb9c8`;
+      if (status === AUCTION_STATUS.awaiting_approval) return `lightgrey`;
+      if (status === AUCTION_STATUS.bought) return `#837C99`;
+      if (status === AUCTION_STATUS.expired) return `#bdb9c8`;
+      if (status === AUCTION_STATUS.no_bids) return primary;
+      if (status === AUCTION_STATUS.not_started) return `#D6C6B1;`;
+
+      if (status === AUCTION_STATUS.finished) {
+        // if (historical === true) return 'lightgrey';
+        return `#bdb9c8`;
+      }
+    }
+
+    return `grey`;
+  }
+
+  if (!rows.length) {
+    return <></>;
+  }
 
   return (
     <Wrapper>
@@ -261,6 +291,7 @@ const DataTable = () => {
                 return (
                   <TableRow hover tabIndex={-1} key={row.id}>
                     <TableBodyCell
+                      align="right"
                       component="th"
                       id={labelId}
                       scope="row"
@@ -271,11 +302,31 @@ const DataTable = () => {
                     <TableBodyCell align="left">
                       {row.contractStartTime}
                     </TableBodyCell>
-                    <TableBodyCell align="left">{`${row.duration} day`}</TableBodyCell>
-                    <TableBodyCell align="left">{row.format}</TableBodyCell>
-                    <TableBodyCell align="left">{row.campaign}</TableBodyCell>
-                    <TableBodyCell align="left">{`${row.price} USDC`}</TableBodyCell>
-                    <TableBodyCell align="left">{row.status}</TableBodyCell>
+                    <TableBodyCell align="left">{`${row.duration}`}</TableBodyCell>
+                    <AuctionDataCampaingCell
+                      align="left"
+                      status={row.status}
+                      campaignUris={campaignUris}
+                      id={row.campaign}
+                    ></AuctionDataCampaingCell>
+                    <TableBodyCell align="left">{`${row.price.toFixed(
+                      2,
+                    )} USDC`}</TableBodyCell>
+                    <TableBodyCell align="left" color={getColor(row.status)}>
+                      {row.status === AUCTION_STATUS.not_started
+                        ? `Yet to start`
+                        : row.status === AUCTION_STATUS.active
+                        ? `Active`
+                        : row.status === AUCTION_STATUS.bought
+                        ? `Bought`
+                        : row.status === AUCTION_STATUS.awaiting_approval
+                        ? `Awaiting Approval`
+                        : row.status === AUCTION_STATUS.expired
+                        ? `Expired`
+                        : row.status === AUCTION_STATUS.finished
+                        ? `Finished`
+                        : `No Bids`}
+                    </TableBodyCell>
                   </TableRow>
                 );
               },

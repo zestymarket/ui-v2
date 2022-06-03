@@ -5,7 +5,7 @@ import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { getClient } from '@/lib/graphql';
 import { formatIpfsUri } from '@/utils/helpers';
-import SpaceData from '@/utils/SpaceData';
+import SpaceData from '@/utils/classes/SpaceData';
 import { styled } from '@mui/material';
 import SpaceCard from '@/components/SpaceCard';
 import Button from '@/components/Button';
