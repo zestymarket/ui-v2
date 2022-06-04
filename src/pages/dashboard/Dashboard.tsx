@@ -16,14 +16,14 @@ import { formatIpfsUri } from '@/utils/helpers';
 
 export default function Dashboard() {
   const { account, chainId } = useWeb3React<Web3Provider>();
-  const client = getClient(chainId);
+  const client = chainId ? getClient(chainId) : undefined;
   // const zestyMarketUSDC = account ? useZestyMarketUSDC(true) : undefined;
 
   const [totalReceived, setTotalReceived] = useState(0);
   const [totalSent, setTotalSent] = useState(0);
   const [totalPending, setTotalPending] = useState(0);
   const [totalClaimable, setTotalClaimable] = useState(0);
-  const [idsToWithdraw, setIdsToWithdraw] = useState([]);
+  const [idsToWithdraw, setIdsToWithdraw] = useState<number[]>([]);
 
   function onTotalsCalculated(
     pending: number,
