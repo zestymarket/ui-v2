@@ -34,7 +34,7 @@ interface CardProps {
   amount: number;
   upDownValue?: string;
 }
-const FundCard: React.FC<CardProps> = ({ title, amount, upDownValue }) => {
+const FundCard: React.FC<CardProps> = ({ title, amount = 0, upDownValue }) => {
   const amtValue = `$${amount.toFixed(2)}`;
   return (
     <StyledCard>

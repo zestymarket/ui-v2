@@ -140,12 +140,12 @@ export default function Dashboard() {
           {
             id: `my-campaigns`,
             label: `My Campaigns`,
-            PanelComponent: Overview,
+            PanelComponent: () => null,
           },
           {
             id: `notifications`,
             label: `Notifications`,
-            PanelComponent: Overview,
+            PanelComponent: () => null,
           },
           {
             id: `account-management`,

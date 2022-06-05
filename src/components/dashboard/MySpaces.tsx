@@ -14,6 +14,8 @@ import throttle from 'lodash.throttle';
 import LoadingBar from 'react-top-loading-bar';
 import { Box, CircularProgress } from '@mui/material';
 import FundCards from './FundCards';
+import SpacesRevenueHistory from './SpacesRevenueHistory';
+
 let lastScrollTop = 0;
 const PAGE_LIMIT = 20;
 let timeout = -1;
@@ -41,6 +43,15 @@ const Container = styled(`div`)({
   maxWidth: `1400px`,
   margin: `40px auto 0`,
 });
+
+const HistoryContainer = styled(`div`)(({ theme }) => ({
+  backgroundColor: theme.palette.background.default,
+  display: `flex`,
+  justifyContent: `flex-start`,
+  maxWidth: `1400px`,
+  margin: `40px auto 0`,
+  padding: theme.spacing(3),
+}));
 
 const StyledWrapper = styled(`div`)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
@@ -150,6 +161,9 @@ const MySpaces: React.FC<MySpacesProps> = (props) => {
           <div>No Spaces Created</div>
         )}
       </Container>
+      <HistoryContainer>
+        <SpacesRevenueHistory />
+      </HistoryContainer>
     </StyledWrapper>
   );
 };
