@@ -10,6 +10,7 @@ import {
   CardActionArea,
 } from '@mui/material';
 import SpaceData from '@/utils/classes/SpaceData';
+import { useRouter } from 'next/router';
 
 const CARD_HEIGHT = 354;
 
@@ -89,6 +90,7 @@ const StyledPriceValue = styled(Typography)({
 
 const SpaceCard = (props: SpaceCardProps) => {
   const { spaceData } = props;
+  const router = useRouter();
 
   const [lowestPrice] = useState(Number.MAX_VALUE);
   const [price] = useState(`No Open Auctions`);
@@ -104,7 +106,11 @@ const SpaceCard = (props: SpaceCardProps) => {
   }
 
   return (
-    <StyledCard>
+    <StyledCard
+      onClick={() => {
+        router.push(`/space/${spaceData.id}`);
+      }}
+    >
       <StyledActionArea>
         <CardMedia
           component="img"
