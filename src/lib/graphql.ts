@@ -1,21 +1,26 @@
 import {
   ApolloClient,
+  ApolloLink,
+  createHttpLink,
   InMemoryCache,
   NormalizedCacheObject,
 } from '@apollo/client';
 
 export const rinkebyClient = new ApolloClient({
-  uri: process.env.NEXT_PUBLIC_THE_GRAPH_URI_RINKEBY,
+  link: ApolloLink.split(
+    (operation) => operation.getContext().clientName === `beacon`,
+    createHttpLink({ uri: process.env.NEXT_PUBLIC_BEACON_V2_URI }),
+    createHttpLink({ uri: process.env.NEXT_PUBLIC_THE_GRAPH_URI_RINKEBY }),
+  ),
   cache: new InMemoryCache(),
 });
 
 export const maticClient = new ApolloClient({
-  uri: process.env.NEXT_PUBLIC_THE_GRAPH_URI_MATIC,
-  cache: new InMemoryCache(),
-});
-
-export const mainnetClient = new ApolloClient({
-  uri: process.env.NEXT_PUBLIC_THE_GRAPH_URI_MAINNET,
+  link: ApolloLink.split(
+    (operation) => operation.getContext().clientName === `beacon`,
+    createHttpLink({ uri: process.env.NEXT_PUBLIC_BEACON_V2_URI }),
+    createHttpLink({ uri: process.env.NEXT_PUBLIC_THE_GRAPH_URI_MATIC }),
+  ),
   cache: new InMemoryCache(),
 });
 
