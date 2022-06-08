@@ -2,6 +2,7 @@ import TabsContainer from '@/components/TabsContainer';
 import Overview from '@/components/dashboard/Overview';
 import Account from '@/components/dashboard/Account';
 import MySpaces from '@/components/dashboard/MySpaces';
+import Notifications from '@/components/dashboard/Notifications';
 import StyledDashboard from './styled';
 
 export default function Dashboard() {
@@ -23,7 +24,7 @@ export default function Dashboard() {
           {
             id: `notifications`,
             label: `Notifications`,
-            PanelComponent: Overview,
+            PanelComponent: Notifications,
           },
           {
             id: `account-management`,
