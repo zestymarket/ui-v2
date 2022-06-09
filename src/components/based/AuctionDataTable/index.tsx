@@ -9,7 +9,8 @@ import visuallyHidden from '@mui/utils/visuallyHidden';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import Auction, { AUCTION_STATUS } from '@/utils/classes/Auction';
-
+import { styled } from '@mui/material';
+import { RootState } from '../../../lib/redux/rootReducer';
 import {
   TableHeadCell,
   TableCustomHead,
@@ -22,8 +23,12 @@ import {
 } from './styles';
 import AuctionDataCampaingCell from './AuctionDataCampaingCell';
 import { useTheme } from '@mui/styles';
+import Image from 'next/image';
+import { addAuction } from '@/lib/redux/auctionBasketSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import CartPreview from '../CartPreview';
 
-interface Data {
+export interface AuctionData {
   id: number;
   contractStartTime: string;
   duration: string;
@@ -39,7 +44,7 @@ function createData(
   campaign: number,
   price: number,
   status: AUCTION_STATUS,
-): Data {
+): AuctionData {
   return {
     id,
     contractStartTime,
@@ -52,7 +57,7 @@ function createData(
 
 interface HeadCell {
   disablePadding: boolean;
-  id: keyof Data;
+  id: keyof AuctionData;
   label: string;
   numeric: boolean;
 }
@@ -101,7 +106,7 @@ function stableSort<T>(
 interface IDataTableHead {
   onRequestSort: (
     event: React.MouseEvent<unknown>,
-    property: keyof Data,
+    property: keyof AuctionData,
   ) => void;
   order: Order;
   orderBy: string;
@@ -152,7 +157,7 @@ const DataTableHead: FC<IDataTableHead> = ({
   orderBy,
 }) => {
   const createSortHandler =
-    (property: keyof Data) => (event: React.MouseEvent<unknown>) => {
+    (property: keyof AuctionData) => (event: React.MouseEvent<unknown>) => {
       onRequestSort(event, property);
     };
 
@@ -185,16 +190,47 @@ const DataTableHead: FC<IDataTableHead> = ({
   );
 };
 
+const StyledTableRow = styled(TableRow)`
+  span.-status {
+    display: block;
+  }
+  button.-buy {
+    display: none;
+  }
+  &:hover {
+    span.-status {
+      display: none;
+    }
+    button.-buy {
+      display: block;
+    }
+  }
+`;
+
+const BuyButton = styled(`button`)`
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(112.17deg, #f89724 0%, #e23f26 100%);
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  margin-top: -11px;
+  margin-bottom: -10.5px;
+  cursor: pointer;
+`;
+
 interface Props {
   auctions: Auction[];
 }
 
 const DataTable: React.FC<Props> = ({ auctions }) => {
-  const [rows, setRows] = useState<Data[]>([]);
+  const [rows, setRows] = useState<AuctionData[]>([]);
   const theme = useTheme();
   const [campaignUris, setCampaignUris] = useState<any>(new Map());
   const [order, setOrder] = useState<Order>(`asc`);
-  const [orderBy, setOrderBy] = useState<keyof Data>(`id`);
+  const [orderBy, setOrderBy] = useState<keyof AuctionData>(`id`);
 
   const addCampaignUri = useCallback(
     (id: number, campaignUri: any) => {
@@ -231,7 +267,7 @@ const DataTable: React.FC<Props> = ({ auctions }) => {
 
   const handleRequestSort = (
     event: React.MouseEvent<unknown>,
-    property: keyof Data,
+    property: keyof AuctionData,
   ) => {
     const isAsc = orderBy === property && order === `asc`;
     setOrder(isAsc ? `desc` : `asc`);
@@ -269,12 +305,18 @@ const DataTable: React.FC<Props> = ({ auctions }) => {
     return `grey`;
   }
 
+  const dispatch = useDispatch();
+  const addedAuctions = useSelector(
+    (state: RootState) => state.auctionBasketReducer.auctions,
+  );
+  const idsInCart = addedAuctions.map((auction: { id: number }) => auction.id);
   if (!rows.length) {
     return <></>;
   }
 
   return (
     <Wrapper>
+      <CartPreview />
       <TableContainer>
         <Table size="small">
           <DataTableHead
@@ -287,9 +329,9 @@ const DataTable: React.FC<Props> = ({ auctions }) => {
             {stableSort(rows, getComparator(order, orderBy)).map(
               (row, index) => {
                 const labelId = `enhanced-table-checkbox-${index}`;
-
+                const isActive = row.status === AUCTION_STATUS.no_bids;
                 return (
-                  <TableRow hover tabIndex={-1} key={row.id}>
+                  <StyledTableRow hover tabIndex={-1} key={row.id}>
                     <TableBodyCell
                       align="right"
                       component="th"
@@ -312,22 +354,43 @@ const DataTable: React.FC<Props> = ({ auctions }) => {
                     <TableBodyCell align="left">{`${row.price.toFixed(
                       2,
                     )} USDC`}</TableBodyCell>
-                    <TableBodyCell align="left" color={getColor(row.status)}>
-                      {row.status === AUCTION_STATUS.not_started
-                        ? `Yet to start`
-                        : row.status === AUCTION_STATUS.active
-                        ? `Active`
-                        : row.status === AUCTION_STATUS.bought
-                        ? `Bought`
-                        : row.status === AUCTION_STATUS.awaiting_approval
-                        ? `Awaiting Approval`
-                        : row.status === AUCTION_STATUS.expired
-                        ? `Expired`
-                        : row.status === AUCTION_STATUS.finished
-                        ? `Finished`
-                        : `No Bids`}
-                    </TableBodyCell>
-                  </TableRow>
+                    {!idsInCart.includes(row.id) ? (
+                      <TableBodyCell align="left" color={getColor(row.status)}>
+                        <span className={isActive ? `-status` : ``}>
+                          {row.status === AUCTION_STATUS.not_started
+                            ? `Yet to start`
+                            : row.status === AUCTION_STATUS.active
+                            ? `Active`
+                            : row.status === AUCTION_STATUS.bought
+                            ? `Bought`
+                            : row.status === AUCTION_STATUS.awaiting_approval
+                            ? `Awaiting Approval`
+                            : row.status === AUCTION_STATUS.expired
+                            ? `Expired`
+                            : row.status === AUCTION_STATUS.finished
+                            ? `Finished`
+                            : `No Bids`}
+                        </span>
+                        {isActive && (
+                          <BuyButton
+                            className="-buy"
+                            onClick={() => dispatch(addAuction(row))}
+                          >
+                            <Image
+                              src="/icons/cart-white.svg"
+                              alt="cart"
+                              height={16}
+                              width={16}
+                            />
+                          </BuyButton>
+                        )}
+                      </TableBodyCell>
+                    ) : (
+                      <TableBodyCell align="left" color="#28D659">
+                        Added
+                      </TableBodyCell>
+                    )}
+                  </StyledTableRow>
                 );
               },
             )}

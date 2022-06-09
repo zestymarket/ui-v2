@@ -24,3 +24,6 @@ a {
 .notistack-variant_success.SnackbarItem-variantSuccess {
   background-color: #28D659;
 }
+.MuiTableRow-root.MuiTableRow-hover:hover {
+  background: #2E2A41 !important;
+}

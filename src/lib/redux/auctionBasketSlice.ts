@@ -1,9 +1,10 @@
+import { AuctionData } from '@/components/based/AuctionDataTable';
 import { createSlice } from '@reduxjs/toolkit';
 
 export const auctionBasketSlice = createSlice({
   name: `auctionBasket`,
   initialState: {
-    auctions: [],
+    auctions: [] as AuctionData[],
   },
   reducers: {
     addAuction: (state, action) => {
