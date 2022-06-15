@@ -5,6 +5,7 @@ import { RootState } from '../../../lib/redux/rootReducer';
 import Image from 'next/image';
 import AuctionRow from './AuctionRow';
 import Button from '@/components/Button';
+import Link from 'next/link';
 
 const Wrapper = styled(`div`)`
   padding: 16px 40px 16px 16px;
@@ -60,7 +61,7 @@ const Wrapper = styled(`div`)`
       color: #837c99;
       font-size: 12px;
     }
-    & + button {
+    & + a {
       float: right;
       margin: 10px 0;
     }
@@ -112,7 +113,9 @@ export default function CartPreview() {
                 <small>USDC</small>
               </p>
             </footer>
-            <Button onClick={() => null}>Buy now</Button>
+            <Link href="/review-order" passHref={true}>
+              <Button onClick={() => null}>Buy now</Button>
+            </Link>
           </div>
         )}
       </div>

@@ -55,9 +55,9 @@ function createData(
   };
 }
 
-interface HeadCell {
+export interface HeadCell {
   disablePadding: boolean;
-  id: keyof AuctionData;
+  id: keyof AuctionData | string;
   label: string;
   numeric: boolean;
 }
@@ -72,7 +72,7 @@ function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   return 0;
 }
 
-type Order = 'asc' | 'desc';
+export type Order = 'asc' | 'desc';
 
 function getComparator<Key extends keyof any>(
   order: Order,
@@ -110,6 +110,7 @@ interface IDataTableHead {
   ) => void;
   order: Order;
   orderBy: string;
+  headCells: readonly HeadCell[];
 }
 
 const headCells: readonly HeadCell[] = [
@@ -155,6 +156,7 @@ const DataTableHead: FC<IDataTableHead> = ({
   onRequestSort,
   order,
   orderBy,
+  headCells,
 }) => {
   const createSortHandler =
     (property: keyof AuctionData) => (event: React.MouseEvent<unknown>) => {
@@ -174,7 +176,7 @@ const DataTableHead: FC<IDataTableHead> = ({
             <TableSortLabel
               active={orderBy === headCell.id}
               direction={orderBy === headCell.id ? order : `asc`}
-              onClick={createSortHandler(headCell.id)}
+              onClick={createSortHandler(headCell.id as keyof AuctionData)}
             >
               {headCell.label}
               {orderBy === headCell.id ? (
@@ -212,6 +214,11 @@ const StyledTableRow = styled(TableRow)`
     span.remove {
       display: block;
     }
+  }
+  b {
+    color: #bdb9c8;
+    font-weight: 700;
+    margin-right: 5px;
   }
 `;
 
@@ -332,6 +339,7 @@ const DataTable: React.FC<Props> = ({ auctions, spaceName }) => {
             order={order}
             orderBy={orderBy}
             onRequestSort={handleRequestSort}
+            headCells={headCells}
           />
 
           <TableBody>
@@ -362,9 +370,9 @@ const DataTable: React.FC<Props> = ({ auctions, spaceName }) => {
                       campaignUris={campaignUris}
                       id={row.campaign}
                     ></AuctionDataCampaingCell>
-                    <TableBodyCell align="left">{`${row.price.toFixed(
-                      2,
-                    )} USDC`}</TableBodyCell>
+                    <TableBodyCell align="left">
+                      <b>{row.price.toFixed(2)}</b>USDC
+                    </TableBodyCell>
                     {!idsInCart.includes(row.id) ? (
                       <TableBodyCell align="left" color={getColor(row.status)}>
                         <span className={canBid ? `status` : ``}>
@@ -442,3 +450,5 @@ const DataTable: React.FC<Props> = ({ auctions, spaceName }) => {
 };
 
 export default DataTable;
+
+export { DataTableHead, StyledTableRow, stableSort, getComparator };

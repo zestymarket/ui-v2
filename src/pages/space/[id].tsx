@@ -17,6 +17,7 @@ import { getClient } from '@/lib/graphql';
 import SpaceData from '@/utils/classes/SpaceData';
 import { formatIpfsUri, openNewTab } from '@/utils/helpers';
 import SpaceHistoricalChart from '@/components/composed/space/SpaceHistoricalChart';
+import { PageContext } from '@/lib/context/page';
 
 export const Container = styled(`div`)({
   display: `flex`,
@@ -136,6 +137,8 @@ export default function SpaceDetailPage({
   data,
   uri,
 }: InferGetServerSidePropsType<typeof getServerSideProps>): JSX.Element {
+  const { setPageName } = React.useContext(PageContext);
+  setPageName(``);
   const { account } = useWeb3React<Web3Provider>();
   const [currentTab, setCurrentTab] = useState(0);
   const [spaceData, setSpaceData] = useState<SpaceData | null>(null);
@@ -272,7 +275,10 @@ export default function SpaceDetailPage({
               </Grid>
               <Grid item xs={12} pt={6}>
                 <HistoricalHeader>Past Auctions</HistoricalHeader>
-                <AuctionDataTable auctions={spaceData?.auctions || []} />
+                <AuctionDataTable
+                  auctions={spaceData?.auctions || []}
+                  spaceName={spaceData?.name ?? ``}
+                />
               </Grid>
             </Grid>
           </SectionInner>
