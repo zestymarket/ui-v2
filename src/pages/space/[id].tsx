@@ -242,7 +242,10 @@ export default function SpaceDetailPage({
             /> */}
               <SwitchToggle label="Only available" />
             </ConfigPanel>
-            <AuctionDataTable auctions={spaceData?.activeAuctions || []} />
+            <AuctionDataTable
+              auctions={spaceData?.activeAuctions || []}
+              spaceName={spaceData?.name ?? ``}
+            />
           </SectionInner>
         )}
         {currentTab === 1 && (

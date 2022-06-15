@@ -24,7 +24,7 @@ import {
 import AuctionDataCampaingCell from './AuctionDataCampaingCell';
 import { useTheme } from '@mui/styles';
 import Image from 'next/image';
-import { addAuction } from '@/lib/redux/auctionBasketSlice';
+import { addAuction, removeAuctionById } from '@/lib/redux/auctionBasketSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import CartPreview from '../CartPreview';
 
@@ -191,17 +191,25 @@ const DataTableHead: FC<IDataTableHead> = ({
 };
 
 const StyledTableRow = styled(TableRow)`
-  span.-status {
+  span.status {
     display: block;
   }
-  button.-buy {
+  button.buy {
     display: none;
   }
+  span.remove {
+    display: none;
+    color: red;
+    cursor: pointer;
+  }
   &:hover {
-    span.-status {
+    span.status {
       display: none;
     }
-    button.-buy {
+    button.buy {
+      display: block;
+    }
+    span.remove {
       display: block;
     }
   }
@@ -223,9 +231,10 @@ const BuyButton = styled(`button`)`
 
 interface Props {
   auctions: Auction[];
+  spaceName: string;
 }
 
-const DataTable: React.FC<Props> = ({ auctions }) => {
+const DataTable: React.FC<Props> = ({ auctions, spaceName }) => {
   const [rows, setRows] = useState<AuctionData[]>([]);
   const theme = useTheme();
   const [campaignUris, setCampaignUris] = useState<any>(new Map());
@@ -329,7 +338,9 @@ const DataTable: React.FC<Props> = ({ auctions }) => {
             {stableSort(rows, getComparator(order, orderBy)).map(
               (row, index) => {
                 const labelId = `enhanced-table-checkbox-${index}`;
-                const isActive = row.status === AUCTION_STATUS.no_bids;
+                const canBid = row.status === AUCTION_STATUS.no_bids;
+                const awaitingApproval =
+                  row.status === AUCTION_STATUS.awaiting_approval || canBid;
                 return (
                   <StyledTableRow hover tabIndex={-1} key={row.id}>
                     <TableBodyCell
@@ -356,7 +367,7 @@ const DataTable: React.FC<Props> = ({ auctions }) => {
                     )} USDC`}</TableBodyCell>
                     {!idsInCart.includes(row.id) ? (
                       <TableBodyCell align="left" color={getColor(row.status)}>
-                        <span className={isActive ? `-status` : ``}>
+                        <span className={canBid ? `status` : ``}>
                           {row.status === AUCTION_STATUS.not_started
                             ? `Yet to start`
                             : row.status === AUCTION_STATUS.active
@@ -371,10 +382,17 @@ const DataTable: React.FC<Props> = ({ auctions }) => {
                             ? `Finished`
                             : `No Bids`}
                         </span>
-                        {isActive && (
+                        {canBid && (
                           <BuyButton
-                            className="-buy"
-                            onClick={() => dispatch(addAuction(row))}
+                            className="buy"
+                            onClick={() =>
+                              dispatch(
+                                addAuction({
+                                  ...row,
+                                  spaceName,
+                                }),
+                              )
+                            }
                           >
                             <Image
                               src="/icons/cart-white.svg"
@@ -387,7 +405,17 @@ const DataTable: React.FC<Props> = ({ auctions }) => {
                       </TableBodyCell>
                     ) : (
                       <TableBodyCell align="left" color="#28D659">
-                        Added
+                        <span className={awaitingApproval ? `status` : ``}>
+                          Added
+                        </span>
+                        {awaitingApproval && (
+                          <span
+                            className="remove"
+                            onClick={() => dispatch(removeAuctionById(row.id))}
+                          >
+                            Remove
+                          </span>
+                        )}
                       </TableBodyCell>
                     )}
                   </StyledTableRow>
