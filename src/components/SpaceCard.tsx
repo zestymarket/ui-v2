@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+/* eslint-disable react-hooks/rules-of-hooks */
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useState, useEffect } from 'react';
 import {
   Skeleton,
   Card,
@@ -8,8 +10,10 @@ import {
   Typography,
   styled,
   CardActionArea,
+  Link,
 } from '@mui/material';
 import SpaceData from '@/utils/classes/SpaceData';
+import * as _ from 'lodash';
 
 const CARD_HEIGHT = 354;
 
@@ -82,7 +86,7 @@ const StyledPriceLabel = styled(Typography)({
 });
 
 const StyledPriceValue = styled(Typography)({
-  fontSize: 16,
+  fontSize: 14,
   fontWeight: `bold`,
   marginLeft: 4,
 });
@@ -90,8 +94,8 @@ const StyledPriceValue = styled(Typography)({
 const SpaceCard = (props: SpaceCardProps) => {
   const { spaceData } = props;
 
-  const [lowestPrice] = useState(Number.MAX_VALUE);
-  const [price] = useState(`No Open Auctions`);
+  const [lowestPrice, setLowestPrice] = useState(Number.MAX_VALUE);
+  const [price, setPrice] = useState(`No Open Auctions`);
 
   if (!spaceData) {
     return (
@@ -102,16 +106,32 @@ const SpaceCard = (props: SpaceCardProps) => {
       </StyledCardSkeleton>
     );
   }
+  useEffect(() => {
+    if (spaceData.auctions.length > 0) {
+      const lowestPriceTemp = _.orderBy(
+        spaceData.auctions,
+        [`sellerAuction.priceStart`],
+        [`desc`],
+      )[0].sellerAuction;
+      setLowestPrice(1);
+      if (lowestPriceTemp.currency === `usdc`) {
+        const pricetemp = parseFloat(lowestPriceTemp.priceStart) / 1000000.0;
+        setPrice(`$${pricetemp.toString()}`);
+      }
+    }
+  });
 
   return (
     <StyledCard>
       <StyledActionArea>
-        <CardMedia
-          component="img"
-          image={spaceData?.image}
-          height={CARD_HEIGHT}
-          sx={{ borderRadius: `inherit` }}
-        />
+        <Link href={`/space/${spaceData.id}`}>
+          <CardMedia
+            component="img"
+            image={spaceData?.image}
+            height={CARD_HEIGHT}
+            sx={{ borderRadius: `inherit` }}
+          />
+        </Link>
         <StyledCardContent>
           <Grid
             container
@@ -131,10 +151,11 @@ const SpaceCard = (props: SpaceCardProps) => {
             <Grid item>
               <StyledName variant="h5">{spaceData?.name}</StyledName>
             </Grid>
+
             <StyledPrice item container>
               <Grid item>
                 <StyledPriceLabel variant="caption">
-                  {lowestPrice == Number.MAX_VALUE
+                  {lowestPrice === Number.MAX_VALUE
                     ? `No Open Auctions`
                     : `Starting at`}
                 </StyledPriceLabel>
