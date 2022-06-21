@@ -123,7 +123,9 @@ export default function MySpaces() {
         {!loadingData &&
           spacesData?.length > 0 &&
           spacesData.map((spaceData, i) => {
-            return <SpaceCard key={i} spaceData={spaceData} />;
+            return (
+              <SpaceCard chainId={chainId} key={i} spaceData={spaceData} />
+            );
           })}
         {loadingData && (
           <Box

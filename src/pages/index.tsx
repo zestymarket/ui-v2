@@ -229,7 +229,7 @@ const Market = () => {
     if (loadingData) {
       return skeletonData.map((d, index) => (
         <Grid item xs key={index}>
-          <SpaceCard spaceData={d} />
+          <SpaceCard chainId={chainId} spaceData={d} />
         </Grid>
       ));
     }
@@ -242,7 +242,7 @@ const Market = () => {
           key={spaceData?.id || index}
           sx={{ opacity: spaceData?.hasActiveAuctions ? 1 : 0.5 }}
         >
-          <SpaceCard spaceData={spaceData} />
+          <SpaceCard chainId={chainId} spaceData={spaceData} />
         </Grid>
       );
     });

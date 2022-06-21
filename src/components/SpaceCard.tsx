@@ -13,12 +13,15 @@ import {
   Link,
 } from '@mui/material';
 import SpaceData from '@/utils/classes/SpaceData';
+import tokens from './../data/tokens.json';
+
 import * as _ from 'lodash';
 
 const CARD_HEIGHT = 354;
 
 interface SpaceCardProps {
   spaceData?: SpaceData;
+  chainId?: number;
 }
 
 const StyledCardSkeleton = styled(Card)({
@@ -92,7 +95,7 @@ const StyledPriceValue = styled(Typography)({
 });
 
 const SpaceCard = (props: SpaceCardProps) => {
-  const { spaceData } = props;
+  const { spaceData, chainId } = props;
 
   const [lowestPrice, setLowestPrice] = useState(Number.MAX_VALUE);
   const [price, setPrice] = useState(`No Open Auctions`);
@@ -113,11 +116,12 @@ const SpaceCard = (props: SpaceCardProps) => {
         [`sellerAuction.priceStart`],
         [`desc`],
       )[0].sellerAuction;
+      const decimals = parseInt(
+        (tokens as any)[chainId ?? 1][lowestPriceTemp.currency].decimals,
+      );
       setLowestPrice(1);
-      if (lowestPriceTemp.currency === `usdc`) {
-        const pricetemp = parseFloat(lowestPriceTemp.priceStart) / 1000000.0;
-        setPrice(`$${pricetemp.toString()}`);
-      }
+      const pricetemp = parseFloat(lowestPriceTemp.priceStart) / 10 ** decimals;
+      setPrice(`$${pricetemp.toString()}`);
     }
   });
 
