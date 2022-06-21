@@ -12,6 +12,9 @@ import {
   CardActionArea,
   Link,
 } from '@mui/material';
+import { useWeb3React } from '@web3-react/core';
+import { Web3Provider } from '@ethersproject/providers';
+
 import SpaceData from '@/utils/classes/SpaceData';
 import tokens from './../data/tokens.json';
 
@@ -95,7 +98,8 @@ const StyledPriceValue = styled(Typography)({
 });
 
 const SpaceCard = (props: SpaceCardProps) => {
-  const { spaceData, chainId } = props;
+  const { spaceData } = props;
+  const { chainId } = useWeb3React<Web3Provider>();
 
   const [lowestPrice, setLowestPrice] = useState(Number.MAX_VALUE);
   const [price, setPrice] = useState(`No Open Auctions`);
