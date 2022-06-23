@@ -259,3 +259,20 @@ export const GET_ONE_CAMPAIGN = gql`
     }
   }
 `;
+
+export const GET_ANALYTICS_BY_ID = gql`
+  query GET_ANALYTICS_BY_ID($timeframe: Int!, $id: ID!) {
+    space(spaceId: $id) {
+      analytics {
+        clicks(first: $timeframe) {
+          date
+          count
+        }
+        visits(first: $timeframe) {
+          date
+          count
+        }
+      }
+    }
+  }
+`;

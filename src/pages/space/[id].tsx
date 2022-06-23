@@ -17,6 +17,7 @@ import { getClient } from '@/lib/graphql';
 import SpaceData from '@/utils/classes/SpaceData';
 import { formatIpfsUri, openNewTab } from '@/utils/helpers';
 import SpaceHistoricalChart from '@/components/composed/space/SpaceHistoricalChart';
+import SpaceAnalyticsPage from '@/components/composed/space/SpaceAnalyticsPage';
 
 export const Container = styled(`div`)({
   display: `flex`,
@@ -274,7 +275,11 @@ export default function SpaceDetailPage({
             </Grid>
           </SectionInner>
         )}
-        {currentTab === 2 && <SectionInner></SectionInner>}
+        {currentTab === 2 && (
+          <SectionInner>
+            <SpaceAnalyticsPage id={id}></SpaceAnalyticsPage>
+          </SectionInner>
+        )}
         {currentTab === 3 && <SectionInner></SectionInner>}
       </ContentSection>
     </Container>
