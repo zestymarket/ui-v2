@@ -173,7 +173,7 @@ export default function SpaceDetailPage({
     // const claimable = 0;
 
     if (spaceData) {
-      if (spaceData.auctions.length > 0) {
+      if (spaceData.auctions?.length > 0) {
         spaceData?.auctions.forEach((auction) => {
           const { contract } = auction;
           if (contract?.withdrawn === false) {
@@ -248,6 +248,7 @@ export default function SpaceDetailPage({
             <AuctionDataTable
               auctions={spaceData?.activeAuctions || []}
               spaceName={spaceData?.name ?? ``}
+              format={spaceData?.format ?? ``}
             />
           </SectionInner>
         )}
@@ -278,6 +279,7 @@ export default function SpaceDetailPage({
                 <AuctionDataTable
                   auctions={spaceData?.auctions || []}
                   spaceName={spaceData?.name ?? ``}
+                  format={spaceData?.format ?? ``}
                 />
               </Grid>
             </Grid>

@@ -80,14 +80,14 @@ export default function CartPreview() {
     0,
   );
   return (
-    <Wrapper>
+    <Wrapper onClick={() => isMini && setIsMini(!isMini)}>
       <Image
         src={`/icons/${isMini ? `left` : `right`}-chevron.svg`}
         alt="back"
         height={12}
         width={12}
         className="chevron"
-        onClick={() => setIsMini(!isMini)}
+        onClick={() => setIsMini(true)}
       />
       <div>
         <span>

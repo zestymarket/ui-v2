@@ -239,9 +239,10 @@ const BuyButton = styled(`button`)`
 interface Props {
   auctions: Auction[];
   spaceName: string;
+  format: string;
 }
 
-const DataTable: React.FC<Props> = ({ auctions, spaceName }) => {
+const DataTable: React.FC<Props> = ({ auctions, spaceName, format }) => {
   const [rows, setRows] = useState<AuctionData[]>([]);
   const theme = useTheme();
   const [campaignUris, setCampaignUris] = useState<any>(new Map());
@@ -398,6 +399,7 @@ const DataTable: React.FC<Props> = ({ auctions, spaceName }) => {
                                 addAuction({
                                   ...row,
                                   spaceName,
+                                  format,
                                 }),
                               )
                             }

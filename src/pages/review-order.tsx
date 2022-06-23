@@ -7,7 +7,12 @@ import {
   TableBody,
   TextField,
   MenuItem,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+
 import { useSelector } from 'react-redux';
 import { PageContext } from '../lib/context/page';
 import { RootState } from '../lib/redux/rootReducer';
@@ -36,6 +41,7 @@ import { parseUnits } from '@ethersproject/units';
 import { useSnackbar } from 'notistack';
 import WarningBanner from '@/components/WarningBanner';
 import Button from '@/components/Button';
+import _ from 'lodash';
 
 const headCells: readonly HeadCell[] = [
   {
@@ -141,6 +147,9 @@ const ReviewOrderPage = () => {
   const zestyMarketUSDC = useZestyMarketUSDC(true);
   const contractUSDC = useUSDC(true);
   const total = auctions.reduce((sum, auction) => (sum += auction.price), 0);
+  const [campaignPerFormat, setCampaignPerFormat] = useState<
+    Record<string, any>
+  >({});
   contractUSDC
     .allowance(account, zestyMarketUSDC?.address)
     .then((allowance: BigNumber) => {
@@ -203,7 +212,6 @@ const ReviewOrderPage = () => {
   const [userCampaigns, setUserCampaigns] = useState<CampaignData[]>([
     NEW_CAMPAIGN_OBJ,
   ]);
-  const [selectedCampaign, setSelectedCampaign] = useState<any>(undefined);
   const { data, loading, error } = useQuery(GET_CAMPAIGN_BY_BUYER, {
     variables: {
       buyer: account,
@@ -220,15 +228,12 @@ const ReviewOrderPage = () => {
         data.buyerCampaigns.map(async (buyerCampaign: CampaignData) => {
           const url = formatIpfsUri(buyerCampaign.uri);
           const uriData = await (await fetch(url)).json();
-          // if (convertOldFormats(format) !== convertOldFormats(uriData.format))
-          // return; // TODO(Srile)?
-
           const obj = { ...buyerCampaign };
           obj.name = uriData.name;
           obj.description = uriData.description;
           obj.url = uriData.url;
           obj.image = formatIpfsUri(uriData.image);
-
+          obj.format = uriData.format;
           newCampaigns.push(obj);
         }),
       ).then(() => setUserCampaigns([NEW_CAMPAIGN_OBJ, ...newCampaigns]));
@@ -243,7 +248,9 @@ const ReviewOrderPage = () => {
     //   }
     setPageName(`Review Order`);
   }, [setPageName]);
-
+  const groupedAuctions = _.groupBy(auctions, (auction) =>
+    convertOldFormats((auction as any).format),
+  );
   return (
     <Grid
       container
@@ -252,107 +259,134 @@ const ReviewOrderPage = () => {
       style={{ maxWidth: `1400px`, margin: `auto` }}
     >
       <h2>Space Details</h2>
-      <TableContainer>
-        <Table size="small">
-          <DataTableHead
-            order={order}
-            orderBy={orderBy}
-            onRequestSort={handleRequestSort}
-            headCells={headCells}
-          />
-
-          <TableBody>
-            {stableSort(auctions, getComparator(order, orderBy)).map(
-              (row, index) => {
-                const labelId = `enhanced-table-checkbox-${index}`;
-                return (
-                  <StyledTableRow hover tabIndex={-1} key={row.id}>
-                    <TableBodyCell
-                      align="right"
-                      component="th"
-                      id={labelId}
-                      scope="row"
-                      padding="none"
-                    >
-                      {row.id}
-                    </TableBodyCell>
-                    <TableBodyCell align="left">
-                      {row.contractStartTime}
-                    </TableBodyCell>
-                    <TableBodyCell align="left">{`${row.duration}`}</TableBodyCell>
-                    <TableBodyCell align="left">{`${
-                      (row as any).spaceName
-                    }`}</TableBodyCell>
-                    <TableBodyCell align="left">
-                      <b>{row.price.toFixed(2)}</b>USDC
-                    </TableBodyCell>
-                  </StyledTableRow>
-                );
-              },
-            )}
-            <StyledTableRow tabIndex={-1}>
-              <TableBodyCell style={{ borderBottom: 0 }} />
-              <TableBodyCell style={{ borderBottom: 0 }} />
-              <TableBodyCell style={{ borderBottom: 0 }} />
-              <TableBodyCell align="left">
-                <b>TOTAL</b>
-              </TableBodyCell>
-              <TableBodyCell align="left">
-                <b>{total.toFixed(2)}</b>USDC
-              </TableBodyCell>
-            </StyledTableRow>
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <br />
-      <h2>Campaign Details</h2>
-      <TextField
-        value={JSON.stringify(selectedCampaign)}
-        onChange={(e) =>
-          setSelectedCampaign(JSON.parse(e.target.value as string))
-        }
-        select
-        label="Select Campaign"
-      >
-        {userCampaigns.map((campaign: any) => (
-          <MenuItem value={JSON.stringify(campaign)} key={campaign.id}>
-            {campaign.name}
-          </MenuItem>
-        ))}
-      </TextField>
-      <br />
-      {selectedCampaign?.id && (
-        <TableContainer>
-          <Table size="small">
-            <DataTableHead
-              order={order}
-              orderBy={orderBy}
-              onRequestSort={handleRequestSort}
-              headCells={campaignHeadCells}
-            />
-
-            <TableBody>
-              <StyledTableRow tabIndex={-1}>
-                <TableBodyCell>
-                  <IDAndImage>
-                    <span>{selectedCampaign.id}</span>
-                    <img
-                      src={selectedCampaign.image}
-                      alt={selectedCampaign.name}
-                      height={50}
+      {Object.entries(groupedAuctions).map(([format, rows]) => {
+        const total = rows.reduce((sum, auction) => (sum += auction.price), 0);
+        const filteredCampaigns = userCampaigns.filter(
+          (campaign) =>
+            convertOldFormats(campaign.format) === convertOldFormats(format),
+        );
+        filteredCampaigns.unshift(NEW_CAMPAIGN_OBJ);
+        const selectedCampaign = campaignPerFormat[format];
+        return (
+          <Accordion key={format} defaultExpanded={true}>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon color="primary" />}
+              color="blue"
+            >
+              <h4>{format}</h4>
+            </AccordionSummary>
+            <AccordionDetails>
+              <TableContainer>
+                <Table size="small">
+                  <DataTableHead
+                    order={order}
+                    orderBy={orderBy}
+                    onRequestSort={handleRequestSort}
+                    headCells={headCells}
+                  />
+                  <TableBody>
+                    {stableSort(rows, getComparator(order, orderBy)).map(
+                      (row, index) => {
+                        const labelId = `enhanced-table-checkbox-${index}`;
+                        return (
+                          <StyledTableRow hover tabIndex={-1} key={row.id}>
+                            <TableBodyCell
+                              align="right"
+                              component="th"
+                              id={labelId}
+                              scope="row"
+                              padding="none"
+                            >
+                              {row.id}
+                            </TableBodyCell>
+                            <TableBodyCell align="left">
+                              {row.contractStartTime}
+                            </TableBodyCell>
+                            <TableBodyCell align="left">{`${row.duration}`}</TableBodyCell>
+                            <TableBodyCell align="left">{`${
+                              (row as any).spaceName
+                            }`}</TableBodyCell>
+                            <TableBodyCell align="left">
+                              <b>{row.price.toFixed(2)}</b>USDC
+                            </TableBodyCell>
+                          </StyledTableRow>
+                        );
+                      },
+                    )}
+                    <StyledTableRow tabIndex={-1}>
+                      <TableBodyCell style={{ borderBottom: 0 }} />
+                      <TableBodyCell style={{ borderBottom: 0 }} />
+                      <TableBodyCell style={{ borderBottom: 0 }} />
+                      <TableBodyCell align="left">
+                        <b>TOTAL</b>
+                      </TableBodyCell>
+                      <TableBodyCell align="left">
+                        <b>{total.toFixed(2)}</b>USDC
+                      </TableBodyCell>
+                    </StyledTableRow>
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              <br />
+              <h4>Campaign Details</h4>
+              <TextField
+                fullWidth={true}
+                onChange={(e) =>
+                  setCampaignPerFormat({
+                    ...campaignPerFormat,
+                    [format]: JSON.parse(e.target.value as string),
+                  })
+                }
+                select
+                label="Select Campaign"
+              >
+                {filteredCampaigns.map((campaign: any) => (
+                  <MenuItem value={JSON.stringify(campaign)} key={campaign.id}>
+                    {campaign.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+              <br />
+              {selectedCampaign?.id && (
+                <TableContainer>
+                  <Table size="small">
+                    <DataTableHead
+                      order={order}
+                      orderBy={orderBy}
+                      onRequestSort={handleRequestSort}
+                      headCells={campaignHeadCells}
                     />
-                  </IDAndImage>
-                </TableBodyCell>
-                <TableBodyCell>{selectedCampaign.name}</TableBodyCell>
-                <TableBodyCell>{selectedCampaign.description}</TableBodyCell>
-                <TableBodyCell>
-                  <a href={selectedCampaign.url}>{selectedCampaign.url}</a>
-                </TableBodyCell>
-              </StyledTableRow>
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
+
+                    <TableBody>
+                      <StyledTableRow tabIndex={-1}>
+                        <TableBodyCell>
+                          <IDAndImage>
+                            <span>{selectedCampaign.id}</span>
+                            <img
+                              src={selectedCampaign.image}
+                              alt={selectedCampaign.name}
+                              height={50}
+                            />
+                          </IDAndImage>
+                        </TableBodyCell>
+                        <TableBodyCell>{selectedCampaign.name}</TableBodyCell>
+                        <TableBodyCell>
+                          {selectedCampaign.description}
+                        </TableBodyCell>
+                        <TableBodyCell>
+                          <a href={selectedCampaign.url}>
+                            {selectedCampaign.url}
+                          </a>
+                        </TableBodyCell>
+                      </StyledTableRow>
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              )}
+            </AccordionDetails>
+          </Accordion>
+        );
+      })}
       <br />
       {!approved && (
         <WarningBanner onClick={() => handleApprove()} buttonText="Approve">
