@@ -32,15 +32,17 @@ import { useWeb3React } from '@web3-react/core';
 import { useQuery } from '@apollo/client';
 import { GET_CAMPAIGN_BY_BUYER } from '@/lib/queries';
 import { convertOldFormats } from '@/utils/formats';
-import { formatIpfsUri } from '@/utils/helpers';
+import { formatIpfsUri, formatUSDC } from '@/utils/helpers';
 import CampaignData from '@/utils/classes/CampaignData';
 import { styled } from '@mui/material';
 import { useZestyMarketUSDC, useUSDC } from '@/utils/hooks';
 import { BigNumber } from '@ethersproject/bignumber';
 import { parseUnits } from '@ethersproject/units';
 import { useSnackbar } from 'notistack';
+import NotEnoughFunds from '@/components/based/CartPreview/NotEnoughFunds';
 import WarningBanner from '@/components/WarningBanner';
 import Button from '@/components/Button';
+import { useConfirm } from 'material-ui-confirm';
 import _ from 'lodash';
 
 const headCells: readonly HeadCell[] = [
@@ -134,22 +136,34 @@ const NEW_CAMPAIGN_OBJ = {
   image: ``,
 } as unknown as CampaignData;
 
+enum ConfirmStatus {
+  PENDING,
+  NOT_ENOUGH_FUNDS,
+  PROCEED,
+}
+
 const ReviewOrderPage = () => {
   const { account, chainId } = useWeb3React<Web3Provider>();
   const { setPageName } = React.useContext(PageContext);
   const [order, setOrder] = useState<Order>(`asc`);
   const [orderBy, setOrderBy] = useState<keyof AuctionData>(`id`);
   const [approved, setApproved] = useState(false);
+  const [usdcBalance, setUsdcBalance] = useState(0);
   const { enqueueSnackbar } = useSnackbar();
   const auctions = useSelector(
     (state: RootState) => state.auctionBasketReducer.auctions,
   );
+  const confirmDialog = useConfirm();
+
   const zestyMarketUSDC = useZestyMarketUSDC(true);
   const contractUSDC = useUSDC(true);
   const total = auctions.reduce((sum, auction) => (sum += auction.price), 0);
   const [campaignPerFormat, setCampaignPerFormat] = useState<
     Record<string, any>
   >({});
+  const [confirmStatus, setConfirmStatus] = useState<ConfirmStatus>(
+    ConfirmStatus.PENDING,
+  );
   contractUSDC
     .allowance(account, zestyMarketUSDC?.address)
     .then((allowance: BigNumber) => {
@@ -159,6 +173,9 @@ const ReviewOrderPage = () => {
         setApproved(true);
       }
     });
+  contractUSDC.balanceOf(account).then((balance: BigNumber) => {
+    setUsdcBalance(parseFloat(formatUSDC(balance)));
+  });
   function handleApprove() {
     if (!approved) {
       contractUSDC
@@ -251,6 +268,41 @@ const ReviewOrderPage = () => {
   const groupedAuctions = _.groupBy(auctions, (auction) =>
     convertOldFormats((auction as any).format),
   );
+  function confirm() {
+    if (approved && usdcBalance < total) {
+      setConfirmStatus(ConfirmStatus.NOT_ENOUGH_FUNDS);
+      return;
+    }
+    if (Object.keys(groupedAuctions).length === 1) {
+      // buy immediately
+      return;
+    }
+    const iterator = Object.entries(groupedAuctions)[Symbol.iterator]();
+    (function confirmFormats() {
+      const next = iterator.next();
+      if (next.done) return;
+      confirmDialog({
+        title: next.value[0],
+        content: (
+          <h4>
+            Total:{` `}
+            {next.value[1]
+              .reduce((sum: any, auction: any) => sum + auction.price, 0)
+              .toFixed(2)}
+            {` `}
+            USDC
+          </h4>
+        ),
+      })
+        .then(() => {
+          // await buy
+          confirmFormats();
+        })
+        .catch(() => {
+          //
+        });
+    })();
+  }
   return (
     <Grid
       container
@@ -396,7 +448,12 @@ const ReviewOrderPage = () => {
           </WarningContent>
         </WarningBanner>
       )}
-      <StyledButton disabled={!approved} onClick={() => null}>
+      {confirmStatus === ConfirmStatus.NOT_ENOUGH_FUNDS && (
+        <NotEnoughFunds
+          onCancel={() => setConfirmStatus(ConfirmStatus.PENDING)}
+        />
+      )}
+      <StyledButton disabled={!approved} onClick={confirm}>
         Confirm order
       </StyledButton>
     </Grid>

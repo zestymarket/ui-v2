@@ -13,6 +13,7 @@ import { PageProvider } from '../lib/context/page';
 import { store, persistor } from '../lib/redux/rootReducer';
 import { PersistGate } from 'redux-persist/integration/react';
 import { SnackbarProvider } from 'notistack';
+import { ConfirmProvider } from 'material-ui-confirm';
 import {
   SNACKBAR_CLASSES,
   SNACKBAR_DEFAULT_ANCHOR_ORIGIN,
@@ -30,21 +31,23 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
       <ApolloProvider client={client}>
         <ConnectWalletProvider>
           <ThemeProvider theme={theme}>
-            <SnackbarProvider
-              classes={SNACKBAR_CLASSES}
-              anchorOrigin={SNACKBAR_DEFAULT_ANCHOR_ORIGIN}
-            >
-              <ReduxProvider store={store}>
-                <PersistGate loading={null} persistor={persistor}>
-                  <PageProvider>
-                    <CssBaseline />
-                    <Layout>
-                      <Component {...pageProps} />
-                    </Layout>
-                  </PageProvider>
-                </PersistGate>
-              </ReduxProvider>
-            </SnackbarProvider>
+            <ConfirmProvider>
+              <SnackbarProvider
+                classes={SNACKBAR_CLASSES}
+                anchorOrigin={SNACKBAR_DEFAULT_ANCHOR_ORIGIN}
+              >
+                <ReduxProvider store={store}>
+                  <PersistGate loading={null} persistor={persistor}>
+                    <PageProvider>
+                      <CssBaseline />
+                      <Layout>
+                        <Component {...pageProps} />
+                      </Layout>
+                    </PageProvider>
+                  </PersistGate>
+                </ReduxProvider>
+              </SnackbarProvider>
+            </ConfirmProvider>
           </ThemeProvider>
         </ConnectWalletProvider>
       </ApolloProvider>
