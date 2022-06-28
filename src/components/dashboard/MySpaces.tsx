@@ -13,6 +13,9 @@ import Head from 'next/head';
 import throttle from 'lodash.throttle';
 import LoadingBar from 'react-top-loading-bar';
 import { Box, CircularProgress } from '@mui/material';
+import FundCards from './FundCards';
+import SpacesRevenueHistory from './SpacesRevenueHistory';
+
 let lastScrollTop = 0;
 const PAGE_LIMIT = 20;
 let timeout = -1;
@@ -33,18 +36,35 @@ const H1 = styled(`h1`)({
 
 const Container = styled(`div`)({
   display: `flex`,
-  justifyContent: `space-between`,
+  justifyContent: `flex-start`,
+  columnGap: `20px`,
   rowGap: `40px`,
   flexWrap: `wrap`,
   maxWidth: `1400px`,
-  margin: `0 auto`,
+  margin: `40px auto 0`,
 });
+
+const HistoryContainer = styled(`div`)(({ theme }) => ({
+  backgroundColor: theme.palette.background.default,
+  display: `flex`,
+  justifyContent: `flex-start`,
+  maxWidth: `1400px`,
+  margin: `40px auto 0`,
+  padding: theme.spacing(3),
+}));
 
 const StyledWrapper = styled(`div`)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
 }));
 
-export default function MySpaces() {
+interface MySpacesProps {
+  totalReceived: number;
+  totalSent: number;
+  totalPending: number;
+  totalClaimable: number;
+}
+
+const MySpaces: React.FC<MySpacesProps> = (props) => {
   const { account, chainId } = useWeb3React<Web3Provider>();
   const client = getClient(chainId ?? 0);
   const [loadingMore, setLoadingMore] = useState<boolean>(false);
@@ -119,6 +139,7 @@ export default function MySpaces() {
           Create Space
         </Button>
       </Header>
+      <FundCards {...props} />
       <Container>
         {!loadingData &&
           spacesData?.length > 0 &&
@@ -140,6 +161,11 @@ export default function MySpaces() {
           <div>No Spaces Created</div>
         )}
       </Container>
+      <HistoryContainer>
+        <SpacesRevenueHistory />
+      </HistoryContainer>
     </StyledWrapper>
   );
-}
+};
+
+export default MySpaces;

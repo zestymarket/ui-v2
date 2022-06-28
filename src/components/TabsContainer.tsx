@@ -13,6 +13,7 @@ interface TabProps {
   id: string;
   link?: string;
   PanelComponent: React.ElementType;
+  panelProps?: { [key: string]: any };
 }
 
 interface TabPanelProps {
@@ -125,9 +126,9 @@ const TabsContainer: React.FC<TabContainerProps> = ({ title, tabs }) => {
           ))}
         </Tabs>
       </StyledTabHeader>
-      {tabs.map(({ id, PanelComponent }, index) => (
+      {tabs.map(({ id, PanelComponent, panelProps }, index) => (
         <TabPanel key={id} value={value} index={index}>
-          <PanelComponent />
+          <PanelComponent {...(panelProps || {})} />
         </TabPanel>
       ))}
     </StyledWrapper>
