@@ -47,6 +47,7 @@
     "@mui/icons-material": "5.4.2",
     "@mui/material": "5.4.2",
     "@mui/styles": "5.4.2",
+    "@mui/x-date-pickers": "5.0.0-alpha.7",
     "@reduxjs/toolkit": "1.8.1",
     "@types/lodash.throttle": "4.1.7",
     "@web3-react/core": "6.1.9",

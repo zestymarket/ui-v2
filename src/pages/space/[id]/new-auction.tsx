@@ -1,15 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Stack,
-  StackProps,
-  Typography,
-  Select,
-  ListSubheader,
-  FormHelperText,
-  styled,
-  Grid,
-} from '@mui/material';
-import validator from 'validator';
 import SubHeader from '@/components/SubHeader';
 import Button from '@/components/Button';
 import router from 'next/router';
@@ -21,12 +10,6 @@ import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import SpaceData from '@/utils/classes/SpaceData';
 import AuctionCalendar from '@/components/new-auction/AuctionCalendar';
-
-const AuctionGrid = styled(Grid)({
-  maxWidth: 1400,
-  alignItems: `flex-start`,
-  margin: `30px auto`,
-});
 
 const NewAuction = () => {
   const { id } = router.query;
@@ -42,6 +25,7 @@ const NewAuction = () => {
 
   const [spaceTitle, setSpaceTitle] = useState<string>(`...`);
   const [spaceData, setSpaceData] = useState<SpaceData | null>(null);
+  const [filteredAuctions, setFilteredAuctions] = useState<any>([]);
 
   useEffect(() => {
     if (data?.tokenData) {
@@ -56,6 +40,12 @@ const NewAuction = () => {
 
           setSpaceData(newSpaceData);
           setSpaceTitle(formattedData.name);
+          setFilteredAuctions(
+            newSpaceData.auctions?.map((auction) => {
+              if (auction.sellerAuction.cancelled === false)
+                return auction.sellerAuction;
+            }),
+          );
         });
     }
   }, [data]);
@@ -63,9 +53,7 @@ const NewAuction = () => {
   return (
     <>
       <SubHeader label="New Auction" sublabel={`for ${spaceTitle}`} />
-      <AuctionGrid container>
-        <AuctionCalendar></AuctionCalendar>
-      </AuctionGrid>
+      <AuctionCalendar filteredAuctions={filteredAuctions}></AuctionCalendar>
     </>
   );
 };
