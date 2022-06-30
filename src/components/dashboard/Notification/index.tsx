@@ -8,6 +8,7 @@ import NotificationCard from './notification';
 import Head from 'next/head';
 import LoadingBar from 'react-top-loading-bar';
 import { Box, CircularProgress } from '@mui/material';
+import Discord from './discord';
 
 const Header = styled(`header`)({
   display: `flex`,
@@ -24,9 +25,10 @@ const H1 = styled(`h1`)({
 });
 
 const Container = styled(`div`)({
-  display: `flex`,
-  justifyContent: `space-between`,
-  rowGap: `40px`,
+  display: `grid`,
+  gridTemplateColumns: `8fr 4fr`,
+  alignItems: `flex-start`,
+  rowGap: `10px`,
   flexWrap: `wrap`,
   maxWidth: `1400px`,
   margin: `0 auto`,
@@ -58,6 +60,7 @@ export default function MySpaces() {
             return <NotificationCard key={i} />;
           })}
         <NotificationCard />
+        <Discord />
         {loadingData && (
           <Box
             display="flex"
@@ -69,9 +72,9 @@ export default function MySpaces() {
             <CircularProgress />
           </Box>
         )}
-        {!loadingData && notificationsData?.length === 0 && (
+        {/* {!loadingData && notificationsData?.length === 0 && (
           <div>No Notifications</div>
-        )}
+        )} */}
       </Container>
     </StyledWrapper>
   );
