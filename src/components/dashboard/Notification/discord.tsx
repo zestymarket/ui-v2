@@ -1,17 +1,6 @@
 import { styled } from '@mui/system';
-import {
-  Skeleton,
-  Card,
-  InputAdornment,
-  OutlinedInput,
-  Grid,
-  Typography,
-  CardActionArea,
-  Link,
-} from '@mui/material';
+import { Grid, Typography, CardActionArea, Link } from '@mui/material';
 import Image from 'next/image';
-import LooksOneIcon from '@mui/icons-material/LooksOne';
-import LooksTwoIcon from '@mui/icons-material/LooksTwo';
 
 const StyledActionArea = styled(CardActionArea)(({ theme }) => ({
   borderRadius: `inherit`,
@@ -23,11 +12,12 @@ const StyledActionArea = styled(CardActionArea)(({ theme }) => ({
   padding: `5%`,
 }));
 
-const StyledCard = styled(Card)({
+const StyledCard = styled(`div`)({
   borderRadius: 16,
   position: `relative`,
   overflow: `hidden`,
   background: `#181522`,
+  width: `350px`,
 });
 
 const DiscordMain = styled(Typography)({
@@ -56,6 +46,58 @@ const DiscordHeader = styled(Typography)({
   textTransform: `uppercase`,
 });
 
+const BulletNumber = styled(`div`)`
+  width: 13px;
+  height: 13px;
+  background: #e5e5e5;
+  opacity: 0.4;
+  border-radius: 50%;
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 700;
+  font-size: 10px;
+  line-height: 12px;
+  text-align: center;
+  color: #181522;
+  margin-right: 8px;
+  position: relative;
+  top: 1px;
+`;
+
+const ListItem = styled(`div`)`
+  display: flex;
+  align-items: flex-start;
+  font-size: 15px;
+  &.firstItem {
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 16px;
+  }
+`;
+
+const FirstItem = styled(`div`)`
+  display: flex;
+  flex-direction: column;
+  a {
+    color: #808aff;
+    text-decoration: none;
+    display: block;
+    margin-top: 4px;
+  }
+`;
+
+const ClipboardInput = styled(`div`)`
+  margin-top: -10px;
+  background: #211e2b;
+  border-radius: 4px;
+  padding: 13px 16px;
+  color: #bdb9c8;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+`;
+
 export default function Discord() {
   return (
     <StyledCard>
@@ -69,25 +111,31 @@ export default function Discord() {
           src={`/assets/dashboard/Group.svg`}
         ></Image>
         <Grid>
-          <Grid item>
-            <LooksOneIcon />
-            Join the Zesty Market Discord
-            <Link>Join Our Discord Server ➜</Link>
-          </Grid>
-          <Grid item>
-            <LooksTwoIcon />
-            In the #bot-commands channel type:
-            <OutlinedInput
-              value={`> notify`}
-              id="outlined-adornment-weight"
-              endAdornment={<InputAdornment position="end">kg</InputAdornment>}
-              aria-describedby="outlined-weight-helper-text"
-              inputProps={{
-                'aria-label': `weight`,
-              }}
-            />
-          </Grid>
+          <ListItem className="firstItem">
+            <BulletNumber>1</BulletNumber>
+            <FirstItem>
+              <span>
+                Join the <b>Zesty Market Discord</b>
+              </span>
+              <Link>Join Our Discord Server ➜</Link>
+            </FirstItem>
+          </ListItem>
+          <ListItem>
+            <BulletNumber>2</BulletNumber>
+            <span>
+              In the <b>&nbsp;#bot-commands&nbsp;</b> channel type:
+            </span>
+          </ListItem>
         </Grid>
+        <ClipboardInput>
+          <span>&gt;notify</span>
+          <Image
+            src="/icons/clipboard.svg"
+            width={16}
+            height={16}
+            alt="clipboard"
+          />
+        </ClipboardInput>
       </StyledActionArea>
     </StyledCard>
   );
