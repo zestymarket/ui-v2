@@ -127,7 +127,17 @@ const StyledButton = styled(Button)`
   margin: 20px 0 0 0 !important;
   width: 140px !important;
   height: 50px;
-  font-weight: 700;
+  font-weight: 500;
+`;
+
+const AccordionHeader = styled(AccordionSummary)`
+  background: #181522;
+  padding: 0 20px;
+  height: 80px;
+  border-radius: 8px;
+  -webkit-box-shadow: 0px 0px 10px 3px rgba(0, 0, 0, 0.075);
+  -moz-box-shadow: 0px 0px 10px 3px rgba(0, 0, 0, 0.075);
+  box-shadow: 0px 0px 10px 3px rgba(0, 0, 0, 0.075);
 `;
 
 const NEW_CAMPAIGN_OBJ = {
@@ -271,6 +281,47 @@ const ReviewOrderPage = () => {
   const groupedAuctions = _.groupBy(auctions, (auction) =>
     convertOldFormats((auction as any).format),
   );
+  function confirmTransaction(format: string): Promise<any> {
+    const ids = groupedAuctions[format].map((auction) =>
+      BigNumber.from(auction.id),
+    );
+    const selectedCampaign = campaignPerFormat[format];
+    const campaign = BigNumber.from(selectedCampaign.id);
+    setIsLoading(true);
+    const plural = ids.length > 1 ? `s` : ``;
+    return zestyMarketUSDC
+      .sellerAuctionBidBatch(ids, campaign)
+      .then((res: any) => {
+        enqueueSnackbar(`Transaction pending...`, {
+          variant: `info`,
+          autoHideDuration: 15000,
+        });
+        res
+          .wait()
+          .then(() => {
+            enqueueSnackbar(
+              `Successfully bought time slot${plural}. Please wait for the creator of the billboard to approve your campaign${plural}.`,
+              {
+                variant: `success`,
+                autoHideDuration: 15000,
+              },
+            );
+            setIsLoading(false);
+          })
+          .catch(() => {
+            enqueueSnackbar(e.message, {
+              variant: `error`,
+            });
+            setIsLoading(false);
+          });
+      })
+      .catch((e: any) => {
+        enqueueSnackbar(e.message, {
+          variant: `error`,
+        });
+        setIsLoading(false);
+      });
+  }
   function confirm() {
     if (approved && usdcBalance < total) {
       setConfirmStatus(ConfirmStatus.NOT_ENOUGH_FUNDS);
@@ -284,6 +335,7 @@ const ReviewOrderPage = () => {
     (function confirmFormats() {
       const next = iterator.next();
       if (next.done) return;
+      const format = next.value[0];
       confirmDialog({
         title: next.value[0],
         content: (
@@ -298,8 +350,7 @@ const ReviewOrderPage = () => {
         ),
       })
         .then(() => {
-          // await buy
-          confirmFormats();
+          confirmTransaction(format).then(confirmFormats);
         })
         .catch(() => {
           //
@@ -324,12 +375,12 @@ const ReviewOrderPage = () => {
         const selectedCampaign = campaignPerFormat[format];
         return (
           <Accordion key={format} defaultExpanded={true}>
-            <AccordionSummary
+            <AccordionHeader
               expandIcon={<ExpandMoreIcon color="primary" />}
               color="blue"
             >
               <h4>{format}</h4>
-            </AccordionSummary>
+            </AccordionHeader>
             <AccordionDetails>
               <TableContainer>
                 <Table size="small">
