@@ -10,6 +10,8 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
+  CircularProgress,
+  Backdrop,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
@@ -149,6 +151,7 @@ const ReviewOrderPage = () => {
   const [orderBy, setOrderBy] = useState<keyof AuctionData>(`id`);
   const [approved, setApproved] = useState(false);
   const [usdcBalance, setUsdcBalance] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
   const auctions = useSelector(
     (state: RootState) => state.auctionBasketReducer.auctions,
@@ -453,9 +456,16 @@ const ReviewOrderPage = () => {
           onCancel={() => setConfirmStatus(ConfirmStatus.PENDING)}
         />
       )}
-      <StyledButton disabled={!approved} onClick={confirm}>
+      <StyledButton onClick={confirm}>
+        {/* disabled={!approved} */}
         Confirm order
       </StyledButton>
+      <Backdrop
+        sx={{ color: `#fff`, zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={isLoading}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
     </Grid>
   );
 };

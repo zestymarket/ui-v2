@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { styled } from '@mui/material';
 import { RootState } from '../../../lib/redux/rootReducer';
@@ -6,6 +6,7 @@ import Image from 'next/image';
 import AuctionRow from './AuctionRow';
 import Button from '@/components/Button';
 import Link from 'next/link';
+import { ConnectWalletContext } from '@/components/ConnectWalletProvider';
 
 const Wrapper = styled(`div`)`
   padding: 16px 40px 16px 16px;
@@ -61,7 +62,8 @@ const Wrapper = styled(`div`)`
       color: #837c99;
       font-size: 12px;
     }
-    & + a {
+    & + a,
+    & + button {
       float: right;
       margin: 10px 0;
     }
@@ -74,6 +76,7 @@ export default function CartPreview() {
     (state: RootState) => state.auctionBasketReducer.auctions,
   );
   const count = addedAuctions.length;
+  const { address, onClickConnectWallet } = useContext(ConnectWalletContext);
   if (!count) return <></>;
   const total = addedAuctions.reduce(
     (sum, auction) => (sum += auction.price),
@@ -113,9 +116,14 @@ export default function CartPreview() {
                 <small>USDC</small>
               </p>
             </footer>
-            <Link href="/review-order" passHref={true}>
-              <Button onClick={() => null}>Buy now</Button>
-            </Link>
+            {address && (
+              <Link href="/review-order" passHref={true}>
+                <Button onClick={() => null}>Buy now</Button>
+              </Link>
+            )}
+            {!address && (
+              <Button onClick={onClickConnectWallet}>Buy now</Button>
+            )}
           </div>
         )}
       </div>
