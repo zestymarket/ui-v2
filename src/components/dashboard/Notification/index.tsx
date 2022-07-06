@@ -57,9 +57,9 @@ export default function MySpaces() {
         {!loadingData &&
           notificationsData?.length > 0 &&
           notificationsData.map((notification, i) => {
-            return <NotificationCard key={i} />;
+            return <NotificationCard notification={notification} key={i} />;
           })}
-        <NotificationCard />
+        <NotificationCard notification={`hello`} />
         <Discord />
         {loadingData && (
           <Box

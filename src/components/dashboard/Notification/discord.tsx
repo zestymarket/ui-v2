@@ -1,8 +1,8 @@
 import { styled } from '@mui/system';
-import { Grid, Typography, CardActionArea, Link } from '@mui/material';
+import { Grid, Typography, Card, Link } from '@mui/material';
 import Image from 'next/image';
 
-const StyledActionArea = styled(CardActionArea)(({ theme }) => ({
+const StyledActionArea = styled(`div`)(({ theme }) => ({
   borderRadius: `inherit`,
   display: `grid`,
   gridTemplateRows: `0.25fr 0.75fr 3fr 3fr`,
@@ -84,6 +84,10 @@ const FirstItem = styled(`div`)`
     display: block;
     margin-top: 4px;
   }
+  a:hover {
+    cursor: pointer;
+    text-decoration: underline;
+  }
 `;
 
 const ClipboardInput = styled(`div`)`
@@ -96,6 +100,9 @@ const ClipboardInput = styled(`div`)`
   justify-content: space-between;
   align-items: center;
   margin-bottom: 10px;
+  img:hover {
+    cursor: pointer;
+  }
 `;
 
 export default function Discord() {
@@ -107,7 +114,7 @@ export default function Discord() {
         <Image
           alt="discord"
           width="200"
-          height="300"
+          height="100"
           src={`/assets/dashboard/Group.svg`}
         ></Image>
         <Grid>

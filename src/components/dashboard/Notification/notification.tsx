@@ -9,10 +9,7 @@ import {
   styled,
 } from '@mui/material';
 
-import PaymentIcon from '@mui/icons-material/Payment';
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import EventBusyIcon from '@mui/icons-material/EventBusy';
-import NewBid from './Bid';
+import { AddCircleOutline } from '@mui/icons-material';
 
 const StyledCard = styled(Card)({
   position: `relative`,
@@ -28,7 +25,7 @@ const StyledCardContent = styled(CardContent)({
   width: `980px`,
 });
 
-const StyledStepIcon = styled(`div`)<{ isCompleted: boolean }>(({ theme }) => ({
+const StyledStepIcon = styled(`div`)({
   width: 35,
   height: 35,
   borderRadius: `50%`,
@@ -38,7 +35,7 @@ const StyledStepIcon = styled(`div`)<{ isCompleted: boolean }>(({ theme }) => ({
   display: `flex`,
   justifyContent: `center`,
   alignItems: `center`,
-}));
+});
 
 const NotificationTitle = styled(Typography)({
   fontSize: 16,
@@ -57,68 +54,684 @@ const NotificationLink = styled(Link)({
   marginLeft: 4,
 });
 
-const NotificationCard = () => {
-  return (
-    <div>
-      <StyledCard>
-        <StyledCardContent>
-          <Grid container spacing={3} direction="row" sx={{ height: `100%` }}>
-            <Grid item>
-              <StyledStepIcon>
-                <AddCircleOutlineIcon fontSize="medium" />
-              </StyledStepIcon>
-            </Grid>
-            <Grid item>
-              <NewBid />
-            </Grid>
-          </Grid>
-        </StyledCardContent>
-      </StyledCard>
-      <StyledCard>
-        <StyledCardContent>
-          <Grid container spacing={3} direction="row" sx={{ height: `100%` }}>
-            <Grid item>
-              <StyledStepIcon>
-                <PaymentIcon fontSize="medium" />
-              </StyledStepIcon>
-            </Grid>
-            <Grid item>
-              <Grid container direction="column" sx={{ height: `100%` }}>
-                <Grid item>
-                  <NotificationTitle>
-                    <b>$100</b> are now claimable
-                  </NotificationTitle>
-                </Grid>
-                <Grid item>
-                  <NotificationLink>Collect Now ➜</NotificationLink>
-                </Grid>
-              </Grid>
-            </Grid>
-          </Grid>
-        </StyledCardContent>
-      </StyledCard>
-      <StyledCard>
-        <StyledCardContent>
-          <Grid container spacing={3} direction="row" sx={{ height: `100%` }}>
-            <Grid item>
-              <StyledStepIcon>
-                <EventBusyIcon fontSize="medium" />
-              </StyledStepIcon>
-            </Grid>
-            <Grid item>
-              <Grid container direction="column" sx={{ height: `100%` }}>
-                <Grid item>
-                  <NotificationTitle>
-                    <b>Auction 1284</b> is now expired.
-                  </NotificationTitle>
-                </Grid>
-              </Grid>
-            </Grid>
-          </Grid>
-        </StyledCardContent>
-      </StyledCard>
-    </div>
-  );
-};
+interface PropsMarkdown {
+  markdown: string;
+}
+interface PropsNotification {
+  notification: any;
+  notification_type: string;
+}
 
+const LinkToMarkdown: React.FC<PropsMarkdown> = ({ markdown }) => {
+  const elements: RegExpMatchArray | null = markdown.match(/\[.*?\)/g);
+  if (elements !== null && elements[0] != null) {
+    const txt: string = (elements[0].match(/\[(.*?)\]/) as any)[1];
+    const url: string = (elements[0].match(/\((.*?)\)/) as any)[1];
+    return (
+      <div>
+        <a href={url} target="_blank" rel="noreferrer">
+          {txt}
+        </a>
+      </div>
+    );
+  } else {
+    return <div> Some Error Occurred </div>;
+  }
+};
+const NotificationCard: React.FC<PropsNotification> = ({
+  notification,
+  notification_type,
+}) => {
+  switch (notification_type) {
+    case `spaceModifiedFrom`: {
+      return (
+        <div>
+          <StyledCard>
+            <StyledCardContent>
+              <Grid
+                container
+                spacing={3}
+                direction="row"
+                sx={{ height: `100%` }}
+              >
+                <Grid item>
+                  <StyledStepIcon>
+                    <AddCircleOutline fontSize="medium" />
+                  </StyledStepIcon>
+                </Grid>
+                <Grid item>
+                  <Grid container direction="column" sx={{ height: `100%` }}>
+                    <Grid item>
+                      <NotificationTitle>
+                        You have modified
+                        <LinkToMarkdown
+                          markdown={notification[`description`]}
+                        ></LinkToMarkdown>
+                      </NotificationTitle>
+                    </Grid>
+                    <Grid item>
+                      <NotificationLink
+                        href={notification[`fields`][2][`value`]}
+                        target="_blank"
+                      >
+                        Transaction Link ➜
+                      </NotificationLink>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </StyledCardContent>
+          </StyledCard>
+        </div>
+      );
+      break;
+    }
+    case `tokenMintFrom`: {
+      return (
+        <div>
+          <StyledCard>
+            <StyledCardContent>
+              <Grid
+                container
+                spacing={3}
+                direction="row"
+                sx={{ height: `100%` }}
+              >
+                <Grid item>
+                  <StyledStepIcon>
+                    <AddCircleOutline fontSize="medium" />
+                  </StyledStepIcon>
+                </Grid>
+                <Grid item>
+                  <Grid container direction="column" sx={{ height: `100%` }}>
+                    <Grid item>
+                      <NotificationTitle>
+                        You have modified
+                        <LinkToMarkdown
+                          markdown={notification[`description`]}
+                        ></LinkToMarkdown>
+                      </NotificationTitle>
+                    </Grid>
+                    <Grid item>
+                      <NotificationLink
+                        href={notification[`fields`][2][`value`]}
+                        target="_blank"
+                      >
+                        Transaction Link ➜
+                      </NotificationLink>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </StyledCardContent>
+          </StyledCard>
+        </div>
+      );
+      break;
+    }
+    case `tokenBurnedFrom`: {
+      return (
+        <div>
+          <StyledCard>
+            <StyledCardContent>
+              <Grid
+                container
+                spacing={3}
+                direction="row"
+                sx={{ height: `100%` }}
+              >
+                <Grid item>
+                  <StyledStepIcon>
+                    <AddCircleOutline fontSize="medium" />
+                  </StyledStepIcon>
+                </Grid>
+                <Grid item>
+                  <Grid container direction="column" sx={{ height: `100%` }}>
+                    <Grid item>
+                      <NotificationTitle>
+                        You have modified
+                        <LinkToMarkdown
+                          markdown={notification[`description`]}
+                        ></LinkToMarkdown>
+                      </NotificationTitle>
+                    </Grid>
+                    <Grid item>
+                      <NotificationLink
+                        href={notification[`fields`][2][`value`]}
+                        target="_blank"
+                      >
+                        Transaction Link ➜
+                      </NotificationLink>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </StyledCardContent>
+          </StyledCard>
+        </div>
+      );
+      break;
+    }
+    case `tokenTransferFrom`: {
+      return (
+        <div>
+          <StyledCard>
+            <StyledCardContent>
+              <Grid
+                container
+                spacing={3}
+                direction="row"
+                sx={{ height: `100%` }}
+              >
+                <Grid item>
+                  <StyledStepIcon>
+                    <AddCircleOutline fontSize="medium" />
+                  </StyledStepIcon>
+                </Grid>
+                <Grid item>
+                  <Grid container direction="column" sx={{ height: `100%` }}>
+                    <Grid item>
+                      <NotificationTitle>
+                        You have modified
+                        <LinkToMarkdown
+                          markdown={notification[`description`]}
+                        ></LinkToMarkdown>
+                      </NotificationTitle>
+                    </Grid>
+                    <Grid item>
+                      <NotificationLink
+                        href={notification[`fields`][2][`value`]}
+                        target="_blank"
+                      >
+                        Transaction Link ➜
+                      </NotificationLink>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </StyledCardContent>
+          </StyledCard>
+        </div>
+      );
+      break;
+    }
+    case `tokenTransferTo`: {
+      return (
+        <div>
+          <StyledCard>
+            <StyledCardContent>
+              <Grid
+                container
+                spacing={3}
+                direction="row"
+                sx={{ height: `100%` }}
+              >
+                <Grid item>
+                  <StyledStepIcon>
+                    <AddCircleOutline fontSize="medium" />
+                  </StyledStepIcon>
+                </Grid>
+                <Grid item>
+                  <Grid container direction="column" sx={{ height: `100%` }}>
+                    <Grid item>
+                      <NotificationTitle>
+                        You have modified
+                        <LinkToMarkdown
+                          markdown={notification[`description`]}
+                        ></LinkToMarkdown>
+                      </NotificationTitle>
+                    </Grid>
+                    <Grid item>
+                      <NotificationLink
+                        href={notification[`fields`][2][`value`]}
+                        target="_blank"
+                      >
+                        Transaction Link ➜
+                      </NotificationLink>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </StyledCardContent>
+          </StyledCard>
+        </div>
+      );
+      break;
+    }
+    case `nftDeposited`: {
+      return (
+        <div>
+          <StyledCard>
+            <StyledCardContent>
+              <Grid
+                container
+                spacing={3}
+                direction="row"
+                sx={{ height: `100%` }}
+              >
+                <Grid item>
+                  <StyledStepIcon>
+                    <AddCircleOutline fontSize="medium" />
+                  </StyledStepIcon>
+                </Grid>
+                <Grid item>
+                  <Grid container direction="column" sx={{ height: `100%` }}>
+                    <Grid item>
+                      <NotificationTitle>
+                        You have modified
+                        <LinkToMarkdown
+                          markdown={notification[`description`]}
+                        ></LinkToMarkdown>
+                      </NotificationTitle>
+                    </Grid>
+                    <Grid item>
+                      <NotificationLink
+                        href={notification[`fields`][2][`value`]}
+                        target="_blank"
+                      >
+                        Transaction Link ➜
+                      </NotificationLink>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </StyledCardContent>
+          </StyledCard>
+        </div>
+      );
+      break;
+    }
+    case `nftWithdrawn`: {
+      return (
+        <div>
+          <StyledCard>
+            <StyledCardContent>
+              <Grid
+                container
+                spacing={3}
+                direction="row"
+                sx={{ height: `100%` }}
+              >
+                <Grid item>
+                  <StyledStepIcon>
+                    <AddCircleOutline fontSize="medium" />
+                  </StyledStepIcon>
+                </Grid>
+                <Grid item>
+                  <Grid container direction="column" sx={{ height: `100%` }}>
+                    <Grid item>
+                      <NotificationTitle>
+                        You have modified
+                        <LinkToMarkdown
+                          markdown={notification[`description`]}
+                        ></LinkToMarkdown>
+                      </NotificationTitle>
+                    </Grid>
+                    <Grid item>
+                      <NotificationLink
+                        href={notification[`fields`][2][`value`]}
+                        target="_blank"
+                      >
+                        Transaction Link ➜
+                      </NotificationLink>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </StyledCardContent>
+          </StyledCard>
+        </div>
+      );
+      break;
+    }
+    case `auctionCreated`: {
+      return (
+        <div>
+          <StyledCard>
+            <StyledCardContent>
+              <Grid
+                container
+                spacing={3}
+                direction="row"
+                sx={{ height: `100%` }}
+              >
+                <Grid item>
+                  <StyledStepIcon>
+                    <AddCircleOutline fontSize="medium" />
+                  </StyledStepIcon>
+                </Grid>
+                <Grid item>
+                  <Grid container direction="column" sx={{ height: `100%` }}>
+                    <Grid item>
+                      <NotificationTitle>
+                        You have modified
+                        <LinkToMarkdown
+                          markdown={notification[`description`]}
+                        ></LinkToMarkdown>
+                      </NotificationTitle>
+                    </Grid>
+                    <Grid item>
+                      <NotificationLink
+                        href={notification[`fields`][2][`value`]}
+                        target="_blank"
+                      >
+                        Transaction Link ➜
+                      </NotificationLink>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </StyledCardContent>
+          </StyledCard>
+        </div>
+      );
+      break;
+    }
+    case `auctionCancelled`: {
+      return (
+        <div>
+          <StyledCard>
+            <StyledCardContent>
+              <Grid
+                container
+                spacing={3}
+                direction="row"
+                sx={{ height: `100%` }}
+              >
+                <Grid item>
+                  <StyledStepIcon>
+                    <AddCircleOutline fontSize="medium" />
+                  </StyledStepIcon>
+                </Grid>
+                <Grid item>
+                  <Grid container direction="column" sx={{ height: `100%` }}>
+                    <Grid item>
+                      <NotificationTitle>
+                        You have modified
+                        <LinkToMarkdown
+                          markdown={notification[`description`]}
+                        ></LinkToMarkdown>
+                      </NotificationTitle>
+                    </Grid>
+                    <Grid item>
+                      <NotificationLink
+                        href={notification[`fields`][2][`value`]}
+                        target="_blank"
+                      >
+                        Transaction Link ➜
+                      </NotificationLink>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </StyledCardContent>
+          </StyledCard>
+        </div>
+      );
+      break;
+    }
+    case `newAuctionOfferBuyer`: {
+      return (
+        <div>
+          <StyledCard>
+            <StyledCardContent>
+              <Grid
+                container
+                spacing={3}
+                direction="row"
+                sx={{ height: `100%` }}
+              >
+                <Grid item>
+                  <StyledStepIcon>
+                    <AddCircleOutline fontSize="medium" />
+                  </StyledStepIcon>
+                </Grid>
+                <Grid item>
+                  <Grid container direction="column" sx={{ height: `100%` }}>
+                    <Grid item>
+                      <NotificationTitle>
+                        You have modified
+                        <LinkToMarkdown
+                          markdown={notification[`description`]}
+                        ></LinkToMarkdown>
+                      </NotificationTitle>
+                    </Grid>
+                    <Grid item>
+                      <NotificationLink
+                        href={notification[`fields`][2][`value`]}
+                        target="_blank"
+                      >
+                        Transaction Link ➜
+                      </NotificationLink>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </StyledCardContent>
+          </StyledCard>
+        </div>
+      );
+      break;
+    }
+    case `newAuctionOfferSeller`: {
+      return (
+        <div>
+          <StyledCard>
+            <StyledCardContent>
+              <Grid
+                container
+                spacing={3}
+                direction="row"
+                sx={{ height: `100%` }}
+              >
+                <Grid item>
+                  <StyledStepIcon>
+                    <AddCircleOutline fontSize="medium" />
+                  </StyledStepIcon>
+                </Grid>
+                <Grid item>
+                  <Grid container direction="column" sx={{ height: `100%` }}>
+                    <Grid item>
+                      <NotificationTitle>
+                        You have modified
+                        <LinkToMarkdown
+                          markdown={notification[`description`]}
+                        ></LinkToMarkdown>
+                      </NotificationTitle>
+                    </Grid>
+                    <Grid item>
+                      <NotificationLink
+                        href={notification[`fields`][2][`value`]}
+                        target="_blank"
+                      >
+                        Transaction Link ➜
+                      </NotificationLink>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </StyledCardContent>
+          </StyledCard>
+        </div>
+      );
+      break;
+    }
+    case `auctionWithdrawn`: {
+      return (
+        <div>
+          <StyledCard>
+            <StyledCardContent>
+              <Grid
+                container
+                spacing={3}
+                direction="row"
+                sx={{ height: `100%` }}
+              >
+                <Grid item>
+                  <StyledStepIcon>
+                    <AddCircleOutline fontSize="medium" />
+                  </StyledStepIcon>
+                </Grid>
+                <Grid item>
+                  <Grid container direction="column" sx={{ height: `100%` }}>
+                    <Grid item>
+                      <NotificationTitle>
+                        You have modified
+                        <LinkToMarkdown
+                          markdown={notification[`description`]}
+                        ></LinkToMarkdown>
+                      </NotificationTitle>
+                    </Grid>
+                    <Grid item>
+                      <NotificationLink
+                        href={notification[`fields`][2][`value`]}
+                        target="_blank"
+                      >
+                        Transaction Link ➜
+                      </NotificationLink>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </StyledCardContent>
+          </StyledCard>
+        </div>
+      );
+      break;
+    }
+    case `auctionOfferSeller`: {
+      return (
+        <div>
+          <StyledCard>
+            <StyledCardContent>
+              <Grid
+                container
+                spacing={3}
+                direction="row"
+                sx={{ height: `100%` }}
+              >
+                <Grid item>
+                  <StyledStepIcon>
+                    <AddCircleOutline fontSize="medium" />
+                  </StyledStepIcon>
+                </Grid>
+                <Grid item>
+                  <Grid container direction="column" sx={{ height: `100%` }}>
+                    <Grid item>
+                      <NotificationTitle>
+                        You have modified
+                        <LinkToMarkdown
+                          markdown={notification[`description`]}
+                        ></LinkToMarkdown>
+                      </NotificationTitle>
+                    </Grid>
+                    <Grid item>
+                      <NotificationLink
+                        href={notification[`fields`][2][`value`]}
+                        target="_blank"
+                      >
+                        Transaction Link ➜
+                      </NotificationLink>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </StyledCardContent>
+          </StyledCard>
+        </div>
+      );
+      break;
+    }
+    case `auctionOfferBuyer`: {
+      return (
+        <div>
+          <StyledCard>
+            <StyledCardContent>
+              <Grid
+                container
+                spacing={3}
+                direction="row"
+                sx={{ height: `100%` }}
+              >
+                <Grid item>
+                  <StyledStepIcon>
+                    <AddCircleOutline fontSize="medium" />
+                  </StyledStepIcon>
+                </Grid>
+                <Grid item>
+                  <Grid container direction="column" sx={{ height: `100%` }}>
+                    <Grid item>
+                      <NotificationTitle>
+                        You have modified
+                        <LinkToMarkdown
+                          markdown={notification[`description`]}
+                        ></LinkToMarkdown>
+                      </NotificationTitle>
+                    </Grid>
+                    <Grid item>
+                      <NotificationLink
+                        href={notification[`fields`][2][`value`]}
+                        target="_blank"
+                      >
+                        Transaction Link ➜
+                      </NotificationLink>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </StyledCardContent>
+          </StyledCard>
+        </div>
+      );
+      break;
+    }
+    case `auctionOfferRejected`: {
+      return (
+        <div>
+          <StyledCard>
+            <StyledCardContent>
+              <Grid
+                container
+                spacing={3}
+                direction="row"
+                sx={{ height: `100%` }}
+              >
+                <Grid item>
+                  <StyledStepIcon>
+                    <AddCircleOutline fontSize="medium" />
+                  </StyledStepIcon>
+                </Grid>
+                <Grid item>
+                  <Grid container direction="column" sx={{ height: `100%` }}>
+                    <Grid item>
+                      <NotificationTitle>
+                        You have modified
+                        <LinkToMarkdown
+                          markdown={notification[`description`]}
+                        ></LinkToMarkdown>
+                      </NotificationTitle>
+                    </Grid>
+                    <Grid item>
+                      <NotificationLink
+                        href={notification[`fields`][2][`value`]}
+                        target="_blank"
+                      >
+                        Transaction Link ➜
+                      </NotificationLink>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </StyledCardContent>
+          </StyledCard>
+        </div>
+      );
+      break;
+    }
+    default: {
+      return <div></div>;
+      break;
+    }
+  }
+};
 export default NotificationCard;
