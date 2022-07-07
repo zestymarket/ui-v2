@@ -75,6 +75,9 @@ export default function Notifications() {
               />
             );
           })}
+        {!loadingData && notificationsData?.length === 0 && (
+          <div>You do not have any notifications</div>
+        )}
         <Discord />
         {loadingData && (
           <Box
@@ -86,9 +89,6 @@ export default function Notifications() {
           >
             <CircularProgress />
           </Box>
-        )}
-        {!loadingData && notificationsData?.length === 0 && (
-          <div>You do not have any Notifications</div>
         )}
       </Container>
     </StyledWrapper>
