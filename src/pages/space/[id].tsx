@@ -17,6 +17,8 @@ import { getClient } from '@/lib/graphql';
 import SpaceData from '@/utils/classes/SpaceData';
 import { formatIpfsUri, openNewTab } from '@/utils/helpers';
 import SpaceHistoricalChart from '@/components/composed/space/SpaceHistoricalChart';
+import { PageContext } from '@/lib/context/page';
+import SpaceAnalyticsPage from '@/components/composed/space/SpaceAnalyticsPage';
 
 export const Container = styled(`div`)({
   display: `flex`,
@@ -136,6 +138,8 @@ export default function SpaceDetailPage({
   data,
   uri,
 }: InferGetServerSidePropsType<typeof getServerSideProps>): JSX.Element {
+  const { setPageName } = React.useContext(PageContext);
+  setPageName(``);
   const { account } = useWeb3React<Web3Provider>();
   const [currentTab, setCurrentTab] = useState(0);
   const [spaceData, setSpaceData] = useState<SpaceData | null>(null);
@@ -170,7 +174,7 @@ export default function SpaceDetailPage({
     // const claimable = 0;
 
     if (spaceData) {
-      if (spaceData.auctions.length > 0) {
+      if (spaceData.auctions?.length > 0) {
         spaceData?.auctions.forEach((auction) => {
           const { contract } = auction;
           if (contract?.withdrawn === false) {
@@ -242,7 +246,11 @@ export default function SpaceDetailPage({
             /> */}
               <SwitchToggle label="Only available" />
             </ConfigPanel>
-            <AuctionDataTable auctions={spaceData?.activeAuctions || []} />
+            <AuctionDataTable
+              auctions={spaceData?.activeAuctions || []}
+              spaceName={spaceData?.name ?? ``}
+              format={spaceData?.format ?? ``}
+            />
           </SectionInner>
         )}
         {currentTab === 1 && (
@@ -269,12 +277,20 @@ export default function SpaceDetailPage({
               </Grid>
               <Grid item xs={12} pt={6}>
                 <HistoricalHeader>Past Auctions</HistoricalHeader>
-                <AuctionDataTable auctions={spaceData?.auctions || []} />
+                <AuctionDataTable
+                  auctions={spaceData?.auctions || []}
+                  spaceName={spaceData?.name ?? ``}
+                  format={spaceData?.format ?? ``}
+                />
               </Grid>
             </Grid>
           </SectionInner>
         )}
-        {currentTab === 2 && <SectionInner></SectionInner>}
+        {currentTab === 2 && (
+          <SectionInner>
+            <SpaceAnalyticsPage id={id}></SpaceAnalyticsPage>
+          </SectionInner>
+        )}
         {currentTab === 3 && <SectionInner></SectionInner>}
       </ContentSection>
     </Container>
