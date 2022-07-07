@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+/* eslint-disable react-hooks/rules-of-hooks */
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useState, useEffect } from 'react';
 import {
   Skeleton,
   Card,
@@ -8,13 +10,21 @@ import {
   Typography,
   styled,
   CardActionArea,
+  Link,
 } from '@mui/material';
+import { useWeb3React } from '@web3-react/core';
+import { Web3Provider } from '@ethersproject/providers';
+
 import SpaceData from '@/utils/classes/SpaceData';
+import { useRouter } from 'next/router';
+import tokens from './../data/tokens.json';
+import * as _ from 'lodash';
 
 const CARD_HEIGHT = 354;
 
 interface SpaceCardProps {
   spaceData?: SpaceData;
+  chainId?: number;
 }
 
 const StyledCardSkeleton = styled(Card)({
@@ -82,16 +92,18 @@ const StyledPriceLabel = styled(Typography)({
 });
 
 const StyledPriceValue = styled(Typography)({
-  fontSize: 16,
+  fontSize: 14,
   fontWeight: `bold`,
   marginLeft: 4,
 });
 
 const SpaceCard = (props: SpaceCardProps) => {
   const { spaceData } = props;
+  const router = useRouter();
+  const { chainId } = useWeb3React<Web3Provider>();
 
-  const [lowestPrice] = useState(Number.MAX_VALUE);
-  const [price] = useState(`No Open Auctions`);
+  const [lowestPrice, setLowestPrice] = useState(Number.MAX_VALUE);
+  const [price, setPrice] = useState(`No Open Auctions`);
 
   if (!spaceData) {
     return (
@@ -102,16 +114,37 @@ const SpaceCard = (props: SpaceCardProps) => {
       </StyledCardSkeleton>
     );
   }
+  useEffect(() => {
+    if (spaceData.auctions.length > 0) {
+      const lowestPriceTemp = _.orderBy(
+        spaceData.auctions,
+        [`sellerAuction.priceStart`],
+        [`desc`],
+      )[0].sellerAuction;
+      const decimals = parseInt(
+        (tokens as any)[chainId ?? 1][lowestPriceTemp.currency].decimals,
+      );
+      setLowestPrice(1);
+      const pricetemp = parseFloat(lowestPriceTemp.priceStart) / 10 ** decimals;
+      setPrice(`$${pricetemp.toString()}`);
+    }
+  });
 
   return (
-    <StyledCard>
+    <StyledCard
+      onClick={() => {
+        router.push(`/space/${spaceData.id}`);
+      }}
+    >
       <StyledActionArea>
-        <CardMedia
-          component="img"
-          image={spaceData?.image}
-          height={CARD_HEIGHT}
-          sx={{ borderRadius: `inherit` }}
-        />
+        <Link href={`/space/${spaceData.id}`}>
+          <CardMedia
+            component="img"
+            image={spaceData?.image}
+            height={CARD_HEIGHT}
+            sx={{ borderRadius: `inherit` }}
+          />
+        </Link>
         <StyledCardContent>
           <Grid
             container
@@ -131,10 +164,11 @@ const SpaceCard = (props: SpaceCardProps) => {
             <Grid item>
               <StyledName variant="h5">{spaceData?.name}</StyledName>
             </Grid>
+
             <StyledPrice item container>
               <Grid item>
                 <StyledPriceLabel variant="caption">
-                  {lowestPrice == Number.MAX_VALUE
+                  {lowestPrice === Number.MAX_VALUE
                     ? `No Open Auctions`
                     : `Starting at`}
                 </StyledPriceLabel>
