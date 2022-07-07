@@ -286,7 +286,7 @@ const ReviewOrderPage = () => {
       BigNumber.from(auction.id),
     );
     const selectedCampaign = campaignPerFormat[format];
-    const campaign = BigNumber.from(selectedCampaign.id);
+    const campaign = BigNumber.from(selectedCampaign?.id || 0); // TODO: What should happen when New Campaign is selected?
     setIsLoading(true);
     const plural = ids.length > 1 ? `s` : ``;
     return zestyMarketUSDC
@@ -308,7 +308,7 @@ const ReviewOrderPage = () => {
             );
             setIsLoading(false);
           })
-          .catch(() => {
+          .catch((e: any) => {
             enqueueSnackbar(e.message, {
               variant: `error`,
             });
@@ -507,8 +507,14 @@ const ReviewOrderPage = () => {
           onCancel={() => setConfirmStatus(ConfirmStatus.PENDING)}
         />
       )}
-      <StyledButton onClick={confirm}>
-        {/* disabled={!approved} */}
+      <StyledButton
+        onClick={confirm}
+        disabled={
+          !approved ||
+          Object.keys(campaignPerFormat).length <
+            Object.keys(groupedAuctions).length
+        }
+      >
         Confirm order
       </StyledButton>
       <Backdrop
