@@ -1,25 +1,34 @@
+import { AuctionData } from '@/components/based/AuctionDataTable';
 import { createSlice } from '@reduxjs/toolkit';
+
+const InitialAuctionState = {
+  auctions: [] as AuctionData[],
+};
+
+type AuctionStateType = typeof InitialAuctionState;
 
 export const auctionBasketSlice = createSlice({
   name: `auctionBasket`,
-  initialState: {
-    auctions: [],
-  },
+  initialState: InitialAuctionState,
   reducers: {
-    addAuction: (state, action) => {
-      return Object.assign({}, state, {
+    addAuction: (state: AuctionStateType, action) => {
+      return {
+        ...state,
         auctions: state.auctions.concat(action.payload),
-      });
+      };
     },
-    removeAuctionAtIndex: (state, action) => {
-      return Object.assign({}, state, {
-        auctions: state.auctions.slice(action.payload),
-      });
+    removeAuctionById: (state: AuctionStateType, action) => {
+      return {
+        ...state,
+        auctions: state.auctions.filter(
+          (auction) => auction.id !== action.payload,
+        ),
+      };
     },
   },
 });
 
 // Action creators are generated for each case reducer function
-export const { addAuction, removeAuctionAtIndex } = auctionBasketSlice.actions;
+export const { addAuction, removeAuctionById } = auctionBasketSlice.actions;
 
 export default auctionBasketSlice.reducer;
