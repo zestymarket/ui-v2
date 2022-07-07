@@ -3,12 +3,12 @@ import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { getClient } from '@/lib/graphql';
 import { styled } from '@mui/material';
-import NotificationCard from './notification';
-import { getNotifications } from './../../../lib/notification';
-// import Button from '@/components/Button';
 import Head from 'next/head';
 import LoadingBar from 'react-top-loading-bar';
 import { Box, CircularProgress } from '@mui/material';
+
+import NotificationCard from './notification';
+import { getNotifications } from './../../../lib/notification';
 import Discord from './discord';
 
 const Header = styled(`header`)({
@@ -46,16 +46,13 @@ export default function Notifications() {
   const [loadingData, setLoadingData] = useState<boolean>(false);
   const [notificationsData, setNotificationsData] = useState([]);
   useEffect(() => {
-    console.log(chainId);
     async function notifs() {
       if (account) {
         const notifications = await getNotifications(account);
         setNotificationsData(notifications.data);
-        console.log(`notications`, notifications.data);
       }
     }
     if (account) notifs();
-    console.log(`account`, account);
   }, []);
   return (
     <StyledWrapper>
@@ -90,9 +87,9 @@ export default function Notifications() {
             <CircularProgress />
           </Box>
         )}
-        {/* {!loadingData && notificationsData?.length === 0 && (
-          <div>No Notifications</div>
-        )} */}
+        {!loadingData && notificationsData?.length === 0 && (
+          <div>You do not have any Notifications</div>
+        )}
       </Container>
     </StyledWrapper>
   );
