@@ -1,8 +1,8 @@
 import { styled } from '@mui/system';
-import { Grid, Typography, Card, Link } from '@mui/material';
+import { Grid, Typography, Link } from '@mui/material';
 import Image from 'next/image';
 
-const StyledActionArea = styled(`div`)(({ theme }) => ({
+const StyledActionArea = styled(`div`)({
   borderRadius: `inherit`,
   display: `grid`,
   gridTemplateRows: `0.25fr 0.75fr 3fr 3fr`,
@@ -10,7 +10,7 @@ const StyledActionArea = styled(`div`)(({ theme }) => ({
   height: `400px`,
   alignItems: `center`,
   padding: `5%`,
-}));
+});
 
 const StyledCard = styled(`div`)({
   borderRadius: 16,
@@ -124,7 +124,9 @@ export default function Discord() {
               <span>
                 Join the <b>Zesty Market Discord</b>
               </span>
-              <Link>Join Our Discord Server ➜</Link>
+              <Link href="https://discord.gg/urJS5MGYnU" target="_blank">
+                Join Our Discord Server ➜
+              </Link>
             </FirstItem>
           </ListItem>
           <ListItem>
@@ -141,6 +143,9 @@ export default function Discord() {
             width={16}
             height={16}
             alt="clipboard"
+            onClick={() => {
+              navigator.clipboard.writeText(`notify`);
+            }}
           />
         </ClipboardInput>
       </StyledActionArea>

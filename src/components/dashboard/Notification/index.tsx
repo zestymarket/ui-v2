@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 import { getClient } from '@/lib/graphql';
 import { styled } from '@mui/material';
 import NotificationCard from './notification';
+import { getNotifications } from './../../../lib/notification';
 // import Button from '@/components/Button';
 import Head from 'next/head';
 import LoadingBar from 'react-top-loading-bar';
@@ -38,12 +39,24 @@ const StyledWrapper = styled(`div`)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
 }));
 
-export default function MySpaces() {
+export default function Notifications() {
   const { account, chainId } = useWeb3React<Web3Provider>();
   const client = getClient(chainId ?? 0);
   const [loadingMore, setLoadingMore] = useState<boolean>(false);
   const [loadingData, setLoadingData] = useState<boolean>(false);
   const [notificationsData, setNotificationsData] = useState([]);
+  useEffect(() => {
+    console.log(chainId);
+    async function notifs() {
+      if (account) {
+        const notifications = await getNotifications(account);
+        setNotificationsData(notifications.data);
+        console.log(`notications`, notifications.data);
+      }
+    }
+    if (account) notifs();
+    console.log(`account`, account);
+  }, []);
   return (
     <StyledWrapper>
       <LoadingBar progress={loadingMore ? 50 : 100} />
@@ -57,9 +70,14 @@ export default function MySpaces() {
         {!loadingData &&
           notificationsData?.length > 0 &&
           notificationsData.map((notification, i) => {
-            return <NotificationCard notification={notification} key={i} />;
+            return (
+              <NotificationCard
+                notification={notification[`notification`]}
+                notification_type={notification[`type`]}
+                key={i}
+              />
+            );
           })}
-        <NotificationCard notification={`hello`} />
         <Discord />
         {loadingData && (
           <Box

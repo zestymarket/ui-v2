@@ -9,7 +9,11 @@ import {
   styled,
 } from '@mui/material';
 
-import { AddCircleOutline } from '@mui/icons-material';
+import {
+  AddCircleOutline,
+  RemoveCircleOutline,
+  Send,
+} from '@mui/icons-material';
 
 const StyledCard = styled(Card)({
   position: `relative`,
@@ -68,11 +72,9 @@ const LinkToMarkdown: React.FC<PropsMarkdown> = ({ markdown }) => {
     const txt: string = (elements[0].match(/\[(.*?)\]/) as any)[1];
     const url: string = (elements[0].match(/\((.*?)\)/) as any)[1];
     return (
-      <div>
-        <a href={url} target="_blank" rel="noreferrer">
-          {txt}
-        </a>
-      </div>
+      <NotificationLink href={url} target="_blank" rel="noreferrer">
+        {txt}
+      </NotificationLink>
     );
   } else {
     return <div> Some Error Occurred </div>;
@@ -103,7 +105,7 @@ const NotificationCard: React.FC<PropsNotification> = ({
                   <Grid container direction="column" sx={{ height: `100%` }}>
                     <Grid item>
                       <NotificationTitle>
-                        You have modified
+                        You have modified space {` `}
                         <LinkToMarkdown
                           markdown={notification[`description`]}
                         ></LinkToMarkdown>
@@ -146,7 +148,7 @@ const NotificationCard: React.FC<PropsNotification> = ({
                   <Grid container direction="column" sx={{ height: `100%` }}>
                     <Grid item>
                       <NotificationTitle>
-                        You have modified
+                        You have minted a new token
                         <LinkToMarkdown
                           markdown={notification[`description`]}
                         ></LinkToMarkdown>
@@ -182,14 +184,14 @@ const NotificationCard: React.FC<PropsNotification> = ({
               >
                 <Grid item>
                   <StyledStepIcon>
-                    <AddCircleOutline fontSize="medium" />
+                    <RemoveCircleOutline fontSize="medium" />
                   </StyledStepIcon>
                 </Grid>
                 <Grid item>
                   <Grid container direction="column" sx={{ height: `100%` }}>
                     <Grid item>
                       <NotificationTitle>
-                        You have modified
+                        You have burned token
                         <LinkToMarkdown
                           markdown={notification[`description`]}
                         ></LinkToMarkdown>
@@ -225,14 +227,14 @@ const NotificationCard: React.FC<PropsNotification> = ({
               >
                 <Grid item>
                   <StyledStepIcon>
-                    <AddCircleOutline fontSize="medium" />
+                    <Send fontSize="medium" />
                   </StyledStepIcon>
                 </Grid>
                 <Grid item>
                   <Grid container direction="column" sx={{ height: `100%` }}>
                     <Grid item>
                       <NotificationTitle>
-                        You have modified
+                        You have transferred your token
                         <LinkToMarkdown
                           markdown={notification[`description`]}
                         ></LinkToMarkdown>
@@ -275,7 +277,7 @@ const NotificationCard: React.FC<PropsNotification> = ({
                   <Grid container direction="column" sx={{ height: `100%` }}>
                     <Grid item>
                       <NotificationTitle>
-                        You have modified
+                        You have receieved a token
                         <LinkToMarkdown
                           markdown={notification[`description`]}
                         ></LinkToMarkdown>
@@ -318,7 +320,7 @@ const NotificationCard: React.FC<PropsNotification> = ({
                   <Grid container direction="column" sx={{ height: `100%` }}>
                     <Grid item>
                       <NotificationTitle>
-                        You have modified
+                        You have deposited a NFT
                         <LinkToMarkdown
                           markdown={notification[`description`]}
                         ></LinkToMarkdown>
@@ -354,14 +356,14 @@ const NotificationCard: React.FC<PropsNotification> = ({
               >
                 <Grid item>
                   <StyledStepIcon>
-                    <AddCircleOutline fontSize="medium" />
+                    <RemoveCircleOutline fontSize="medium" />
                   </StyledStepIcon>
                 </Grid>
                 <Grid item>
                   <Grid container direction="column" sx={{ height: `100%` }}>
                     <Grid item>
                       <NotificationTitle>
-                        You have modified
+                        You have withdrawn NFT
                         <LinkToMarkdown
                           markdown={notification[`description`]}
                         ></LinkToMarkdown>
@@ -404,7 +406,7 @@ const NotificationCard: React.FC<PropsNotification> = ({
                   <Grid container direction="column" sx={{ height: `100%` }}>
                     <Grid item>
                       <NotificationTitle>
-                        You have modified
+                        You have created an auction
                         <LinkToMarkdown
                           markdown={notification[`description`]}
                         ></LinkToMarkdown>
@@ -447,7 +449,7 @@ const NotificationCard: React.FC<PropsNotification> = ({
                   <Grid container direction="column" sx={{ height: `100%` }}>
                     <Grid item>
                       <NotificationTitle>
-                        You have modified
+                        You have cancelled auction
                         <LinkToMarkdown
                           markdown={notification[`description`]}
                         ></LinkToMarkdown>
@@ -490,7 +492,7 @@ const NotificationCard: React.FC<PropsNotification> = ({
                   <Grid container direction="column" sx={{ height: `100%` }}>
                     <Grid item>
                       <NotificationTitle>
-                        You have modified
+                        You have sent a new auction offer on
                         <LinkToMarkdown
                           markdown={notification[`description`]}
                         ></LinkToMarkdown>
@@ -533,7 +535,7 @@ const NotificationCard: React.FC<PropsNotification> = ({
                   <Grid container direction="column" sx={{ height: `100%` }}>
                     <Grid item>
                       <NotificationTitle>
-                        You have modified
+                        You have receieved a new auction offer
                         <LinkToMarkdown
                           markdown={notification[`description`]}
                         ></LinkToMarkdown>
@@ -576,7 +578,7 @@ const NotificationCard: React.FC<PropsNotification> = ({
                   <Grid container direction="column" sx={{ height: `100%` }}>
                     <Grid item>
                       <NotificationTitle>
-                        You have modified
+                        You have withdrawn auction
                         <LinkToMarkdown
                           markdown={notification[`description`]}
                         ></LinkToMarkdown>
@@ -619,7 +621,7 @@ const NotificationCard: React.FC<PropsNotification> = ({
                   <Grid container direction="column" sx={{ height: `100%` }}>
                     <Grid item>
                       <NotificationTitle>
-                        You have modified
+                        You have sent a new auction offer
                         <LinkToMarkdown
                           markdown={notification[`description`]}
                         ></LinkToMarkdown>
@@ -662,7 +664,7 @@ const NotificationCard: React.FC<PropsNotification> = ({
                   <Grid container direction="column" sx={{ height: `100%` }}>
                     <Grid item>
                       <NotificationTitle>
-                        You have modified
+                        You have receieved a new auction offer
                         <LinkToMarkdown
                           markdown={notification[`description`]}
                         ></LinkToMarkdown>
@@ -705,7 +707,7 @@ const NotificationCard: React.FC<PropsNotification> = ({
                   <Grid container direction="column" sx={{ height: `100%` }}>
                     <Grid item>
                       <NotificationTitle>
-                        You have modified
+                        You have rejected auction offer
                         <LinkToMarkdown
                           markdown={notification[`description`]}
                         ></LinkToMarkdown>
