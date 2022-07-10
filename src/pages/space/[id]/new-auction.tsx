@@ -53,10 +53,12 @@ const NewAuction = () => {
   return (
     <>
       <SubHeader label="New Auction" sublabel={`for ${spaceTitle}`} />
-      <AuctionCalendar
-        id={id}
-        filteredAuctions={filteredAuctions}
-      ></AuctionCalendar>
+      {account && (
+        <AuctionCalendar
+          id={id}
+          filteredAuctions={filteredAuctions}
+        ></AuctionCalendar>
+      )}
     </>
   );
 };
