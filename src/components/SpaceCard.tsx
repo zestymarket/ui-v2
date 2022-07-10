@@ -115,7 +115,7 @@ const SpaceCard = (props: SpaceCardProps) => {
     );
   }
   useEffect(() => {
-    if (spaceData.auctions.length > 0) {
+    if (spaceData.auctions?.length > 0) {
       const lowestPriceTemp = _.orderBy(
         spaceData.auctions,
         [`sellerAuction.priceStart`],
