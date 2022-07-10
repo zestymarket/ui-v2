@@ -10,9 +10,15 @@ const DnDCalendar = withDragAndDrop(Calendar);
 
 import AuctionForm from '@/components/new-auction/AuctionForm';
 import { Grid, styled } from '@mui/material';
+import Button from '../Button';
+import { useZestyMarketUSDC } from '@/utils/hooks';
+import { SECONDS_IN_30MIN, SECONDS_IN_DAY } from '@/utils/timeConstants';
+import { parseUnits } from '@ethersproject/units';
+import { BigNumber } from '@ethersproject/bignumber';
 
 interface Props {
   filteredAuctions: any;
+  id: string[] | string | undefined;
 }
 
 const MAX_AUCTIONS = 50;
@@ -30,12 +36,19 @@ const AuctionGrid = styled(Grid)({
   margin: `30px auto`,
 });
 
+const AuctionConfirmButton = styled(Button)({
+  display: `block`,
+  marginLeft: `auto`,
+  marginRight: 0,
+  marginTop: 20,
+});
+
 const dateOptions: Intl.DateTimeFormatOptions = {
   month: `short`,
   day: `numeric`,
 };
 
-const AuctionCalendar: React.FC<Props> = ({ filteredAuctions }) => {
+const AuctionCalendar: React.FC<Props> = ({ filteredAuctions, id }) => {
   const theme = useTheme();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
@@ -55,6 +68,9 @@ const AuctionCalendar: React.FC<Props> = ({ filteredAuctions }) => {
   const [saleStart, setSaleStart] = useState<string>(`Now`); // TODO: convert to enum
   const [idCounter, setIdCounter] = useState<number>(1);
   const [cachedMonths, setCachedMonths] = useState<string[]>([]);
+  const [numRemoteEvents, setNumRemoteEvents] = useState<number>(0);
+
+  const zestyMarketUSDC = useZestyMarketUSDC(true);
 
   const calendarProps = {};
 
@@ -159,6 +175,7 @@ const AuctionCalendar: React.FC<Props> = ({ filteredAuctions }) => {
         return !overlaps.includes(evt);
       });
     }
+    setNumRemoteEvents(newEvents.length);
     setEvents(newEvents);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filteredAuctions]);
@@ -256,14 +273,24 @@ const AuctionCalendar: React.FC<Props> = ({ filteredAuctions }) => {
     return returnArray;
   };
 
-  const deleteTimeslot = (event) => {
+  const deleteTimeslot = (event: any) => {
     const newEvents = [...events];
-    const eventIndex = events.findIndex((element) => element.id == event.id);
+    const eventIndex = events.findIndex(
+      (element: any) => element.id == event.id,
+    );
     newEvents.splice(eventIndex, 1);
     setEvents(newEvents);
   };
 
-  const datesOverlap = ({ start, end, event }) => {
+  const datesOverlap = ({
+    start,
+    end,
+    event,
+  }: {
+    start: Date;
+    end: Date;
+    event: any;
+  }) => {
     for (let i = 0; i < events.length; i++) {
       if (event && event.id === events[i].id) continue;
       const currentStart = events[i].start;
@@ -281,7 +308,7 @@ const AuctionCalendar: React.FC<Props> = ({ filteredAuctions }) => {
     return false;
   };
 
-  const isDateOverlapped = (date) => {
+  const isDateOverlapped = (date: Date) => {
     for (let i = 0; i < events.length; i++) {
       const currentStart = events[i].start;
       const currentEnd = events[i].end;
@@ -312,7 +339,7 @@ const AuctionCalendar: React.FC<Props> = ({ filteredAuctions }) => {
     return returnEvents;
   };
 
-  const onTimeslotResized = (data) => {
+  const onTimeslotResized = (data: any) => {
     if (datesOverlap(data)) {
       return enqueueSnackbar(`Dates can't overlap!`, {
         variant: `error`,
@@ -463,18 +490,22 @@ const AuctionCalendar: React.FC<Props> = ({ filteredAuctions }) => {
     setFocusedEvent(event);
   };
 
-  const onTimeslotChangeConfirmed = (event: any) => {
+  const onTimeslotChangeConfirmed = (
+    startDate: Date,
+    endDate: Date,
+    price: number,
+  ) => {
     const newEvents = [...events];
     const eventIndex = events.findIndex(
       (element: any) => element.id == focusedEvent?.id,
     );
     const newEvent = { ...newEvents[eventIndex] };
 
-    newEvent.price = currentEventPrice;
+    newEvent.price = price;
 
-    const newStart = currentEventStartDate;
+    const newStart = startDate;
     // newStart.setHours(0, 0, 0, 0);
-    const newEnd = currentEventEndDate;
+    const newEnd = endDate;
     // newEnd.setHours(0, 0, 0, 0);
 
     if (newEnd <= newStart) {
@@ -495,10 +526,9 @@ const AuctionCalendar: React.FC<Props> = ({ filteredAuctions }) => {
       newEvent.end = newEnd;
     }
 
-    const title =
-      newEvent.start.toLocaleDateString(`en-US`, dateOptions) +
-      ` - ` +
-      newEvent.end.toLocaleDateString(`en-US`, dateOptions);
+    const diff = Math.abs(newEvent.end.getTime() - newEvent.start.getTime());
+    const diffDays = Math.ceil(diff / (1000 * 3600 * 24));
+    const title = `${diffDays} day${diffDays === 1 ? `` : `s`}`;
 
     newEvent.startMonthly.setTime(newStart.getTime());
     newEvent.startMonthly.setHours(0, 0, 0, 0);
@@ -515,8 +545,144 @@ const AuctionCalendar: React.FC<Props> = ({ filteredAuctions }) => {
     setFocusedEvent(null);
   };
 
-  const onFormSave = (startDate, endDate, price) => {
+  const onFormSave = (startDate: Date, endDate: Date, price: number) => {
+    onTimeslotChangeConfirmed(startDate, endDate, price);
     setFocusedEvent(null);
+  };
+
+  const onEventDelete = () => {
+    if (focusedEvent) {
+      deleteTimeslot(focusedEvent);
+      setFocusedEvent(null);
+    }
+  };
+
+  const onConfirmed = () => {
+    const currentTime = parseInt((new Date().getTime() / 1000).toFixed(0));
+    if (events.length <= numRemoteEvents) {
+      return enqueueSnackbar(`Please create new events to confirm.`, {
+        variant: `error`,
+      });
+    } else {
+      const result: {
+        auctionStartTimes: number[];
+        auctionEndTimes: number[];
+        contractStartTimes: number[];
+        contractEndTimes: number[];
+        prices: BigNumber[];
+      } = {
+        auctionStartTimes: [],
+        auctionEndTimes: [],
+        contractStartTimes: [],
+        contractEndTimes: [],
+        prices: [],
+      };
+
+      let auctionStartOffset = 0;
+      let auctionStartNow = false;
+      switch (saleStart) {
+        case `Now`:
+          auctionStartNow = true;
+          break;
+        case `3 days before`:
+          auctionStartOffset = 3 * SECONDS_IN_DAY;
+          break;
+        case `5 days before`:
+          auctionStartOffset = 5 * SECONDS_IN_DAY;
+          break;
+        case `1 week before`:
+          auctionStartOffset = 7 * SECONDS_IN_DAY;
+          break;
+        case `2 weeks before`:
+          auctionStartOffset = 2 * 7 * SECONDS_IN_DAY;
+          break;
+        case `4 weeks before`:
+          auctionStartOffset = 4 * 7 * SECONDS_IN_DAY;
+          break;
+      }
+
+      for (let i = 0; i < events.length; i++) {
+        const currentEvent = events[i];
+        if (currentEvent.external) continue;
+
+        const currentStart = new Date(currentEvent.start);
+        currentStart.setMinutes(
+          currentStart.getMinutes() - currentEvent.start.getTimezoneOffset(),
+        );
+
+        const currentEnd = new Date(currentEvent.end);
+        currentEnd.setMinutes(
+          currentEnd.getMinutes() - currentEvent.end.getTimezoneOffset(),
+        );
+        currentEnd.setSeconds(currentEnd.getSeconds() - 1);
+        const selectedStart = currentStart.getTime() / 1000;
+        //set the earliest contract start time to the current time
+        const contractStart = Math.max(
+          selectedStart,
+          currentTime + SECONDS_IN_30MIN,
+        );
+        const contractEnd = currentEnd.getTime() / 1000;
+
+        const selectedAuctionStart = contractStart - auctionStartOffset;
+        //set the earliest auction start time to the current time + 10 minutes
+        const auctionStart = auctionStartNow
+          ? currentTime + 600
+          : Math.max(selectedAuctionStart, currentTime + 600);
+        const auctionEnd = contractEnd - 1;
+
+        // USDC uses 6 decimal places. This decimal place will change depending on the erc20 token used.
+        // It's mostly 18 decimal places.
+        const price = parseUnits(
+          BigNumber.from(currentEvent.price).toString(),
+          6,
+        );
+
+        if (price.eq(0)) {
+          return enqueueSnackbar(`There is a timeslot with a price of 0.`, {
+            variant: `error`,
+          });
+        }
+
+        result.auctionStartTimes.push(auctionStart);
+        result.auctionEndTimes.push(auctionEnd);
+        result.contractStartTimes.push(contractStart);
+        result.contractEndTimes.push(contractEnd);
+        result.prices.push(price);
+      }
+
+      zestyMarketUSDC
+        .sellerAuctionCreateBatch(
+          id,
+          result.auctionStartTimes,
+          result.auctionEndTimes,
+          result.contractStartTimes,
+          result.contractEndTimes,
+          result.prices,
+        )
+        .then((res: any) => {
+          enqueueSnackbar(`Transaction pending...`, {
+            variant: `info`,
+            autoHideDuration: 15000,
+          });
+          res
+            .wait()
+            .then(() => {
+              enqueueSnackbar(`Successfully created auction`, {
+                variant: `success`,
+              });
+            })
+            .catch((e: Error) => {
+              enqueueSnackbar(e.message, {
+                variant: `error`,
+              });
+            });
+        })
+        .catch((e: Error) => {
+          enqueueSnackbar(e.message, {
+            variant: `error`,
+          });
+        });
+    }
   };
 
   return (
@@ -547,11 +713,15 @@ const AuctionCalendar: React.FC<Props> = ({ filteredAuctions }) => {
           onNavigate={onCalendarNavigate}
           style={{ fontFamily: `Inter`, height: `800px`, width: `100%` }}
         />
+        <AuctionConfirmButton onClick={onConfirmed}>
+          Create Auctions
+        </AuctionConfirmButton>
       </AuctionGrid>
       <AuctionForm
         event={focusedEvent}
         onClose={onFormClose}
         onSave={onFormSave}
+        onDelete={onEventDelete}
       ></AuctionForm>
     </AuctionGridContainer>
   );

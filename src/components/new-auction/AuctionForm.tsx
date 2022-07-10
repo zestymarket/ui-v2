@@ -2,12 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { Box, Grid, TextField, Typography } from '@mui/material';
 import { styled } from '@mui/system';
 import Button from '../Button';
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import ZestyDateTimePicker from '../ZestyDateTimePicker';
 
 interface Props {
   event: any;
   onClose: () => void;
+  onDelete: () => void;
   onSave: (startDate: Date, endDate: Date, price: number) => void;
 }
 
@@ -17,7 +17,7 @@ interface BackdropProps {
 
 const StyledBackground = styled(Box, {
   shouldForwardProp: (prop) => prop !== `visible`,
-})<BackdropProps>(({ theme, visible }) => ({
+})<BackdropProps>(({ visible }) => ({
   backgroundColor: `#00000057`,
   width: `100%`,
   height: `100%`,
@@ -29,13 +29,11 @@ const StyledBackground = styled(Box, {
   pointerEvents: visible ? `unset` : `none`,
 }));
 
-const StyledBackdrop = styled(Grid, {
-  shouldForwardProp: (prop) => prop !== `visible`,
-})<BackdropProps>(({ theme, visible }) => ({
+const StyledBackdrop = styled(Grid)(({ theme }) => ({
   boxShadow: `0px 0px 5px #F89C24`,
   background: theme.palette.background.default,
   position: `absolute`,
-  height: 350,
+  height: 400,
   width: 250,
   padding: 20,
   margin: 20,
@@ -71,7 +69,19 @@ const StyledTextField = styled(TextField)({
   },
 });
 
-const AuctionForm: React.FC<Props> = ({ event, onClose, onSave }) => {
+const StyledDelete = styled(`div`)({
+  fontFamily: `Inter`,
+  fontStyle: `normal`,
+  textAlign: `center`,
+  fontWeight: 600,
+  fontSize: `15px`,
+  lineHeight: `18px`,
+  cursor: `pointer`,
+  userSelect: `none`,
+  textDecoration: `underline`,
+});
+
+const AuctionForm: React.FC<Props> = ({ event, onClose, onDelete, onSave }) => {
   const [currentEventStartDate, setCurrentEventStartDate] = useState<Date>(
     new Date(),
   );
@@ -88,21 +98,32 @@ const AuctionForm: React.FC<Props> = ({ event, onClose, onSave }) => {
     }
   }, [event]);
 
+  const bgClassName = `auction-form-bg`;
+
   return (
     <StyledBackground
       visible={!!event}
-      onClick={() => {
-        onClose();
+      className={bgClassName}
+      onClick={(e: React.MouseEvent<HTMLDivElement>) => {
+        if ((e.target as HTMLElement).classList.contains(bgClassName)) {
+          onClose();
+        }
       }}
     >
-      <StyledBackdrop
-        justifyContent={`space-between`}
-        visible={!!event}
-        direction={`column`}
-      >
+      <StyledBackdrop justifyContent={`space-between`} direction={`column`}>
         <Grid>
           <StyledHeader>Starts</StyledHeader>
-          <ZestyDateTimePicker date={currentEventStartDate} />
+          <ZestyDateTimePicker
+            date={currentEventStartDate}
+            onChange={(e) => {
+              if (e >= currentEventEndDate) {
+                setCurrentEventEndDate(
+                  new Date(e.getTime() + 60 * 60 * 24 * 1000),
+                );
+              }
+              setCurrentEventStartDate(e);
+            }}
+          />
         </Grid>
         <Grid>
           <StyledHeader>Ends</StyledHeader>
@@ -127,6 +148,7 @@ const AuctionForm: React.FC<Props> = ({ event, onClose, onSave }) => {
         >
           Create Auction
         </Button>
+        <StyledDelete onClick={onDelete}>Remove event</StyledDelete>
       </StyledBackdrop>
     </StyledBackground>
   );
