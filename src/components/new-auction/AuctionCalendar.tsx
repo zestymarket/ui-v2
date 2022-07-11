@@ -14,6 +14,7 @@ import { useZestyMarketUSDC } from '@/utils/hooks';
 import { SECONDS_IN_30MIN, SECONDS_IN_DAY } from '@/utils/timeConstants';
 import { parseUnits } from '@ethersproject/units';
 import { BigNumber } from '@ethersproject/bignumber';
+import { useRouter } from 'next/router';
 
 interface Props {
   filteredAuctions: any;
@@ -49,6 +50,7 @@ const dateOptions: Intl.DateTimeFormatOptions = {
 
 const AuctionCalendar: React.FC<Props> = ({ filteredAuctions, id }) => {
   const { enqueueSnackbar } = useSnackbar();
+  const router = useRouter();
 
   const [events, setEvents] = useState<any>([]);
   const [currentView, setCurrentView] = useState<View | undefined>(`month`);
@@ -635,6 +637,7 @@ const AuctionCalendar: React.FC<Props> = ({ filteredAuctions, id }) => {
               enqueueSnackbar(`Successfully created auction`, {
                 variant: `success`,
               });
+              router.push(`/space/${id}`);
             })
             .catch((e: Error) => {
               enqueueSnackbar(e.message, {
