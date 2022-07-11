@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { useTheme } from '@mui/styles';
 
-import { Calendar, momentLocalizer } from 'react-big-calendar';
+import { Calendar, momentLocalizer, View } from 'react-big-calendar';
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
 import moment from 'moment';
 import { useSnackbar } from 'notistack';
@@ -49,30 +48,21 @@ const dateOptions: Intl.DateTimeFormatOptions = {
 };
 
 const AuctionCalendar: React.FC<Props> = ({ filteredAuctions, id }) => {
-  const theme = useTheme();
-  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+  const { enqueueSnackbar } = useSnackbar();
 
   const [events, setEvents] = useState<any>([]);
-  const [currentView, setCurrentView] = useState<string>(`month`);
+  const [currentView, setCurrentView] = useState<View | undefined>(`month`);
   const [currentViewedDate, setCurrentViewedDate] = useState<Date>(new Date());
   const [focusedEvent, setFocusedEvent] = useState<any>(null);
-  const [currentEventStartDate, setCurrentEventStartDate] =
-    useState<Date | null>(null);
-  const [currentEventEndDate, setCurrentEventEndDate] = useState<Date | null>(
-    null,
-  );
-  const [currentEventPrice, setCurrentEventPrice] = useState<number>(0);
 
   const [weeklyFilteredEvents, setWeeklyFilteredEvents] = useState<any>([]);
-  const [newTimeslotPrice, setNewTimeslotPrice] = useState<number>(0);
-  const [saleStart, setSaleStart] = useState<string>(`Now`); // TODO: convert to enum
+  const [newTimeslotPrice, setNewTimeslotPrice] = useState<number>(1);
+  const [saleStart] = useState<string>(`Now`); // TODO: convert to enum
   const [idCounter, setIdCounter] = useState<number>(1);
   const [cachedMonths, setCachedMonths] = useState<string[]>([]);
   const [numRemoteEvents, setNumRemoteEvents] = useState<number>(0);
 
   const zestyMarketUSDC = useZestyMarketUSDC(true);
-
-  const calendarProps = {};
 
   const setToSundayStart = (date: Date) => {
     const day = date.getDay();
@@ -116,106 +106,15 @@ const AuctionCalendar: React.FC<Props> = ({ filteredAuctions, id }) => {
     return false;
   };
 
-  const setWeekViewEvents = (startDate: Date, endDate: Date) => {
-    const newEvents = [...events];
-    const filteredEvents = newEvents.filter((event) =>
-      isWithinWeek(event, startDate, endDate),
-    );
-
-    let createdEvents: any = [];
-
-    for (let i = 0; i < filteredEvents.length; i++) {
-      const event = filteredEvents[i];
-      createdEvents = createdEvents.concat(
-        createWeeklyEvents(startDate, endDate, event),
-      );
-    }
-
-    setWeeklyFilteredEvents(createdEvents);
-  };
-
-  const onCalendarNavigate = (date: Date, view: any) => {
-    view = view || currentView;
-    if (view === `month`) {
-      getAuctionsForMonth(date);
-    } else if (view === `week`) {
-      const weekStart = new Date(date.getTime());
-      const weekEnd = new Date(date.getTime());
-      setToSundayStart(weekStart);
-      setToSaturdayEnd(weekEnd);
-      setWeekViewEvents(weekStart, weekEnd);
-    }
-    setCurrentViewedDate(date);
-  };
-
-  useEffect(() => {
-    if (currentView === `week`) {
-      onCalendarNavigate(currentViewedDate, currentView);
-    }
-  }, [events, currentView]);
-
-  useEffect(() => {
-    if (!filteredAuctions) return;
-
-    let newEvents: any = events.filter((event: any) => !event.external);
-    for (let i = 0; i < filteredAuctions.length; i++) {
-      if (!filteredAuctions[i]) continue;
-      const start = new Date(filteredAuctions[i].contractTimeStart * 1000);
-      const startMonthly = new Date(start);
-      startMonthly.setUTCHours(0, 0, 0, 0);
-      const end = new Date(filteredAuctions[i].contractTimeEnd * 1000);
-      const endMonthly = new Date(end);
-      endMonthly.setUTCHours(0, 0, 0, 0);
-      const newEvent = createEvent({ start, end }, true);
-      newEvent.startMonthly = startMonthly;
-      newEvent.endMonthly = endMonthly;
-      newEvents.push(newEvent);
-      const overlaps = getOverlappingDates({ start, end, event: newEvent });
-      newEvents = newEvents.filter((evt: any) => {
-        return !overlaps.includes(evt);
-      });
-    }
-    setNumRemoteEvents(newEvents.length);
-    setEvents(newEvents);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filteredAuctions]);
-
-  const createEvent = (
-    { start, end }: { start: Date; end: Date },
-    external = false,
-  ) => {
-    const price = newTimeslotPrice;
-    const diff = Math.abs(end.getTime() - start.getTime());
-    const diffDays = Math.ceil(diff / (1000 * 3600 * 24));
-    let title = `${diffDays} day${diffDays === 1 ? `` : `s`}`;
-    // TODO: Price recommendation could be used here in the future.
-
-    if (external) {
-      start.setMinutes(start.getMinutes() + start.getTimezoneOffset(), 0);
-      end.setMinutes(end.getMinutes() + end.getTimezoneOffset(), 0);
-    } else {
-      title += ` (${price.toFixed(2)} USDC)`;
-    }
-
-    const obj = {
-      title,
-      start,
-      end,
-      startMonthly: start,
-      endMonthly: end,
-      id: idCounter,
-      price,
-      external,
-    };
-    setIdCounter(idCounter + 1);
-    return obj;
-  };
-
-  const isSameDay = (first, second) => {
+  const isSameDay = (first: Date, second: Date) => {
     return first.getDate() === second.getDate();
   };
 
-  const createWeeklyEvents = (weekStart, weekEnd, realEvent) => {
+  const createWeeklyEvents = (
+    weekStart: Date,
+    weekEnd: Date,
+    realEvent: any,
+  ) => {
     const { start, end } = realEvent;
     const price = realEvent.price;
     // TODO: Display like Mon 1 PM - Tue 2 PM
@@ -224,8 +123,10 @@ const AuctionCalendar: React.FC<Props> = ({ filteredAuctions, id }) => {
       ` - ` +
       end.toLocaleDateString(`en-US`, dateOptions);
 
-    const currentStart = new Date(Math.max(start, weekStart));
-    const currentEnd = new Date(Math.min(end, weekEnd));
+    const currentStart = new Date(
+      Math.max(start.getTime(), weekStart.getTime()),
+    );
+    const currentEnd = new Date(Math.min(end.getTime(), weekEnd.getTime()));
     let currentEndOfDay;
     if (isSameDay(currentStart, currentEnd)) {
       currentEndOfDay = currentEnd;
@@ -273,6 +174,76 @@ const AuctionCalendar: React.FC<Props> = ({ filteredAuctions, id }) => {
     return returnArray;
   };
 
+  const setWeekViewEvents = (startDate: Date, endDate: Date) => {
+    const newEvents = [...events];
+    const filteredEvents = newEvents.filter((event) =>
+      isWithinWeek(event, startDate, endDate),
+    );
+
+    let createdEvents: any = [];
+
+    for (let i = 0; i < filteredEvents.length; i++) {
+      const event = filteredEvents[i];
+      createdEvents = createdEvents.concat(
+        createWeeklyEvents(startDate, endDate, event),
+      );
+    }
+
+    setWeeklyFilteredEvents(createdEvents);
+  };
+
+  const onCalendarNavigate = (date: Date, view: any) => {
+    view = view || currentView;
+    if (view === `month`) {
+      getAuctionsForMonth(date);
+    } else if (view === `week`) {
+      const weekStart = new Date(date.getTime());
+      const weekEnd = new Date(date.getTime());
+      setToSundayStart(weekStart);
+      setToSaturdayEnd(weekEnd);
+      setWeekViewEvents(weekStart, weekEnd);
+    }
+    setCurrentViewedDate(date);
+  };
+
+  useEffect(() => {
+    if (currentView === `week`) {
+      onCalendarNavigate(currentViewedDate, currentView);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [events, currentView]);
+
+  const createEvent = (
+    { start, end }: { start: Date; end: Date },
+    external = false,
+  ) => {
+    const price = newTimeslotPrice;
+    const diff = Math.abs(end.getTime() - start.getTime());
+    const diffDays = Math.ceil(diff / (1000 * 3600 * 24));
+    let title = `${diffDays} day${diffDays === 1 ? `` : `s`}`;
+    // TODO: Price recommendation could be used here in the future.
+
+    if (external) {
+      start.setMinutes(start.getMinutes() + start.getTimezoneOffset(), 0);
+      end.setMinutes(end.getMinutes() + end.getTimezoneOffset(), 0);
+    } else {
+      title += ` (${price.toFixed(2)} USDC)`;
+    }
+
+    const obj = {
+      title,
+      start,
+      end,
+      startMonthly: start,
+      endMonthly: end,
+      id: idCounter,
+      price,
+      external,
+    };
+    setIdCounter(idCounter + 1);
+    return obj;
+  };
+
   const deleteTimeslot = (event: any) => {
     const newEvents = [...events];
     const eventIndex = events.findIndex(
@@ -297,23 +268,11 @@ const AuctionCalendar: React.FC<Props> = ({ filteredAuctions, id }) => {
       const currentEnd = events[i].end;
       // Checks if two dates overlap
       if (
-        (start > currentStart && start < currentEnd) ||
-        (end > currentStart && end < currentEnd) ||
+        (start >= currentStart && start < currentEnd) ||
+        (end > currentStart && end <= currentEnd) ||
         (currentStart > start && currentStart < end) ||
         (currentEnd > start && currentEnd < end)
       ) {
-        return true;
-      }
-    }
-    return false;
-  };
-
-  const isDateOverlapped = (date: Date) => {
-    for (let i = 0; i < events.length; i++) {
-      const currentStart = events[i].start;
-      const currentEnd = events[i].end;
-      // Checks if two dates overlap
-      if (currentStart <= date && date <= currentEnd) {
         return true;
       }
     }
@@ -362,7 +321,9 @@ const AuctionCalendar: React.FC<Props> = ({ filteredAuctions, id }) => {
     const newEvent = { ...newEvents[eventIndex] };
     const diff = Math.abs(end - start);
     const diffDays = Math.ceil(diff / (1000 * 3600 * 24));
-    const title = `${diffDays} day${diffDays === 1 ? `` : `s`}`;
+    const title = `${diffDays} day${
+      diffDays === 1 ? `` : `s`
+    } (${newEvent.price.toFixed(2)} USDC)`;
 
     newEvent.title = title;
     if (event.realEvent) {
@@ -408,7 +369,9 @@ const AuctionCalendar: React.FC<Props> = ({ filteredAuctions, id }) => {
 
     let diff = Math.abs(event.end - event.start);
     let diffDays = Math.ceil(diff / (1000 * 3600 * 24));
-    let title = `${diffDays} day${diffDays === 1 ? `` : `s`}`;
+    let title = `${diffDays} day${
+      diffDays === 1 ? `` : `s`
+    } (${newEvent.price.toFixed(2)} USDC)`;
 
     if (event.realEvent) {
       diff = start - event.realEvent.start;
@@ -419,7 +382,9 @@ const AuctionCalendar: React.FC<Props> = ({ filteredAuctions, id }) => {
           variant: `error`,
         });
       }
-      title = `${diffDays} day${diffDays === 1 ? `` : `s`}`;
+      title = `${diffDays} day${
+        diffDays === 1 ? `` : `s`
+      } (${newEvent.price.toFixed(2)} USDC)`;
       event.realEvent.title = title;
     } else {
       newEvent.end = end;
@@ -457,9 +422,6 @@ const AuctionCalendar: React.FC<Props> = ({ filteredAuctions, id }) => {
         variant: `error`,
       });
     }
-
-    setCurrentEventStartDate(start);
-    setCurrentEventEndDate(end);
 
     const newEvents = [...events];
     const newEvent = createEvent(data);
@@ -528,7 +490,9 @@ const AuctionCalendar: React.FC<Props> = ({ filteredAuctions, id }) => {
 
     const diff = Math.abs(newEvent.end.getTime() - newEvent.start.getTime());
     const diffDays = Math.ceil(diff / (1000 * 3600 * 24));
-    const title = `${diffDays} day${diffDays === 1 ? `` : `s`}`;
+    const title = `${diffDays} day${diffDays === 1 ? `` : `s`} (${price.toFixed(
+      2,
+    )} USDC)`;
 
     newEvent.startMonthly.setTime(newStart.getTime());
     newEvent.startMonthly.setHours(0, 0, 0, 0);
@@ -547,6 +511,7 @@ const AuctionCalendar: React.FC<Props> = ({ filteredAuctions, id }) => {
 
   const onFormSave = (startDate: Date, endDate: Date, price: number) => {
     onTimeslotChangeConfirmed(startDate, endDate, price);
+    setNewTimeslotPrice(price);
     setFocusedEvent(null);
   };
 
@@ -685,6 +650,32 @@ const AuctionCalendar: React.FC<Props> = ({ filteredAuctions, id }) => {
     }
   };
 
+  useEffect(() => {
+    if (!filteredAuctions) return;
+
+    let newEvents: any = events.filter((event: any) => !event.external);
+    for (let i = 0; i < filteredAuctions.length; i++) {
+      if (!filteredAuctions[i]) continue;
+      const start = new Date(filteredAuctions[i].contractTimeStart * 1000);
+      const startMonthly = new Date(start);
+      startMonthly.setUTCHours(0, 0, 0, 0);
+      const end = new Date(filteredAuctions[i].contractTimeEnd * 1000);
+      const endMonthly = new Date(end);
+      endMonthly.setUTCHours(0, 0, 0, 0);
+      const newEvent = createEvent({ start, end }, true);
+      newEvent.startMonthly = startMonthly;
+      newEvent.endMonthly = endMonthly;
+      newEvents.push(newEvent);
+      const overlaps = getOverlappingDates({ start, end, event: newEvent });
+      newEvents = newEvents.filter((evt: any) => {
+        return !overlaps.includes(evt);
+      });
+    }
+    setNumRemoteEvents(newEvents.length);
+    setEvents(newEvents);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filteredAuctions]);
+
   return (
     <AuctionGridContainer>
       <AuctionGrid container>
@@ -692,7 +683,7 @@ const AuctionCalendar: React.FC<Props> = ({ filteredAuctions, id }) => {
           selectable
           localizer={localizer}
           defaultDate={moment().toDate()}
-          onView={(newView) => {
+          onView={(newView: any) => {
             setCurrentView(newView);
             if (newView === `week`) {
               onCalendarNavigate(currentViewedDate, newView);
@@ -701,8 +692,6 @@ const AuctionCalendar: React.FC<Props> = ({ filteredAuctions, id }) => {
           defaultView="month"
           events={currentView === `month` ? events : weeklyFilteredEvents}
           view={currentView}
-          startAccessor={currentView === `month` ? `startMonthly` : `start`}
-          endAccessor={currentView === `month` ? `endMonthly` : `end`}
           views={[`month`, `week`]}
           onEventResize={onTimeslotResized}
           onEventDrop={onTimeslotMoved}

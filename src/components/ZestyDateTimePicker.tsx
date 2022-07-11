@@ -1,14 +1,13 @@
 import React from 'react';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
-import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { styled, TextField } from '@mui/material';
-import moment from 'moment';
 
 interface Props {
-  date: moment.Moment;
-  minDate?: moment.Moment;
-  maxDate?: moment.Moment;
+  date: Date;
+  minDate?: Date;
+  maxDate?: Date;
   onChange?: any;
 }
 
@@ -42,10 +41,10 @@ const ZestyDateTimePicker: React.FC<Props> = ({
   onChange,
 }) => {
   return (
-    <LocalizationProvider dateAdapter={AdapterMoment}>
+    <LocalizationProvider dateAdapter={AdapterDateFns}>
       <DateTimePicker
-        maxDate={maxDate || moment().year(2100)}
-        minDate={minDate || moment()}
+        maxDate={maxDate || new Date(`2100`)}
+        minDate={minDate || new Date()}
         disablePast
         ampm={false}
         value={date}

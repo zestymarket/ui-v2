@@ -3,6 +3,10 @@ import { Box, Grid, TextField, Typography } from '@mui/material';
 import { styled } from '@mui/system';
 import Button from '../Button';
 import ZestyDateTimePicker from '../ZestyDateTimePicker';
+import InputAdornment from '@mui/material/InputAdornment';
+
+const today = new Date();
+today.setHours(0, 0, 0, 0);
 
 interface Props {
   event: any;
@@ -67,6 +71,9 @@ const StyledTextField = styled(TextField)({
     fontSize: `15px`,
     lineHeight: `18px`,
   },
+  '& p': {
+    color: `white`,
+  },
 });
 
 const StyledDelete = styled(`div`)({
@@ -115,7 +122,7 @@ const AuctionForm: React.FC<Props> = ({ event, onClose, onDelete, onSave }) => {
           <StyledHeader>Starts</StyledHeader>
           <ZestyDateTimePicker
             date={currentEventStartDate}
-            onChange={(e) => {
+            onChange={(e: Date) => {
               if (e >= currentEventEndDate) {
                 setCurrentEventEndDate(
                   new Date(e.getTime() + 60 * 60 * 24 * 1000),
@@ -127,14 +134,42 @@ const AuctionForm: React.FC<Props> = ({ event, onClose, onDelete, onSave }) => {
         </Grid>
         <Grid>
           <StyledHeader>Ends</StyledHeader>
-          <ZestyDateTimePicker date={currentEventEndDate} />
+          <ZestyDateTimePicker
+            date={currentEventEndDate}
+            onChange={(e: Date) => {
+              if (e >= currentEventEndDate) {
+                if (e <= currentEventStartDate) {
+                  // Mitigates creation of dates in the past
+                  const newDate = new Date(e.getTime() - 60 * 60 * 24 * 1000);
+                  if (newDate < today) {
+                    setCurrentEventStartDate(today);
+                    e = new Date(today.getTime() + 60 * 60 * 24 * 1000);
+                  } else {
+                    setCurrentEventStartDate(newDate);
+                  }
+                }
+                setCurrentEventEndDate(e);
+              }
+            }}
+          />
         </Grid>
         <Grid>
           <StyledHeader>Price</StyledHeader>
           <StyledTextField
             placeholder="https://yourdomain.com/pageurl"
             variant="outlined"
-            value={`Test`}
+            value={currentEventPrice}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">USDC</InputAdornment>
+              ),
+            }}
+            onChange={(e: any) => {
+              if (isNaN(e.target.value)) {
+                return;
+              }
+              setCurrentEventPrice(parseInt(e.target.value) || 0);
+            }}
           />
         </Grid>
         <Button

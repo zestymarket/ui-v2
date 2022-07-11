@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import SubHeader from '@/components/SubHeader';
-import Button from '@/components/Button';
 import router from 'next/router';
 import { GET_ONE_ZESTY_NFT } from '@/lib/queries';
 import { formatIpfsUri } from '@/utils/helpers';
@@ -24,7 +23,6 @@ const NewAuction = () => {
   });
 
   const [spaceTitle, setSpaceTitle] = useState<string>(`...`);
-  const [spaceData, setSpaceData] = useState<SpaceData | null>(null);
   const [filteredAuctions, setFilteredAuctions] = useState<any>([]);
 
   useEffect(() => {
@@ -38,7 +36,6 @@ const NewAuction = () => {
         .then((formattedData) => {
           const newSpaceData = new SpaceData(data.tokenData, formattedData);
 
-          setSpaceData(newSpaceData);
           setSpaceTitle(formattedData.name);
           setFilteredAuctions(
             newSpaceData.auctions?.map((auction) => {
