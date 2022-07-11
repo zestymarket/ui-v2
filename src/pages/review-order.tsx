@@ -327,10 +327,10 @@ const ReviewOrderPage = () => {
       setConfirmStatus(ConfirmStatus.NOT_ENOUGH_FUNDS);
       return;
     }
-    if (Object.keys(groupedAuctions).length === 1) {
-      // buy immediately
-      return;
-    }
+    // if (Object.keys(groupedAuctions).length === 1) {
+    //   // buy immediately
+    //   return;
+    // }
     const iterator = Object.entries(groupedAuctions)[Symbol.iterator]();
     (function confirmFormats() {
       const next = iterator.next();
