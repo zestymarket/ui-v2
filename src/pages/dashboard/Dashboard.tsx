@@ -6,6 +6,7 @@ import TabsContainer from '@/components/TabsContainer';
 import Overview from '@/components/dashboard/FundCards';
 import Account from '@/components/dashboard/Account';
 import MySpaces from '@/components/dashboard/MySpaces';
+import Notification from '@/components/dashboard/Notification/index';
 import StyledDashboard from './styled';
 import { Web3Provider } from '@ethersproject/providers';
 // import { useZestyMarketUSDC } from '@/utils/hooks';
@@ -145,7 +146,7 @@ export default function Dashboard() {
           {
             id: `notifications`,
             label: `Notifications`,
-            PanelComponent: () => null,
+            PanelComponent: Notification,
           },
           {
             id: `account-management`,
