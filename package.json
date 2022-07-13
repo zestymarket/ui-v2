@@ -55,6 +55,7 @@
     "@web3-react/torus-connector": "6.2.9",
     "@web3-react/walletconnect-connector": "6.2.8",
     "@web3-react/walletlink-connector": "6.2.11",
+    "babel-plugin-inline-react-svg": "2.0.1",
     "chart.js": "^3.3.2",
     "ethereum-blockies-base64": "1.0.2",
     "graphql": "^15.5.0",
