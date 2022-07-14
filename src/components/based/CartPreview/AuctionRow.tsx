@@ -62,12 +62,8 @@ const Wrapper = styled(`div`)`
   }
 `;
 
-export default function AuctionRow({
-  auctionData,
-}: {
-  auctionData: AuctionData;
-}) {
-  const { id, price, contractStartTime, duration, campaign } = auctionData;
+export default function AuctionRow({ auctionData }: { auctionData: any }) {
+  const { id, price, contractStartTime, duration, spaceName } = auctionData;
   const dispatch = useDispatch();
   return (
     <Wrapper>
@@ -81,7 +77,7 @@ export default function AuctionRow({
         />
       </div>
       <div className="campaign">
-        <label>{campaign || `None`}</label>
+        <label>{spaceName || `None`}</label>
         <span className="lightText">Starts at {contractStartTime}</span>
       </div>
       <div className="price">
