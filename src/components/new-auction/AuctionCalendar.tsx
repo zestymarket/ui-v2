@@ -425,6 +425,7 @@ const AuctionCalendar: React.FC<Props> = ({ filteredAuctions, id }) => {
       });
     }
 
+    end.setSeconds(end.getSeconds() - 1);
     const newEvents = [...events];
     const newEvent = createEvent(data);
     const startMonthly = new Date(start);
@@ -581,7 +582,6 @@ const AuctionCalendar: React.FC<Props> = ({ filteredAuctions, id }) => {
         currentEnd.setMinutes(
           currentEnd.getMinutes() - currentEvent.end.getTimezoneOffset(),
         );
-        currentEnd.setSeconds(currentEnd.getSeconds() - 1);
         const selectedStart = currentStart.getTime() / 1000;
         //set the earliest contract start time to the current time
         const contractStart = Math.max(
