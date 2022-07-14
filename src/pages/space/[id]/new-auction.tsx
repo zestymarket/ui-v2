@@ -27,7 +27,6 @@ const NewAuction = () => {
 
   useEffect(() => {
     if (data?.tokenData) {
-      console.log(`data`, data);
       const url = formatIpfsUri(data.tokenData.uri);
       fetch(url)
         .then((uri) => {

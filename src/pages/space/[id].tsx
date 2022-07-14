@@ -9,7 +9,7 @@ import SpaceFeaturedMedia from '@/components/composed/space/SpaceFeaturedMedia';
 import FeaturedContainer from '@/components/layout/FeaturedContainer';
 import SwitchToggle from '@/components/based/SwitchToggle';
 import AuctionDataTable from '@/components/based/AuctionDataTable';
-import { Button, Grid, Tab, Tabs } from '@mui/material';
+import { Button as muiButton, Grid, Tab, Tabs } from '@mui/material';
 import { styled } from '@mui/system';
 
 import { GET_ONE_ZESTY_NFT } from '@/lib/queries';
@@ -38,7 +38,7 @@ export const TabsWrapper = styled(`div`)({
   marginTop: 66,
 });
 
-export const BuyButton = styled(Button)({
+export const BuyButton = styled(muiButton)({
   fontFamily: `Inter`,
   textTransform: `none`,
   fontStyle: `normal`,
@@ -140,7 +140,8 @@ export default function SpaceDetailPage({
   const [currentTab, setCurrentTab] = useState(0);
   const [spaceData, setSpaceData] = useState<SpaceData | null>(null);
 
-  const [, setIsCreator] = useState<boolean>(false);
+  const [hasActiveAuctions, setHasActiveAuctions] = useState<boolean>(false);
+  const [isCreator, setIsCreator] = useState<boolean>(false);
 
   const [pendingBalance, setPendingBalance] = useState<number>(0);
 
@@ -156,7 +157,8 @@ export default function SpaceDetailPage({
 
     const newSpaceData = new SpaceData(data.tokenData, uri);
 
-    // if (newSpaceData.activeAuctions.length > 0) setHasActiveAuctions(true);
+    if (newSpaceData.activeAuctions.length > 0) setHasActiveAuctions(true);
+    setIsCreator(account?.toUpperCase() === newSpaceData.creator.toUpperCase());
     setSpaceData(newSpaceData);
   }, [data, uri, id]);
 
@@ -197,6 +199,8 @@ export default function SpaceDetailPage({
             <SpaceFeaturedContent
               onDepositNFT={handleDepositNFT}
               spaceData={spaceData}
+              isCreator={isCreator}
+              hasActiveAuctions={hasActiveAuctions}
             />
           }
           media={<SpaceFeaturedMedia src={spaceData?.image} />}
