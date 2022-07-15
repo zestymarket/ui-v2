@@ -442,12 +442,16 @@ const ReviewOrderPage = () => {
               <h4>Campaign Details</h4>
               <TextField
                 fullWidth={true}
-                onChange={(e) =>
+                onChange={(e) => {
+                  const campaign = JSON.parse(e.target.value as string);
+                  if (campaign.name == NEW_CAMPAIGN_OBJ.name) {
+                    router.push(`/create-campaign`);
+                  }
                   setCampaignPerFormat({
                     ...campaignPerFormat,
-                    [format]: JSON.parse(e.target.value as string),
-                  })
-                }
+                    [format]: campaign,
+                  });
+                }}
                 select
                 label="Select Campaign"
               >
