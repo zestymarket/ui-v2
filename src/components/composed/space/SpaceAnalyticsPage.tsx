@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Grid,
-  Card,
-  CardMedia,
-  Select,
-  MenuItem,
-  Typography,
-} from '@mui/material';
+import { Grid, Card, CardMedia, Select, MenuItem } from '@mui/material';
 import { styled, useTheme } from '@mui/styles';
 import { getClient } from '../../../lib/graphql';
 import { useWeb3React } from '@web3-react/core';
@@ -15,7 +8,6 @@ import { GET_ANALYTICS_BY_ID } from '@/lib/queries';
 import Line from 'react-chartjs-2';
 import { ChartOptions } from 'chart.js';
 
-import { MS_IN_DAY, SECONDS_IN_DAY } from '@/utils/timeConstants';
 import { Web3Provider } from '@ethersproject/providers';
 import {
   AssetContainer,
@@ -82,9 +74,6 @@ interface Props {
 
 const SpaceAnalyticsPage: React.FC<Props> = ({ id }) => {
   const theme = useTheme();
-
-  const { chainId } = useWeb3React<Web3Provider>();
-  const client = getClient(chainId || 137);
 
   const [activeDataType, setActiveDataType] = useState<string>(`Visits`);
   const [activeData, setActiveData] = useState<any>(undefined);

@@ -21,8 +21,6 @@ import { RootState } from '../lib/redux/rootReducer';
 import { TableBodyCell } from '@/components/based/AuctionDataTable/styles';
 import {
   DataTableHead,
-  stableSort,
-  getComparator,
   StyledTableRow,
   AuctionData,
   Order,
@@ -283,6 +281,7 @@ const ReviewOrderPage = () => {
         }),
       ).then(() => setUserCampaigns([NEW_CAMPAIGN_OBJ, ...newCampaigns]));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
   useEffect(() => {
