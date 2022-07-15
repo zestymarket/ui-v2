@@ -250,7 +250,7 @@ export default function SpaceDetailPage({
             </ConfigPanel>
             <AuctionDataTable
               auctions={spaceData?.activeAuctions || []}
-              spaceName={spaceData?.name ?? ``}
+              name={spaceData?.name ?? ``}
               format={spaceData?.format ?? ``}
             />
           </SectionInner>

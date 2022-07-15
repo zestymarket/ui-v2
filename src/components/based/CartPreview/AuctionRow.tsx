@@ -1,9 +1,14 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { styled } from '@mui/material';
 import { AuctionData } from '../AuctionDataTable';
 import CloseIcon from '../../../../public/icons/close.svg';
 import { removeAuctionById } from '@/lib/redux/auctionBasketSlice';
 import { useDispatch } from 'react-redux';
+import {
+  calculatePrice,
+  getAuctionDuration,
+  getAuctionStartsIn,
+} from '@/utils/classes/Auction';
 
 const Wrapper = styled(`div`)`
   display: flex;
@@ -63,7 +68,23 @@ const Wrapper = styled(`div`)`
 `;
 
 export default function AuctionRow({ auctionData }: { auctionData: any }) {
-  const { id, price, contractStartTime, duration, spaceName } = auctionData;
+  const {
+    id,
+    priceStart,
+    contractTimeStart,
+    contractTimeEnd,
+    auctionTimeStart,
+    name,
+  } = auctionData;
+
+  const startsIn = getAuctionStartsIn(contractTimeStart);
+  const price = calculatePrice(
+    auctionTimeStart,
+    contractTimeEnd,
+    priceStart,
+  ).toFixed(2);
+  const duration = getAuctionDuration(contractTimeStart, contractTimeEnd);
+
   const dispatch = useDispatch();
   return (
     <Wrapper>
@@ -77,12 +98,12 @@ export default function AuctionRow({ auctionData }: { auctionData: any }) {
         />
       </div>
       <div className="campaign">
-        <label>{spaceName || `None`}</label>
-        <span className="lightText">Starts at {contractStartTime}</span>
+        <label>{name || `None`}</label>
+        <span className="lightText">Starts in {startsIn}</span>
       </div>
       <div className="price">
         <p className="total">
-          <h1>{price.toFixed(2)}</h1>
+          <h1>{price}</h1>
           <small>USDC</small>
         </p>
         <span className="lightText">Duration {duration}</span>

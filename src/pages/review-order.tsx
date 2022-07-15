@@ -47,6 +47,11 @@ import Button from '@/components/Button';
 import { useConfirm } from 'material-ui-confirm';
 import _ from 'lodash';
 import { useRouter } from 'next/router';
+import {
+  calculatePrice,
+  getAuctionDuration,
+  getAuctionStartsIn,
+} from '@/utils/classes/Auction';
 
 const headCells: readonly HeadCell[] = [
   {
@@ -172,7 +177,15 @@ const ReviewOrderPage = () => {
 
   const zestyMarketUSDC = useZestyMarketUSDC(true);
   const contractUSDC = useUSDC(true);
-  const total = auctions.reduce((sum, auction) => (sum += auction.price), 0);
+  const total = auctions.reduce(
+    (sum, auction) =>
+      (sum += calculatePrice(
+        auction.auctionTimeStart,
+        auction.contractTimeEnd,
+        auction.priceStart,
+      )),
+    0,
+  );
   const [campaignPerFormat, setCampaignPerFormat] = useState<
     Record<string, any>
   >({});
@@ -347,7 +360,16 @@ const ReviewOrderPage = () => {
           <h4>
             Total:{` `}
             {next.value[1]
-              .reduce((sum: any, auction: any) => sum + auction.price, 0)
+              .reduce(
+                (sum: any, auction: any) =>
+                  sum +
+                  calculatePrice(
+                    auction.auctionTimeStart,
+                    auction.contractTimeEnd,
+                    auction.priceStart,
+                  ),
+                0,
+              )
               .toFixed(2)}
             {` `}
             USDC
@@ -371,7 +393,15 @@ const ReviewOrderPage = () => {
     >
       <h2>Space Details</h2>
       {Object.entries(groupedAuctions).map(([format, rows]) => {
-        const total = rows.reduce((sum, auction) => (sum += auction.price), 0);
+        const total = rows.reduce(
+          (sum, auction) =>
+            (sum += calculatePrice(
+              auction.auctionTimeStart,
+              auction.contractTimeEnd,
+              auction.priceStart,
+            )),
+          0,
+        );
         const filteredCampaigns = userCampaigns.filter(
           (campaign) =>
             convertOldFormats(campaign.format) === convertOldFormats(format),
@@ -396,34 +426,42 @@ const ReviewOrderPage = () => {
                     headCells={headCells}
                   />
                   <TableBody>
-                    {stableSort(rows, getComparator(order, orderBy)).map(
-                      (row, index) => {
-                        const labelId = `enhanced-table-checkbox-${index}`;
-                        return (
-                          <StyledTableRow hover tabIndex={-1} key={row.id}>
-                            <TableBodyCell
-                              align="right"
-                              component="th"
-                              id={labelId}
-                              scope="row"
-                              padding="none"
-                            >
-                              {row.id}
-                            </TableBodyCell>
-                            <TableBodyCell align="left">
-                              {row.contractStartTime}
-                            </TableBodyCell>
-                            <TableBodyCell align="left">{`${row.duration}`}</TableBodyCell>
-                            <TableBodyCell align="left">{`${
-                              (row as any).spaceName
-                            }`}</TableBodyCell>
-                            <TableBodyCell align="left">
-                              <b>{row.price.toFixed(2)}</b>USDC
-                            </TableBodyCell>
-                          </StyledTableRow>
-                        );
-                      },
-                    )}
+                    {rows.sort().map((row, index) => {
+                      const labelId = `enhanced-table-checkbox-${index}`;
+                      return (
+                        <StyledTableRow hover tabIndex={-1} key={row.id}>
+                          <TableBodyCell
+                            align="right"
+                            component="th"
+                            id={labelId}
+                            scope="row"
+                            padding="none"
+                          >
+                            {row.id}
+                          </TableBodyCell>
+                          <TableBodyCell align="left">
+                            {getAuctionStartsIn(row.contractTimeStart)}
+                          </TableBodyCell>
+                          <TableBodyCell align="left">{`${getAuctionDuration(
+                            row.contractTimeStart,
+                            row.contractTimeEnd,
+                          )}`}</TableBodyCell>
+                          <TableBodyCell align="left">{`${
+                            (row as any).name
+                          }`}</TableBodyCell>
+                          <TableBodyCell align="left">
+                            <b>
+                              {calculatePrice(
+                                row.auctionTimeStart,
+                                row.contractTimeEnd,
+                                row.priceStart,
+                              ).toFixed(2)}
+                            </b>
+                            USDC
+                          </TableBodyCell>
+                        </StyledTableRow>
+                      );
+                    })}
                     <StyledTableRow tabIndex={-1}>
                       <TableBodyCell style={{ borderBottom: 0 }} />
                       <TableBodyCell style={{ borderBottom: 0 }} />

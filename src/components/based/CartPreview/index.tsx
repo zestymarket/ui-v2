@@ -7,6 +7,7 @@ import AuctionRow from './AuctionRow';
 import Button from '@/components/Button';
 import Link from 'next/link';
 import { ConnectWalletContext } from '@/components/ConnectWalletProvider';
+import { calculatePrice } from '@/utils/classes/Auction';
 
 const Wrapper = styled(`div`)`
   padding: 16px 40px 16px 16px;
@@ -80,7 +81,12 @@ export default function CartPreview() {
   const { address, onClickConnectWallet } = useContext(ConnectWalletContext);
   if (!count) return <></>;
   const total = addedAuctions.reduce(
-    (sum, auction) => (sum += auction.price),
+    (sum, auction) =>
+      (sum += calculatePrice(
+        auction.auctionTimeStart,
+        auction.contractTimeEnd,
+        auction.priceStart,
+      )),
     0,
   );
   return (

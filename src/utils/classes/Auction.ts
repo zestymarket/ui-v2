@@ -28,6 +28,73 @@ export enum AUCTION_STATUS {
   'finished', //was bought and contract is over
 }
 
+export const getAuctionStartsIn = function (contractTimeStart: string): string {
+  const dur = moment.duration(
+    moment.unix(Number(contractTimeStart)).diff(moment()),
+  );
+
+  const monthsRemain = dur.months();
+  const daysRemain = dur.days();
+  const hoursRemain = dur.hours();
+  const minutesRemain = dur.minutes();
+  const secondsRemain = dur.seconds();
+
+  if (
+    monthsRemain < 0 ||
+    daysRemain < 0 ||
+    hoursRemain < 0 ||
+    minutesRemain < 0 ||
+    secondsRemain < 0
+  ) {
+    return `Already started`;
+  }
+
+  if (monthsRemain) {
+    return `${monthsRemain} month${
+      monthsRemain !== 1 ? `s` : ``
+    } ${daysRemain} day${daysRemain !== 1 ? `s` : ``}`;
+  }
+
+  if (daysRemain) {
+    return `${daysRemain} day${
+      daysRemain !== 1 ? `s` : ``
+    } ${hoursRemain} hour${hoursRemain !== 1 ? `s` : ``}`;
+  }
+
+  if (hoursRemain) {
+    return `${hoursRemain} hour${
+      hoursRemain !== 1 ? `s` : ``
+    } ${minutesRemain} min${minutesRemain !== 1 ? `s` : ``}`;
+  }
+
+  if (minutesRemain) {
+    return `${minutesRemain} min${
+      minutesRemain !== 1 ? `s` : ``
+    } ${secondsRemain} sec${secondsRemain !== 1 ? `s` : ``}`;
+  } else {
+    return `${secondsRemain} sec${secondsRemain !== 1 ? `s` : ``}`;
+  }
+};
+
+const getCurrentTime = function (): number {
+  return Number((Date.now() / 1000).toFixed(0));
+};
+
+export const getAuctionDuration = function (
+  contractTimeStart: string,
+  contractTimeEnd: string,
+): string {
+  const currentTime = getCurrentTime();
+  if (
+    currentTime > Number(contractTimeStart) &&
+    currentTime < Number(contractTimeEnd)
+  ) {
+    return formatTimeLeft(Number(contractTimeEnd) - currentTime);
+  } else {
+    return formatTimeLeft(Number(contractTimeEnd) - Number(contractTimeStart));
+  }
+};
+
 export function getAuctionStatus(auction: any) {
   const currentTime = parseInt((Date.now() / 1000).toFixed(0));
 
@@ -52,6 +119,20 @@ export function getAuctionStatus(auction: any) {
 
   return AUCTION_STATUS.no_bids;
 }
+
+export const calculatePrice = function (
+  auctionTimeStart: string,
+  contractTimeEnd: string,
+  priceStart: string,
+) {
+  const price = calcPrice(
+    BigNumber.from(getCurrentTime()),
+    BigNumber.from(auctionTimeStart),
+    BigNumber.from(contractTimeEnd),
+    BigNumber.from(priceStart),
+  );
+  return Number(formatUnits(price, 6));
+};
 
 export default class Auction {
   buyerCampaign: BuyerCampaign;
@@ -97,51 +178,7 @@ export default class Auction {
   }
 
   auctionStartsIn(): string {
-    const dur = moment.duration(
-      moment.unix(Number(this.sellerAuction.contractTimeStart)).diff(moment()),
-    );
-
-    const monthsRemain = dur.months();
-    const daysRemain = dur.days();
-    const hoursRemain = dur.hours();
-    const minutesRemain = dur.minutes();
-    const secondsRemain = dur.seconds();
-
-    if (
-      monthsRemain < 0 ||
-      daysRemain < 0 ||
-      hoursRemain < 0 ||
-      minutesRemain < 0 ||
-      secondsRemain < 0
-    ) {
-      return `Already started`;
-    }
-
-    if (monthsRemain) {
-      return `${monthsRemain} month${
-        monthsRemain !== 1 ? `s` : ``
-      } ${daysRemain} day${daysRemain !== 1 ? `s` : ``}`;
-    }
-
-    if (daysRemain) {
-      return `${daysRemain} day${
-        daysRemain !== 1 ? `s` : ``
-      } ${hoursRemain} hour${hoursRemain !== 1 ? `s` : ``}`;
-    }
-
-    if (hoursRemain) {
-      return `${hoursRemain} hour${
-        hoursRemain !== 1 ? `s` : ``
-      } ${minutesRemain} min${minutesRemain !== 1 ? `s` : ``}`;
-    }
-
-    if (minutesRemain) {
-      return `${minutesRemain} min${
-        minutesRemain !== 1 ? `s` : ``
-      } ${secondsRemain} sec${secondsRemain !== 1 ? `s` : ``}`;
-    } else {
-      return `${secondsRemain} sec${secondsRemain !== 1 ? `s` : ``}`;
-    }
+    return getAuctionStartsIn(this.sellerAuction.contractTimeStart);
   }
 
   auctionEndsIn(): string {
@@ -171,19 +208,9 @@ export default class Auction {
   }
 
   contractDuration(): string {
-    const currentTime = this.currentTime();
-    if (
-      currentTime > Number(this.sellerAuction.contractTimeStart) &&
-      currentTime < Number(this.sellerAuction.contractTimeEnd)
-    ) {
-      return formatTimeLeft(
-        Number(this.sellerAuction.contractTimeEnd) - currentTime,
-      );
-    } else {
-      return formatTimeLeft(
-        Number(this.sellerAuction.contractTimeEnd) -
-          Number(this.sellerAuction.contractTimeStart),
-      );
-    }
+    return getAuctionDuration(
+      this.sellerAuction.contractTimeStart,
+      this.sellerAuction.contractTimeEnd,
+    );
   }
 }
