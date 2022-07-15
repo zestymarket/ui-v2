@@ -13,6 +13,7 @@ import { PageContext } from '@/lib/context/page';
 const noAuthRoutes = new Set([
   `/`,
   `/space/[id]`,
+  `/space/[id]/new-auction`,
   `/campaigns/[id]`,
   `/auth/discord/[id]`,
   `/[id]`,

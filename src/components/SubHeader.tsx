@@ -1,10 +1,11 @@
 import React from 'react';
 import { IconButton, Stack, styled, Typography } from '@mui/material';
 import Image from 'next/image';
+import { useRouter } from 'next/router';
 
 interface Props {
   label: string;
-  backLinkHref?: string;
+  sublabel?: string;
 }
 
 const StyledSubHeader = styled(`div`)(({ theme }) => ({
@@ -24,11 +25,22 @@ const StyledTitle = styled(Typography)(({ theme }) => ({
   marginTop: theme.spacing(),
 }));
 
-const SubHeader: React.FC<Props> = ({ label }) => {
+const StyledSubTitle = styled(Typography)(({ theme }) => ({
+  fontFamily: `Inter`,
+  fontStyle: `normal`,
+  fontSize: `18px`,
+  fontWeight: 400,
+  lineHeight: `24px`,
+  color: theme.palette.text.secondary,
+}));
+
+const SubHeader: React.FC<Props> = ({ label, sublabel }) => {
+  const router = useRouter();
+
   return (
     <StyledSubHeader>
       <StyledStack>
-        <IconButton>
+        <IconButton onClick={() => router.back()}>
           <Image
             src="/icons/left-arrow.svg"
             alt="logo"
@@ -37,6 +49,7 @@ const SubHeader: React.FC<Props> = ({ label }) => {
           />
         </IconButton>
         <StyledTitle>{label}</StyledTitle>
+        {sublabel && <StyledSubTitle>{sublabel}</StyledSubTitle>}
       </StyledStack>
     </StyledSubHeader>
   );

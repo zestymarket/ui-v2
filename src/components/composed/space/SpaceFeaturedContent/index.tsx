@@ -19,17 +19,36 @@ import { getDomain, shortenHex } from '@/utils/helpers';
 import { getENSOrWallet } from '@/utils/hooks';
 import moment from 'moment';
 import makeBlockie from 'ethereum-blockies-base64';
+import Button from '@/components/Button';
+
+import { useZestyMarketUSDC } from '@/utils/hooks';
+import { useWeb3React } from '@web3-react/core';
+import { Web3Provider } from '@ethersproject/providers';
+
+import { useRouter } from 'next/router';
 
 const DATEFORMAT = `Do MMMM[,] YYYY hh:mm [UTC]`;
 
 interface Props {
   spaceData: SpaceData | null;
   onDepositNFT: () => void;
+  isCreator: boolean;
+  hasActiveAuctions: boolean;
 }
 
-const SpaceFeaturedContent: React.FC<Props> = ({ spaceData }) => {
+const SpaceFeaturedContent: React.FC<Props> = ({
+  spaceData,
+  isCreator,
+  hasActiveAuctions,
+}) => {
+  const { account } = useWeb3React<Web3Provider>();
   const [address, setAddress] = useState<string>(``);
   const [creationDate, setCreationDate] = useState<string>(``);
+  const [inProgressCount, setInProgressCount] = useState<number>(0);
+
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const zestyMarketUSDC = account ? useZestyMarketUSDC(true) : undefined;
+  const router = useRouter();
 
   useEffect(() => {
     if (spaceData && !address) {
@@ -40,6 +59,19 @@ const SpaceFeaturedContent: React.FC<Props> = ({ spaceData }) => {
       setCreationDate(moment.unix(spaceData.timeCreated).format(DATEFORMAT));
     }
   }, [spaceData, address]);
+
+  useEffect(() => {
+    if (zestyMarketUSDC && spaceData) {
+      zestyMarketUSDC
+        .getSellerNFTSetting(spaceData.id)
+        .then((res: any) => {
+          setInProgressCount(res.inProgressCount.toNumber());
+        })
+        .catch((err: Error) => {
+          console.log(err);
+        });
+    }
+  }, [spaceData, zestyMarketUSDC]);
 
   if (!spaceData) {
     return <></>;
@@ -53,7 +85,18 @@ const SpaceFeaturedContent: React.FC<Props> = ({ spaceData }) => {
           alignItems="center"
           justifyContent="flex-end"
         >
-          <DepositNFT />
+          {isCreator &&
+            !spaceData.burned &&
+            !(hasActiveAuctions || inProgressCount > 0) && <DepositNFT />}
+          {isCreator && !spaceData.withdrawn && (
+            <Button
+              onClick={() => {
+                router.push(`/space/${spaceData.id}/new-auction`);
+              }}
+            >
+              Create Auction
+            </Button>
+          )}
         </Actions>
         <Title>{spaceData.name}</Title>
         <a href={spaceData.location}>{getDomain(spaceData.location)}</a>
