@@ -1,6 +1,5 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { styled } from '@mui/material';
-import { AuctionData } from '../AuctionDataTable';
 import CloseIcon from '../../../../public/icons/close.svg';
 import { removeAuctionById } from '@/lib/redux/auctionBasketSlice';
 import { useDispatch } from 'react-redux';
@@ -77,6 +76,8 @@ export default function AuctionRow({ auctionData }: { auctionData: any }) {
     name,
   } = auctionData;
 
+  const dispatch = useDispatch();
+
   const startsIn = getAuctionStartsIn(contractTimeStart);
   const price = calculatePrice(
     auctionTimeStart,
@@ -85,7 +86,6 @@ export default function AuctionRow({ auctionData }: { auctionData: any }) {
   ).toFixed(2);
   const duration = getAuctionDuration(contractTimeStart, contractTimeEnd);
 
-  const dispatch = useDispatch();
   return (
     <Wrapper>
       <div className="id lightText">

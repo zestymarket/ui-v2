@@ -7,7 +7,9 @@ import AuctionRow from './AuctionRow';
 import Button from '@/components/Button';
 import Link from 'next/link';
 import { ConnectWalletContext } from '@/components/ConnectWalletProvider';
-import { calculatePrice } from '@/utils/classes/Auction';
+import { calculatePrice, hasAuctionEnded } from '@/utils/classes/Auction';
+import { useDispatch } from 'react-redux';
+import { removeAuctionById } from '@/lib/redux/auctionBasketSlice';
 
 const Wrapper = styled(`div`)`
   padding: 16px 40px 16px 16px;
@@ -74,12 +76,28 @@ const Wrapper = styled(`div`)`
 
 export default function CartPreview() {
   const [isMini, setIsMini] = useState(true);
+  const dispatch = useDispatch();
   const addedAuctions = useSelector(
     (state: RootState) => state.auctionBasketReducer.auctions,
   );
   const count = addedAuctions.length;
   const { address, onClickConnectWallet } = useContext(ConnectWalletContext);
   if (!count) return <></>;
+
+  const endedAuctionIds = [];
+
+  // Check and remove if any auctions in the reducer have ended
+  for (let i = 0; i < count; i++) {
+    const auction = addedAuctions[i];
+    if (hasAuctionEnded(auction.contractTimeEnd)) {
+      endedAuctionIds.push(auction.id);
+    }
+  }
+
+  for (let i = 0; i < endedAuctionIds.length; i++) {
+    dispatch(removeAuctionById(endedAuctionIds[i]));
+  }
+
   const total = addedAuctions.reduce(
     (sum, auction) =>
       (sum += calculatePrice(

@@ -134,6 +134,10 @@ export const calculatePrice = function (
   return Number(formatUnits(price, 6));
 };
 
+export const hasAuctionEnded = function (contractTimeEnd: string): boolean {
+  return Number(contractTimeEnd) <= getCurrentTime();
+};
+
 export default class Auction {
   buyerCampaign: BuyerCampaign;
   buyerCampaignUri: any;

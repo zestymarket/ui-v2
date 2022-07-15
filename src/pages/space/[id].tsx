@@ -281,7 +281,7 @@ export default function SpaceDetailPage({
                 <HistoricalHeader>Past Auctions</HistoricalHeader>
                 <AuctionDataTable
                   auctions={spaceData?.auctions || []}
-                  spaceName={spaceData?.name ?? ``}
+                  name={spaceData?.name ?? ``}
                   format={spaceData?.format ?? ``}
                 />
               </Grid>
