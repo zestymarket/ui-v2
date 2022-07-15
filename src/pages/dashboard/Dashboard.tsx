@@ -7,6 +7,7 @@ import Overview from '@/components/dashboard/FundCards';
 import Account from '@/components/dashboard/Account';
 import MySpaces from '@/components/dashboard/MySpaces';
 import Notification from '@/components/dashboard/Notification/index';
+import MyCampaigns from '@/components/dashboard/Campaigns/index';
 import StyledDashboard from './styled';
 import { Web3Provider } from '@ethersproject/providers';
 // import { useZestyMarketUSDC } from '@/utils/hooks';
@@ -141,7 +142,7 @@ export default function Dashboard() {
           {
             id: `my-campaigns`,
             label: `My Campaigns`,
-            PanelComponent: () => null,
+            PanelComponent: MyCampaigns,
           },
           {
             id: `notifications`,
