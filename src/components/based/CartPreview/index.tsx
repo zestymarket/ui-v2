@@ -51,6 +51,7 @@ const Wrapper = styled(`div`)`
   .rows {
     max-height: 200px;
     overflow-y: auto;
+    overflow-x: hidden;
   }
   footer {
     margin-top: 20px;
