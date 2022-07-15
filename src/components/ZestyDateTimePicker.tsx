@@ -9,6 +9,7 @@ interface Props {
   minDate?: Date;
   maxDate?: Date;
   onChange?: any;
+  onError?: any;
 }
 
 const StyledTextField = styled(TextField)({
@@ -39,6 +40,7 @@ const ZestyDateTimePicker: React.FC<Props> = ({
   minDate,
   maxDate,
   onChange,
+  onError,
 }) => {
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -49,6 +51,7 @@ const ZestyDateTimePicker: React.FC<Props> = ({
         ampm={false}
         value={date}
         onChange={onChange}
+        onError={onError}
         renderInput={(params: any) => <StyledTextField {...params} />}
       />
     </LocalizationProvider>

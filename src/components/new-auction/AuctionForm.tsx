@@ -137,19 +137,17 @@ const AuctionForm: React.FC<Props> = ({ event, onClose, onDelete, onSave }) => {
           <ZestyDateTimePicker
             date={currentEventEndDate}
             onChange={(e: Date) => {
-              if (e >= currentEventEndDate) {
-                if (e <= currentEventStartDate) {
-                  // Mitigates creation of dates in the past
-                  const newDate = new Date(e.getTime() - 60 * 60 * 24 * 1000);
-                  if (newDate < today) {
-                    setCurrentEventStartDate(today);
-                    e = new Date(today.getTime() + 60 * 60 * 24 * 1000);
-                  } else {
-                    setCurrentEventStartDate(newDate);
-                  }
+              if (e <= currentEventStartDate) {
+                // Mitigates creation of dates in the past
+                const newDate = new Date(e.getTime() - 60 * 60 * 24 * 1000);
+                if (newDate < today) {
+                  setCurrentEventStartDate(today);
+                  e = new Date(today.getTime() + 60 * 60 * 24 * 1000);
+                } else {
+                  setCurrentEventStartDate(newDate);
                 }
-                setCurrentEventEndDate(e);
               }
+              setCurrentEventEndDate(e);
             }}
           />
         </Grid>
