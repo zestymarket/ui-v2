@@ -278,7 +278,7 @@ const CreateCampaign = () => {
         </Stack>
 
         <Stack {...formFieldProps}>
-          <StyledLabel>Ad Formats</StyledLabel>
+          <StyledLabel>Billboard Format</StyledLabel>
           <StyledSelect
             variant="outlined"
             value={format}
@@ -292,7 +292,7 @@ const CreateCampaign = () => {
 
         <Stack {...formFieldProps}>
           <Stack direction="row" alignItems="baseline">
-            <StyledLabel>The Frontpage</StyledLabel>
+            <StyledLabel>Image</StyledLabel>
             {format && (
               <StyledSubLabel>
                 ({getWidthFromFormat(format)} x {getHeightFromFormat(format)})
