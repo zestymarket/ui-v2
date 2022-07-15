@@ -142,7 +142,9 @@ const SpaceCard = (props: SpaceCardProps) => {
             component="img"
             image={spaceData?.image}
             height={CARD_HEIGHT}
-            sx={{ borderRadius: `inherit` }}
+            sx={{
+              borderRadius: `18px`,
+            }}
           />
         </Link>
         <StyledCardContent>

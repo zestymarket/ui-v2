@@ -138,8 +138,6 @@ export default function SpaceDetailPage({
   data,
   uri,
 }: InferGetServerSidePropsType<typeof getServerSideProps>): JSX.Element {
-  const { setPageName } = React.useContext(PageContext);
-  setPageName(``);
   const { account } = useWeb3React<Web3Provider>();
   const [currentTab, setCurrentTab] = useState(0);
   const [spaceData, setSpaceData] = useState<SpaceData | null>(null);
