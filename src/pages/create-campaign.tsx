@@ -221,12 +221,19 @@ const CreateCampaign = () => {
     <StyledProgress1Button outlined onClick={() => null}>
       <Stack flexDirection="row">
         <div style={{ marginRight: 8 }}>
-          <Image
-            src="/icons/loading.svg"
-            alt="loading image"
-            width={24}
-            height={24}
-          />
+          <div
+            className="rotating"
+            style={{
+              display: `flex`,
+            }}
+          >
+            <Image
+              src="/icons/loading.svg"
+              alt="loading image"
+              width={24}
+              height={24}
+            />
+          </div>
         </div>
         <span>1/2 Campaign creating...</span>
       </Stack>
@@ -237,12 +244,19 @@ const CreateCampaign = () => {
     <StyledProgress1Button outlined onClick={() => null}>
       <Stack flexDirection="row">
         <div style={{ marginRight: 8 }}>
-          <Image
-            src="/icons/loading.svg"
-            alt="loading image"
-            width={24}
-            height={24}
-          />
+          <div
+            className="rotating"
+            style={{
+              display: `flex`,
+            }}
+          >
+            <Image
+              src="/icons/loading.svg"
+              alt="loading image"
+              width={24}
+              height={24}
+            />
+          </div>
         </div>
         <span>2/2 Campaign creating...</span>
       </Stack>
