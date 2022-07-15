@@ -34,8 +34,7 @@ const setup = () => {
 const formats: Format = {
   Tall: { aspect: 0.75, height: 1024, width: 768, pow2: true }, // 768/1024
   Wide: { aspect: 4, height: 256, width: 1024, pow2: true }, // 1024/256
-  Twitch: { aspect: 2.75, height: 200, width: 550, pow2: false }, // 550/200
-  Square: { aspect: 1.0, height: 500, width: 500, pow2: false }, // 500/500
+  Square: { aspect: 1.0, height: 1024, width: 1024, pow2: false }, // 1024/1024
   qr: { aspect: 1.0, height: 250, width: 256, pow2: false }, // 256/256
   qr500: { aspect: 1.0, height: 500, width: 500, pow2: false }, // 500/500
 };

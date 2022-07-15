@@ -2,7 +2,6 @@ export enum SpaceFormats {
   Tall = `Tall`,
   Wide = `Wide`,
   Square = `Square`,
-  Twitch = `Twitch`,
 }
 
 /**
@@ -13,7 +12,6 @@ export const SpaceFormatResolutions = {
   Tall: `Tall (768x1024)`,
   Wide: `Wide (1024x256)`,
   Square: `Square (1024x1024)`,
-  Twitch: `Twitch (550x200)`,
 };
 
 /**
@@ -31,16 +29,15 @@ const oldFormatsObject: { [key: string]: SpaceFormats } = {
  * [List containing currently used formats]
  */
 
-const allowedFormatsString = [`Tall`, `Wide`, `Square`, `Twitch`];
+const allowedFormatsString = [`Tall`, `Wide`, `Square`];
 
-export type Format = 'Web/WebXR Formats' | 'Twitch Formats';
+export type Format = 'Web/WebXR Formats';
 export const FormatCategories: { [key in Format]: SpaceFormats[] } = {
   'Web/WebXR Formats': [
     SpaceFormats.Tall,
     SpaceFormats.Wide,
     SpaceFormats.Square,
   ],
-  'Twitch Formats': [SpaceFormats.Twitch],
 };
 
 /**
