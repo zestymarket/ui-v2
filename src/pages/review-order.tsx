@@ -46,6 +46,7 @@ import WarningBanner from '@/components/WarningBanner';
 import Button from '@/components/Button';
 import { useConfirm } from 'material-ui-confirm';
 import _ from 'lodash';
+import { useRouter } from 'next/router';
 
 const headCells: readonly HeadCell[] = [
   {
@@ -156,6 +157,7 @@ enum ConfirmStatus {
 
 const ReviewOrderPage = () => {
   const { account, chainId } = useWeb3React<Web3Provider>();
+  const router = useRouter();
   const { setPageName } = React.useContext(PageContext);
   const [order, setOrder] = useState<Order>(`asc`);
   const [orderBy, setOrderBy] = useState<keyof AuctionData>(`id`);
@@ -334,7 +336,10 @@ const ReviewOrderPage = () => {
     const iterator = Object.entries(groupedAuctions)[Symbol.iterator]();
     (function confirmFormats() {
       const next = iterator.next();
-      if (next.done) return;
+      if (next.done) {
+        router.push(`/dashboard`);
+        return;
+      }
       const format = next.value[0];
       confirmDialog({
         title: next.value[0],
