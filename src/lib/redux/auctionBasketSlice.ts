@@ -1,8 +1,8 @@
-import { AuctionData } from '@/components/based/AuctionDataTable';
+import { AuctionBasketData } from '@/components/based/AuctionDataTable';
 import { createSlice } from '@reduxjs/toolkit';
 
 const InitialAuctionState = {
-  auctions: [] as AuctionData[],
+  auctions: [] as AuctionBasketData[],
 };
 
 type AuctionStateType = typeof InitialAuctionState;
