@@ -242,12 +242,15 @@ interface Props {
   format: string;
 }
 
+const ITEMS_PER_PAGE = 5;
+
 const DataTable: React.FC<Props> = ({ auctions, spaceName, format }) => {
   const [rows, setRows] = useState<AuctionData[]>([]);
   const theme = useTheme();
   const [campaignUris, setCampaignUris] = useState<any>(new Map());
   const [order, setOrder] = useState<Order>(`asc`);
   const [orderBy, setOrderBy] = useState<keyof AuctionData>(`id`);
+  const [page, setPage] = useState(1);
 
   const addCampaignUri = useCallback(
     (id: number, campaignUri: any) => {
@@ -330,7 +333,9 @@ const DataTable: React.FC<Props> = ({ auctions, spaceName, format }) => {
   if (!rows.length) {
     return <></>;
   }
-
+  const start = (page - 1) * ITEMS_PER_PAGE;
+  const end = start + ITEMS_PER_PAGE;
+  const count = Math.ceil(rows.length / ITEMS_PER_PAGE);
   return (
     <Wrapper>
       <CartPreview />
@@ -344,104 +349,117 @@ const DataTable: React.FC<Props> = ({ auctions, spaceName, format }) => {
           />
 
           <TableBody>
-            {stableSort(rows, getComparator(order, orderBy)).map(
-              (row, index) => {
-                const labelId = `enhanced-table-checkbox-${index}`;
-                const canBid = row.status === AUCTION_STATUS.no_bids;
-                const awaitingApproval =
-                  row.status === AUCTION_STATUS.awaiting_approval || canBid;
-                return (
-                  <StyledTableRow hover tabIndex={-1} key={row.id}>
-                    <TableBodyCell
-                      align="right"
-                      component="th"
-                      id={labelId}
-                      scope="row"
-                      padding="none"
-                    >
-                      {row.id}
+            {stableSort(
+              rows.slice(start, end),
+              getComparator(order, orderBy),
+            ).map((row, index) => {
+              const labelId = `enhanced-table-checkbox-${index}`;
+              const canBid = row.status === AUCTION_STATUS.no_bids;
+              const awaitingApproval =
+                row.status === AUCTION_STATUS.awaiting_approval || canBid;
+              return (
+                <StyledTableRow hover tabIndex={-1} key={row.id}>
+                  <TableBodyCell
+                    align="right"
+                    component="th"
+                    id={labelId}
+                    scope="row"
+                    padding="none"
+                  >
+                    {row.id}
+                  </TableBodyCell>
+                  <TableBodyCell align="left">
+                    {row.contractStartTime}
+                  </TableBodyCell>
+                  <TableBodyCell align="left">{`${row.duration}`}</TableBodyCell>
+                  <AuctionDataCampaingCell
+                    align="left"
+                    status={row.status}
+                    campaignUris={campaignUris}
+                    id={row.campaign}
+                  ></AuctionDataCampaingCell>
+                  <TableBodyCell align="left">
+                    <b>{row.price.toFixed(2)}</b>USDC
+                  </TableBodyCell>
+                  {!idsInCart.includes(row.id) ? (
+                    <TableBodyCell align="left" color={getColor(row.status)}>
+                      <span className={canBid ? `status` : ``}>
+                        {row.status === AUCTION_STATUS.not_started
+                          ? `Yet to start`
+                          : row.status === AUCTION_STATUS.active
+                          ? `Active`
+                          : row.status === AUCTION_STATUS.bought
+                          ? `Bought`
+                          : row.status === AUCTION_STATUS.awaiting_approval
+                          ? `Awaiting Approval`
+                          : row.status === AUCTION_STATUS.expired
+                          ? `Expired`
+                          : row.status === AUCTION_STATUS.finished
+                          ? `Finished`
+                          : `No Bids`}
+                      </span>
+                      {canBid && (
+                        <BuyButton
+                          className="buy"
+                          onClick={() =>
+                            dispatch(
+                              addAuction({
+                                ...row,
+                                spaceName,
+                                format,
+                              }),
+                            )
+                          }
+                        >
+                          <Image
+                            src="/icons/cart-white.svg"
+                            alt="cart"
+                            height={16}
+                            width={16}
+                          />
+                        </BuyButton>
+                      )}
                     </TableBodyCell>
-                    <TableBodyCell align="left">
-                      {row.contractStartTime}
-                    </TableBodyCell>
-                    <TableBodyCell align="left">{`${row.duration}`}</TableBodyCell>
-                    <AuctionDataCampaingCell
-                      align="left"
-                      status={row.status}
-                      campaignUris={campaignUris}
-                      id={row.campaign}
-                    ></AuctionDataCampaingCell>
-                    <TableBodyCell align="left">
-                      <b>{row.price.toFixed(2)}</b>USDC
-                    </TableBodyCell>
-                    {!idsInCart.includes(row.id) ? (
-                      <TableBodyCell align="left" color={getColor(row.status)}>
-                        <span className={canBid ? `status` : ``}>
-                          {row.status === AUCTION_STATUS.not_started
-                            ? `Yet to start`
-                            : row.status === AUCTION_STATUS.active
-                            ? `Active`
-                            : row.status === AUCTION_STATUS.bought
-                            ? `Bought`
-                            : row.status === AUCTION_STATUS.awaiting_approval
-                            ? `Awaiting Approval`
-                            : row.status === AUCTION_STATUS.expired
-                            ? `Expired`
-                            : row.status === AUCTION_STATUS.finished
-                            ? `Finished`
-                            : `No Bids`}
+                  ) : (
+                    <TableBodyCell align="left" color="#28D659">
+                      <span className={awaitingApproval ? `status` : ``}>
+                        Added
+                      </span>
+                      {awaitingApproval && (
+                        <span
+                          className="remove"
+                          onClick={() => dispatch(removeAuctionById(row.id))}
+                        >
+                          Remove
                         </span>
-                        {canBid && (
-                          <BuyButton
-                            className="buy"
-                            onClick={() =>
-                              dispatch(
-                                addAuction({
-                                  ...row,
-                                  spaceName,
-                                  format,
-                                }),
-                              )
-                            }
-                          >
-                            <Image
-                              src="/icons/cart-white.svg"
-                              alt="cart"
-                              height={16}
-                              width={16}
-                            />
-                          </BuyButton>
-                        )}
-                      </TableBodyCell>
-                    ) : (
-                      <TableBodyCell align="left" color="#28D659">
-                        <span className={awaitingApproval ? `status` : ``}>
-                          Added
-                        </span>
-                        {awaitingApproval && (
-                          <span
-                            className="remove"
-                            onClick={() => dispatch(removeAuctionById(row.id))}
-                          >
-                            Remove
-                          </span>
-                        )}
-                      </TableBodyCell>
-                    )}
-                  </StyledTableRow>
-                );
-              },
-            )}
+                      )}
+                    </TableBodyCell>
+                  )}
+                </StyledTableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </TableContainer>
       <ActionSection>
-        <CustomPagination count={10} hidePrevButton hideNextButton />
+        <CustomPagination
+          count={count}
+          page={page}
+          hideNextButton
+          hidePrevButton
+          onChange={(e, value) => setPage(value)}
+        />
         <Navigation>
-          <NavigationButton>
+          <NavigationButton
+            onClick={() => setPage(page - 1)}
+            disabled={page === 1}
+          >
             <NavigateBeforeIcon /> Prev
           </NavigationButton>
-          <NavigationButton>
+          <NavigationButton
+            onClick={() => setPage(page + 1)}
+            disabled={page === count}
+          >
             Next
             <NavigateNextIcon />
           </NavigationButton>
