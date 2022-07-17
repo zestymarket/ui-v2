@@ -4,9 +4,9 @@ import { Web3Provider } from '@ethersproject/providers';
 import { getClient } from '@/lib/graphql';
 import { styled } from '@mui/material';
 import Head from 'next/head';
-import LoadingBar from 'react-top-loading-bar';
 import { Box, CircularProgress } from '@mui/material';
 import { useQuery } from '@apollo/client';
+import Button from '@/components/Button';
 
 import { GET_CAMPAIGN_BY_BUYER } from '../../../lib/queries';
 import { formatIpfsUri } from '../../../utils/helpers';
@@ -35,6 +35,10 @@ const Container = styled(`div`)({
   flexWrap: `wrap`,
   maxWidth: `1400px`,
   margin: `0 auto`,
+  '@media (max-width: 600px)': {
+    gridTemplateColumns: `6fr 6fr`,
+    gridGap: `16px`,
+  },
 });
 
 const StyledWrapper = styled(`div`)(({ theme }) => ({
@@ -44,7 +48,6 @@ const StyledWrapper = styled(`div`)(({ theme }) => ({
 export default function MyCampaigns() {
   const { account, chainId } = useWeb3React<Web3Provider>();
   const client = getClient(chainId ?? 0);
-  const [loadingMore, setLoadingMore] = useState<boolean>(false);
   const [loadingData, setLoadingData] = useState<boolean>(false);
   const [buyerCampaigns, setCampaigns] = useState([]);
   const { data, loading, error } = useQuery(GET_CAMPAIGN_BY_BUYER, {
@@ -78,6 +81,7 @@ export default function MyCampaigns() {
       )
         .then(() => {
           setCampaigns(newCampaigns);
+          setLoadingData(false);
           console.log(`campaigns`, newCampaigns);
         })
         .catch(
@@ -88,12 +92,18 @@ export default function MyCampaigns() {
   }, [data]);
   return (
     <StyledWrapper>
-      <LoadingBar progress={loadingMore ? 50 : 100} />
       <Head>
         <title>My Campaigns</title>
       </Head>
       <Header>
         <H1>My Campaigns</H1>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => (location.href = `/create-campaign`)}
+        >
+          Create Campaign
+        </Button>
       </Header>
       <Container>
         {!loadingData &&
