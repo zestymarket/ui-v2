@@ -37,6 +37,16 @@ export interface AuctionData {
   status: AUCTION_STATUS;
 }
 
+export interface AuctionBasketData {
+  id: number;
+  contractTimeStart: string;
+  contractTimeEnd: string;
+  auctionTimeStart: string;
+  priceStart: string;
+  name: string;
+  format: string;
+}
+
 function createData(
   id: number,
   contractStartTime: string,
@@ -238,11 +248,11 @@ const BuyButton = styled(`button`)`
 
 interface Props {
   auctions: Auction[];
-  spaceName: string;
+  name: string;
   format: string;
 }
 
-const DataTable: React.FC<Props> = ({ auctions, spaceName, format }) => {
+const DataTable: React.FC<Props> = ({ auctions, name, format }) => {
   const [rows, setRows] = useState<AuctionData[]>([]);
   const theme = useTheme();
   const [campaignUris, setCampaignUris] = useState<any>(new Map());
@@ -281,6 +291,28 @@ const DataTable: React.FC<Props> = ({ auctions, spaceName, format }) => {
 
     setRows(rowOut);
   }, [auctions, addCampaignUri]);
+
+  const getSellerAuctionForBasketFromId = (id: number) => {
+    if (!auctions) return null;
+    for (let i = 0; i < auctions.length; i++) {
+      if (id === Number(auctions[i].sellerAuction.id)) {
+        const {
+          contractTimeStart,
+          contractTimeEnd,
+          auctionTimeStart,
+          priceStart,
+        } = auctions[i].sellerAuction;
+        return {
+          contractTimeStart,
+          contractTimeEnd,
+          auctionTimeStart,
+          priceStart,
+          id,
+        };
+      }
+    }
+    return null;
+  };
 
   const handleRequestSort = (
     event: React.MouseEvent<unknown>,
@@ -397,8 +429,8 @@ const DataTable: React.FC<Props> = ({ auctions, spaceName, format }) => {
                             onClick={() =>
                               dispatch(
                                 addAuction({
-                                  ...row,
-                                  spaceName,
+                                  ...getSellerAuctionForBasketFromId(row.id),
+                                  name,
                                   format,
                                 }),
                               )

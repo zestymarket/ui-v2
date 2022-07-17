@@ -17,7 +17,6 @@ import { getClient } from '@/lib/graphql';
 import SpaceData from '@/utils/classes/SpaceData';
 import { formatIpfsUri, openNewTab } from '@/utils/helpers';
 import SpaceHistoricalChart from '@/components/composed/space/SpaceHistoricalChart';
-import { PageContext } from '@/lib/context/page';
 import SpaceAnalyticsPage from '@/components/composed/space/SpaceAnalyticsPage';
 
 export const Container = styled(`div`)({
@@ -138,8 +137,6 @@ export default function SpaceDetailPage({
   data,
   uri,
 }: InferGetServerSidePropsType<typeof getServerSideProps>): JSX.Element {
-  const { setPageName } = React.useContext(PageContext);
-  setPageName(``);
   const { account } = useWeb3React<Web3Provider>();
   const [currentTab, setCurrentTab] = useState(0);
   const [spaceData, setSpaceData] = useState<SpaceData | null>(null);
@@ -164,6 +161,7 @@ export default function SpaceDetailPage({
     if (newSpaceData.activeAuctions.length > 0) setHasActiveAuctions(true);
     setIsCreator(account?.toUpperCase() === newSpaceData.creator.toUpperCase());
     setSpaceData(newSpaceData);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, uri, id]);
 
   useEffect(() => {
@@ -252,7 +250,7 @@ export default function SpaceDetailPage({
             </ConfigPanel>
             <AuctionDataTable
               auctions={spaceData?.activeAuctions || []}
-              spaceName={spaceData?.name ?? ``}
+              name={spaceData?.name ?? ``}
               format={spaceData?.format ?? ``}
             />
           </SectionInner>
@@ -283,7 +281,7 @@ export default function SpaceDetailPage({
                 <HistoricalHeader>Past Auctions</HistoricalHeader>
                 <AuctionDataTable
                   auctions={spaceData?.auctions || []}
-                  spaceName={spaceData?.name ?? ``}
+                  name={spaceData?.name ?? ``}
                   format={spaceData?.format ?? ``}
                 />
               </Grid>

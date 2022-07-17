@@ -15,6 +15,7 @@ import LoadingBar from 'react-top-loading-bar';
 import { Box, CircularProgress } from '@mui/material';
 import FundCards from './FundCards';
 import SpacesRevenueHistory from './SpacesRevenueHistory';
+import { useRouter } from 'next/router';
 
 let lastScrollTop = 0;
 const PAGE_LIMIT = 20;
@@ -66,6 +67,7 @@ interface MySpacesProps {
 
 const MySpaces: React.FC<MySpacesProps> = (props) => {
   const { account, chainId } = useWeb3React<Web3Provider>();
+  const router = useRouter();
   const client = getClient(chainId ?? 0);
   const [loadingMore, setLoadingMore] = useState<boolean>(false);
   const [loadingData, setLoadingData] = useState<boolean>(true);
@@ -135,7 +137,13 @@ const MySpaces: React.FC<MySpacesProps> = (props) => {
       </Head>
       <Header>
         <H1>My Spaces</H1>
-        <Button variant="contained" color="primary" onClick={() => null}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => {
+            router.push(`/create-space`);
+          }}
+        >
           Create Space
         </Button>
       </Header>
