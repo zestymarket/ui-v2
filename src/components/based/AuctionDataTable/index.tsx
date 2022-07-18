@@ -242,7 +242,7 @@ interface Props {
   format: string;
 }
 
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 10;
 
 const DataTable: React.FC<Props> = ({ auctions, spaceName, format }) => {
   const [rows, setRows] = useState<AuctionData[]>([]);
