@@ -12,13 +12,12 @@ import {
   CardActionArea,
   Link,
 } from '@mui/material';
-import { useWeb3React } from '@web3-react/core';
-import { Web3Provider } from '@ethersproject/providers';
 
 import SpaceData from '@/utils/classes/SpaceData';
 import { useRouter } from 'next/router';
-import tokens from './../data/tokens.json';
 import * as _ from 'lodash';
+import { formatUnits } from '@ethersproject/units';
+import { getLowestAuctionPrice } from '@/utils/helpers';
 
 const CARD_HEIGHT = 354;
 
@@ -100,7 +99,6 @@ const StyledPriceValue = styled(Typography)({
 const SpaceCard = (props: SpaceCardProps) => {
   const { spaceData } = props;
   const router = useRouter();
-  const { chainId } = useWeb3React<Web3Provider>();
 
   const [lowestPrice, setLowestPrice] = useState(Number.MAX_VALUE);
   const [price, setPrice] = useState(`No Open Auctions`);
@@ -115,20 +113,14 @@ const SpaceCard = (props: SpaceCardProps) => {
     );
   }
   useEffect(() => {
-    if (spaceData.auctions?.length > 0) {
-      const lowestPriceTemp = _.orderBy(
-        spaceData.auctions,
-        [`sellerAuction.priceStart`],
-        [`desc`],
-      )[0].sellerAuction;
-      const decimals = parseInt(
-        (tokens as any)[chainId ?? 1][lowestPriceTemp.currency].decimals,
-      );
-      setLowestPrice(1);
-      const pricetemp = parseFloat(lowestPriceTemp.priceStart) / 10 ** decimals;
-      setPrice(`$${pricetemp.toString()}`);
+    if (spaceData.hasActiveAuctions) {
+      const lowPrice = getLowestAuctionPrice(spaceData.activeAuctions);
+      if (lowPrice !== Number.MAX_VALUE) {
+        setPrice(`$${parseFloat(formatUnits(lowPrice, 6)).toFixed(0)}`);
+      }
+      setLowestPrice(lowPrice);
     }
-  });
+  }, [spaceData]);
 
   return (
     <StyledCard
@@ -142,7 +134,9 @@ const SpaceCard = (props: SpaceCardProps) => {
             component="img"
             image={spaceData?.image}
             height={CARD_HEIGHT}
-            sx={{ borderRadius: `inherit` }}
+            sx={{
+              borderRadius: `18px`,
+            }}
           />
         </Link>
         <StyledCardContent>
