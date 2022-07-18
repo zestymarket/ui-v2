@@ -161,6 +161,8 @@ export default function SpaceDetailPage({
     if (newSpaceData.activeAuctions.length > 0) setHasActiveAuctions(true);
     setIsCreator(account?.toUpperCase() === newSpaceData.creator.toUpperCase());
     setSpaceData(newSpaceData);
+
+    console.log(`space data`, newSpaceData);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, uri, id]);
 

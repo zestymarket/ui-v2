@@ -108,18 +108,17 @@ const CampaignCard = (props: CampaignCardProps) => {
   return (
     <StyledCard
       onClick={() => {
-        router.push(`/campaigns/${campaignData.id}`);
+        router.push(`/campaign/${campaignData.id}`);
       }}
     >
       <StyledActionArea>
-        <Link href={`/campaigns/${campaignData.id}`}>
-          <CardMedia
-            component="img"
-            image={campaignData?.image}
-            height={CARD_HEIGHT}
-            sx={{ borderRadius: `inherit` }}
-          />
-        </Link>
+        <CardMedia
+          component="img"
+          image={campaignData?.image}
+          height={CARD_HEIGHT}
+          sx={{ borderRadius: `inherit` }}
+        />
+
         <StyledCardContent>
           <Grid
             container

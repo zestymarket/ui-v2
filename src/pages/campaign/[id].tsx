@@ -4,21 +4,19 @@ import React, { useState, useEffect, SyntheticEvent } from 'react';
 import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from '@ethersproject/providers';
 
-import SpaceFeaturedContent from '@/components/composed/space/SpaceFeaturedContent';
-import SpaceFeaturedMedia from '@/components/composed/space/SpaceFeaturedMedia';
-import FeaturedContainer from '@/components/layout/FeaturedContainer';
-import SwitchToggle from '@/components/based/SwitchToggle';
-import AuctionDataTable from '@/components/based/AuctionDataTable';
+import CampaignTableData from '@/components/composed/campaign/CampaignTable';
 import { Button, Grid, Tab, Tabs } from '@mui/material';
 import { styled } from '@mui/system';
-
-import { GET_ONE_ZESTY_NFT } from '@/lib/queries';
+import FeaturedContainer from '@/components/layout/FeaturedContainer';
+import SpaceFeaturedMedia from '@/components/composed/space/SpaceFeaturedMedia';
+import CampaignFeaturedContent from '@/components/composed/campaign/CampaignFeaturedContent';
+import { GET_ONE_CAMPAIGN, GET_AUCTION_BY_CAMPAIGN } from '@/lib/queries';
 import { getClient } from '@/lib/graphql';
-import SpaceData from '@/utils/classes/SpaceData';
-import { formatIpfsUri, openNewTab } from '@/utils/helpers';
-import SpaceHistoricalChart from '@/components/composed/space/SpaceHistoricalChart';
+import { formatIpfsUri } from '@/utils/helpers';
 import { PageContext } from '@/lib/context/page';
-import SpaceAnalyticsPage from '@/components/composed/space/SpaceAnalyticsPage';
+import { useQuery } from '@apollo/client';
+import CampaignData from '../../utils/classes/CampaignData';
+import { getENSOrWallet } from '../../utils/hooks';
 
 export const Container = styled(`div`)({
   display: `flex`,
@@ -133,77 +131,68 @@ export const HistoricalHeader = styled(`div`)({
   lineHeight: `60px`,
 });
 
-export default function SpaceDetailPage({
+export default function CampaignDetailPage({
   id,
   data,
   uri,
 }: InferGetServerSidePropsType<typeof getServerSideProps>): JSX.Element {
   const { setPageName } = React.useContext(PageContext);
   setPageName(``);
-  const { account } = useWeb3React<Web3Provider>();
+  const { account, chainId } = useWeb3React<Web3Provider>();
   const [currentTab, setCurrentTab] = useState(0);
-  const [spaceData, setSpaceData] = useState<SpaceData | null>(null);
+  const [campaignData, setCampaignData] = useState(undefined);
+  const [address, setAddress] = useState(``);
+  const [isBuyer, setIsBuyer] = useState(false);
+  const [auctions, setAuctions] = useState(undefined);
+  const client = getClient(chainId ?? 0);
+  const {
+    data: auctionData,
+    loading,
+    error,
+  } = useQuery(GET_AUCTION_BY_CAMPAIGN, {
+    variables: {
+      id,
+      first: 27,
+    },
+    fetchPolicy: `network-only`,
+    client,
+  });
+  useEffect(() => {
+    if (!uri || !data) return;
+    setAuctions(auctionData);
 
-  const [, setIsCreator] = useState<boolean>(false);
+    console.log(`auctionData`, auctionData);
 
-  const [pendingBalance, setPendingBalance] = useState<number>(0);
+    const newCampaignData = new CampaignData(data, uri);
+    setCampaignData(newCampaignData);
+
+    if (!address.length && newCampaignData.buyer) {
+      getENSOrWallet(newCampaignData.buyer).then((addr: any) => {
+        setAddress(addr);
+      });
+    }
+  }, [data, uri, auctionData]);
+
+  useEffect(() => {
+    setIsBuyer(account?.toUpperCase() === campaignData?.buyer.toUpperCase());
+  }, [account, campaignData]);
 
   const handleTabChange = (_: SyntheticEvent, newValue: number) => {
+    alert(newValue);
     setCurrentTab(newValue);
   };
-  const handleDepositNFT = () => {
-    return;
-  };
-
-  useEffect(() => {
-    if (!uri || !data || !id) return;
-
-    const newSpaceData = new SpaceData(data.tokenData, uri);
-
-    // if (newSpaceData.activeAuctions.length > 0) setHasActiveAuctions(true);
-    setSpaceData(newSpaceData);
-  }, [data, uri, id]);
-
-  useEffect(() => {
-    if (!account || !spaceData) return;
-    setIsCreator(account?.toUpperCase() === spaceData?.creator.toUpperCase());
-
-    const now = Date.now() / 10 ** 3;
-
-    let pending = 0;
-    // const claimable = 0;
-
-    if (spaceData) {
-      if (spaceData.auctions?.length > 0) {
-        spaceData?.auctions.forEach((auction) => {
-          const { contract } = auction;
-          if (contract?.withdrawn === false) {
-            const isClaimable =
-              now - Number(auction.sellerAuction.auctionTimeEnd) > 0;
-            if (isClaimable === true) {
-              // claimable += Number(contract.contractValue);
-              // idsToWithdraw.push(contract.id);
-            } else pending += Number(contract.contractValue);
-          }
-        });
-      }
-    }
-
-    setPendingBalance(pending / 10 ** 6);
-    // setClaimableBalance(claimable / 10 ** 6);
-  }, [spaceData, account]);
 
   return (
     <Container>
       <HeadingSection>
         <FeaturedContainer
           content={
-            <SpaceFeaturedContent
-              onDepositNFT={handleDepositNFT}
-              spaceData={spaceData}
+            <CampaignFeaturedContent
+              campaignData={campaignData}
+              isBuyer={isBuyer}
             />
           }
-          media={<SpaceFeaturedMedia src={spaceData?.image} />}
+          media={<SpaceFeaturedMedia src={campaignData?.image} />}
         />
         <TabsWrapper>
           <PageTabs
@@ -214,84 +203,26 @@ export default function SpaceDetailPage({
             variant="fullWidth"
             aria-label="detail-tabs"
           >
-            <PageTab label="Auctions" />
+            <PageTab label="Active Bids" />
             <PageTab label="History" />
-            <PageTab label="Analytics" />
-            <PageTab label="About" />
           </PageTabs>
-          <BuyButton
-            onClick={() => {
-              openNewTab(
-                `https://docs.zesty.market/guides/for-advertisers/bid`,
-              );
-            }}
-          >
-            How do I buy?
-          </BuyButton>
         </TabsWrapper>
       </HeadingSection>
       <ContentSection>
         {currentTab === 0 && (
           <SectionInner>
-            <ConfigPanel>
-              {/* <OptionButtonGroup
-              options={[
-                { value: 1, label: `THE FRONTPAGE 34` },
-                { value: 2, label: `LEFT SIDEBAR 24` },
-                { value: 3, label: `BOTTOM BAR 0`, disabled: true },
-              ]}
-              allLabel="ALL 123"
-              allOption
-              multiple
-            /> */}
-              <SwitchToggle label="Only available" />
-            </ConfigPanel>
-            <AuctionDataTable
-              auctions={spaceData?.activeAuctions || []}
-              spaceName={spaceData?.name ?? ``}
-              format={spaceData?.format ?? ``}
+            <CampaignTableData
+              auctions={auctions || []}
+              name={campaignData?.name ?? ``}
+              format={campaignData?.format ?? ``}
             />
           </SectionInner>
         )}
         {currentTab === 1 && (
           <SectionInner>
-            <SpaceHistoricalChart id={id} />
-            <Grid container pt={4} justifyContent="space-between" spacing={2}>
-              <Grid item xs={12} md={6}>
-                <AssetContainer flexDirection="column" justifyContent="center">
-                  <AssetContainerLabelText>
-                    Total Revenue
-                  </AssetContainerLabelText>
-                  <AssetContainerAssetText>
-                    ${(Number(spaceData?.volume || 0.0) / 10 ** 6).toFixed(2)}
-                  </AssetContainerAssetText>
-                </AssetContainer>
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <AssetContainer flexDirection="column" justifyContent="center">
-                  <AssetContainerLabelText>Pending</AssetContainerLabelText>
-                  <AssetContainerAssetText>
-                    ${pendingBalance.toFixed(2)}
-                  </AssetContainerAssetText>
-                </AssetContainer>
-              </Grid>
-              <Grid item xs={12} pt={6}>
-                <HistoricalHeader>Past Auctions</HistoricalHeader>
-                <AuctionDataTable
-                  auctions={spaceData?.auctions || []}
-                  spaceName={spaceData?.name ?? ``}
-                  format={spaceData?.format ?? ``}
-                />
-              </Grid>
-            </Grid>
+            <h1>coming soon!</h1>
           </SectionInner>
         )}
-        {currentTab === 2 && (
-          <SectionInner>
-            <SpaceAnalyticsPage id={id}></SpaceAnalyticsPage>
-          </SectionInner>
-        )}
-        {currentTab === 3 && <SectionInner></SectionInner>}
       </ContentSection>
     </Container>
   );
@@ -301,20 +232,20 @@ export async function getServerSideProps(context: any) {
   const { id, chainId } = context.query;
   const client = getClient(chainId !== null ? parseInt(chainId) : 137);
   const { data } = await client.query({
-    query: GET_ONE_ZESTY_NFT,
+    query: GET_ONE_CAMPAIGN,
     variables: {
       id,
     },
     fetchPolicy: `network-only`,
   });
 
-  if (!data.tokenData) {
+  if (!data.buyerCampaign) {
     return {
       props: { id, data },
     };
   }
 
-  const url = formatIpfsUri(data.tokenData.uri);
+  const url = formatIpfsUri(data.buyerCampaign.uri);
   const uri = await (await fetch(url)).json();
 
   const metadata = {
