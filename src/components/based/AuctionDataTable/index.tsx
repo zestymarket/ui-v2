@@ -254,14 +254,13 @@ interface Props {
 
 const ITEMS_PER_PAGE = 10;
 
-const DataTable: React.FC<Props> = ({ auctions, spaceName, format }) => {
-
+const DataTable: React.FC<Props> = ({ auctions, name, format }) => {
   const [rows, setRows] = useState<AuctionData[]>([]);
   const theme = useTheme();
   const [campaignUris, setCampaignUris] = useState<any>(new Map());
   const [order, setOrder] = useState<Order>(`asc`);
   const [orderBy, setOrderBy] = useState<keyof AuctionData>(`id`);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState<number>(1);
 
   const addCampaignUri = useCallback(
     (id: number, campaignUri: any) => {
@@ -438,7 +437,7 @@ const DataTable: React.FC<Props> = ({ auctions, spaceName, format }) => {
                             dispatch(
                               addAuction({
                                 ...row,
-                                spaceName,
+                                name,
                                 format,
                               }),
                             )
