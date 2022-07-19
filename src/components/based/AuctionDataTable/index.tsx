@@ -27,6 +27,7 @@ import Image from 'next/image';
 import { addAuction, removeAuctionById } from '@/lib/redux/auctionBasketSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import CartPreview from '../CartPreview';
+import AuctionActions from '../AuctionActions';
 
 export interface AuctionData {
   id: number;
@@ -206,8 +207,13 @@ const StyledTableRow = styled(TableRow)`
   span.status {
     display: block;
   }
+  span.select,
   button.buy {
     display: none;
+  }
+  span.select {
+    color: #28d659;
+    cursor: pointer;
   }
   span.remove {
     display: none;
@@ -218,6 +224,7 @@ const StyledTableRow = styled(TableRow)`
     span.status {
       display: none;
     }
+    span.select,
     button.buy {
       display: block;
     }
@@ -247,6 +254,7 @@ const BuyButton = styled(`button`)`
 `;
 
 interface Props {
+  isCreator: boolean;
   auctions: Auction[];
   name: string;
   format: string;
@@ -254,13 +262,15 @@ interface Props {
 
 const ITEMS_PER_PAGE = 10;
 
-const DataTable: React.FC<Props> = ({ auctions, name, format }) => {
+const DataTable: React.FC<Props> = ({ isCreator, auctions, name, format }) => {
   const [rows, setRows] = useState<AuctionData[]>([]);
   const theme = useTheme();
   const [campaignUris, setCampaignUris] = useState<any>(new Map());
   const [order, setOrder] = useState<Order>(`asc`);
   const [orderBy, setOrderBy] = useState<keyof AuctionData>(`id`);
   const [page, setPage] = useState<number>(1);
+
+  const [selectedRows, setSelectedRows] = useState<AuctionData[]>([]);
 
   const addCampaignUri = useCallback(
     (id: number, campaignUri: any) => {
@@ -294,6 +304,23 @@ const DataTable: React.FC<Props> = ({ auctions, name, format }) => {
 
     setRows(rowOut);
   }, [auctions, addCampaignUri]);
+
+  const addSelectRow = (row: AuctionData) => {
+    setSelectedRows([...selectedRows, row]);
+  };
+
+  const removeSelectRow = (row: AuctionData) => {
+    const newSelectedRows = [...selectedRows];
+    const index = newSelectedRows
+      .map(function (e) {
+        return e.id;
+      })
+      .indexOf(row.id);
+    if (index > -1) {
+      newSelectedRows.splice(index, 1);
+    }
+    setSelectedRows(newSelectedRows);
+  };
 
   const getSellerAuctionForBasketFromId = (id: number) => {
     if (!auctions) return null;
@@ -371,6 +398,7 @@ const DataTable: React.FC<Props> = ({ auctions, name, format }) => {
   return (
     <Wrapper>
       <CartPreview />
+      <AuctionActions auctions={selectedRows} />
       <TableContainer>
         <Table size="small">
           <DataTableHead
@@ -387,10 +415,17 @@ const DataTable: React.FC<Props> = ({ auctions, name, format }) => {
             ).map((row, index) => {
               const labelId = `enhanced-table-checkbox-${index}`;
               const canBid = row.status === AUCTION_STATUS.no_bids;
+              const canSelect =
+                canBid || row.status === AUCTION_STATUS.awaiting_approval;
               const awaitingApproval =
                 row.status === AUCTION_STATUS.awaiting_approval || canBid;
               return (
-                <StyledTableRow hover tabIndex={-1} key={row.id}>
+                <StyledTableRow
+                  hover
+                  tabIndex={-1}
+                  key={row.id}
+                  selected={selectedRows.some((e) => e.id === row.id)}
+                >
                   <TableBodyCell
                     align="right"
                     component="th"
@@ -430,7 +465,7 @@ const DataTable: React.FC<Props> = ({ auctions, name, format }) => {
                           ? `Finished`
                           : `No Bids`}
                       </span>
-                      {canBid && (
+                      {!isCreator && canBid && (
                         <BuyButton
                           className="buy"
                           onClick={() =>
@@ -451,6 +486,23 @@ const DataTable: React.FC<Props> = ({ auctions, name, format }) => {
                           />
                         </BuyButton>
                       )}
+                      {isCreator &&
+                        canSelect &&
+                        (selectedRows.some((e) => e.id === row.id) ? (
+                          <span
+                            className="remove"
+                            onClick={() => removeSelectRow(row)}
+                          >
+                            Deselect
+                          </span>
+                        ) : (
+                          <span
+                            className="select"
+                            onClick={() => addSelectRow(row)}
+                          >
+                            Select
+                          </span>
+                        ))}
                     </TableBodyCell>
                   ) : (
                     <TableBodyCell align="left" color="#28D659">

@@ -236,19 +236,10 @@ export default function SpaceDetailPage({
         {currentTab === 0 && (
           <SectionInner>
             <ConfigPanel>
-              {/* <OptionButtonGroup
-              options={[
-                { value: 1, label: `THE FRONTPAGE 34` },
-                { value: 2, label: `LEFT SIDEBAR 24` },
-                { value: 3, label: `BOTTOM BAR 0`, disabled: true },
-              ]}
-              allLabel="ALL 123"
-              allOption
-              multiple
-            /> */}
               <SwitchToggle label="Only available" />
             </ConfigPanel>
             <AuctionDataTable
+              isCreator={isCreator}
               auctions={spaceData?.activeAuctions || []}
               name={spaceData?.name ?? ``}
               format={spaceData?.format ?? ``}
