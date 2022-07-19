@@ -322,6 +322,10 @@ const DataTable: React.FC<Props> = ({ isCreator, auctions, name, format }) => {
     setSelectedRows(newSelectedRows);
   };
 
+  const clearSelectedRows = () => {
+    setSelectedRows([]);
+  };
+
   const getSellerAuctionForBasketFromId = (id: number) => {
     if (!auctions) return null;
     for (let i = 0; i < auctions.length; i++) {
@@ -398,7 +402,10 @@ const DataTable: React.FC<Props> = ({ isCreator, auctions, name, format }) => {
   return (
     <Wrapper>
       <CartPreview />
-      <AuctionActions auctions={selectedRows} />
+      <AuctionActions
+        clearSelectedAuctions={clearSelectedRows}
+        auctions={selectedRows}
+      />
       <TableContainer>
         <Table size="small">
           <DataTableHead

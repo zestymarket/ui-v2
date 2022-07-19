@@ -271,6 +271,7 @@ export default function SpaceDetailPage({
               <Grid item xs={12} pt={6}>
                 <HistoricalHeader>Past Auctions</HistoricalHeader>
                 <AuctionDataTable
+                  isCreator={isCreator}
                   auctions={spaceData?.auctions || []}
                   name={spaceData?.name ?? ``}
                   format={spaceData?.format ?? ``}
