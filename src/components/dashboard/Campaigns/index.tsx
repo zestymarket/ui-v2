@@ -82,7 +82,6 @@ export default function MyCampaigns() {
         .then(() => {
           setCampaigns(newCampaigns);
           setLoadingData(false);
-          console.log(`campaigns`, newCampaigns);
         })
         .catch(
           // when not all buyerCampaigns' data is resolved from IPFS

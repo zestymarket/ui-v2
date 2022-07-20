@@ -14,7 +14,6 @@ import { GET_ONE_CAMPAIGN, GET_AUCTION_BY_CAMPAIGN } from '@/lib/queries';
 import { getClient } from '@/lib/graphql';
 import { formatIpfsUri } from '@/utils/helpers';
 import { PageContext } from '@/lib/context/page';
-import { useQuery } from '@apollo/client';
 import CampaignData from '../../utils/classes/CampaignData';
 import { getENSOrWallet } from '../../utils/hooks';
 export const Container = styled(`div`)({
@@ -138,15 +137,14 @@ export default function CampaignDetailPage({
 }: InferGetServerSidePropsType<typeof getServerSideProps>): JSX.Element {
   const { setPageName } = React.useContext(PageContext);
   setPageName(``);
-  const { account, chainId } = useWeb3React<Web3Provider>();
+  const { account } = useWeb3React<Web3Provider>();
   const [currentTab, setCurrentTab] = useState(0);
   const [campaignData, setCampaignData] = useState<CampaignData | null>(null);
   const [address, setAddress] = useState(``);
   const [isBuyer, setIsBuyer] = useState(false);
 
   const handleTabChange = (_: SyntheticEvent, newValue: number) => {
-    setCurrentTab(1);
-    //alert(newValue);
+    setCurrentTab(newValue);
   };
   useEffect(() => {
     if (!uri || !data || !auctionData) return;
@@ -162,6 +160,7 @@ export default function CampaignDetailPage({
         setAddress(addr);
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, uri, auctionData]);
 
   useEffect(() => {
@@ -201,11 +200,6 @@ export default function CampaignDetailPage({
             />
           </SectionInner>
         )}
-        {/* {currentTab === 1 && (
-          <SectionInner>
-            <h1>coming soon!</h1>
-          </SectionInner>
-        )} */}
       </ContentSection>
     </Container>
   );

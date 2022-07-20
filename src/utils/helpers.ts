@@ -1,4 +1,3 @@
-import { SellerAuction } from '@/lib/types';
 import { BigNumber } from '@ethersproject/bignumber';
 import { formatUnits, formatEther } from '@ethersproject/units';
 import Auction from './classes/Auction';
@@ -171,38 +170,4 @@ export function validateEmail(email: string) {
   const re =
     /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   return re.test(String(email).toLowerCase());
-}
-
-export class Bid {
-  billboardUri: any;
-  auction: Auction;
-  status: BID_STATUS;
-  pending: number;
-
-  constructor(sellerAuction, bidId) {
-    this.auction = new Auction(sellerAuction);
-
-    this.status = getBidStatus(sellerAuction, bidId);
-    this.pending = Number(formatUnits(sellerAuction.pricePending, 6));
-  }
-
-  currentTime() {
-    return Number((Date.now() / 1000).toFixed(0));
-  }
-
-  paid() {
-    if (this.status === BID_STATUS.rejected) return 0;
-    if (this.status === BID_STATUS.expired) return this.pending;
-    if (this.status === BID_STATUS.approved)
-      return Number(formatUnits(this.auction.sellerAuction.priceEnd, 6));
-
-    const price = calcPrice(
-      BigNumber.from(this.currentTime()),
-      BigNumber.from(this.auction.sellerAuction.auctionTimeStart),
-      BigNumber.from(this.auction.sellerAuction.contractTimeEnd),
-      BigNumber.from(this.auction.sellerAuction.priceStart),
-    );
-
-    return Number(formatUnits(price, 6));
-  }
 }
