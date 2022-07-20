@@ -144,12 +144,13 @@ export default class Auction {
   sellerAuction: SellerAuction;
   status: AUCTION_STATUS;
   contract: Contract;
-
+  id: number;
   constructor(sellerAuction: any) {
     this.sellerAuction = sellerAuction;
     this.status = getAuctionStatus(sellerAuction);
     this.buyerCampaign = sellerAuction.buyerCampaigns.slice(-1)[0];
     this.contract = sellerAuction.contract;
+    this.id = Number(sellerAuction.id);
   }
 
   async getBuyercampaignUri(cb: any) {
@@ -201,6 +202,9 @@ export default class Auction {
     return formatTimeLeft(
       Number(this.sellerAuction.contractTimeEnd) - this.currentTime(),
     );
+  }
+  contractEndDateTime(): string {
+    return toDate(Number(this.sellerAuction.contractTimeEnd));
   }
 
   contractStartDateTime(): string {

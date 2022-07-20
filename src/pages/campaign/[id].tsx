@@ -17,7 +17,6 @@ import { PageContext } from '@/lib/context/page';
 import { useQuery } from '@apollo/client';
 import CampaignData from '../../utils/classes/CampaignData';
 import { getENSOrWallet } from '../../utils/hooks';
-
 export const Container = styled(`div`)({
   display: `flex`,
   flexDirection: `column`,
@@ -135,35 +134,27 @@ export default function CampaignDetailPage({
   id,
   data,
   uri,
+  auctionData,
 }: InferGetServerSidePropsType<typeof getServerSideProps>): JSX.Element {
   const { setPageName } = React.useContext(PageContext);
   setPageName(``);
   const { account, chainId } = useWeb3React<Web3Provider>();
   const [currentTab, setCurrentTab] = useState(0);
-  const [campaignData, setCampaignData] = useState(undefined);
+  const [campaignData, setCampaignData] = useState<CampaignData | null>(null);
   const [address, setAddress] = useState(``);
   const [isBuyer, setIsBuyer] = useState(false);
-  const [auctions, setAuctions] = useState(undefined);
-  const client = getClient(chainId ?? 0);
-  const {
-    data: auctionData,
-    loading,
-    error,
-  } = useQuery(GET_AUCTION_BY_CAMPAIGN, {
-    variables: {
-      id,
-      first: 27,
-    },
-    fetchPolicy: `network-only`,
-    client,
-  });
+
+  const handleTabChange = (_: SyntheticEvent, newValue: number) => {
+    setCurrentTab(1);
+    //alert(newValue);
+  };
   useEffect(() => {
-    if (!uri || !data) return;
-    setAuctions(auctionData);
-
-    console.log(`auctionData`, auctionData);
-
-    const newCampaignData = new CampaignData(data, uri);
+    if (!uri || !data || !auctionData) return;
+    const newCampaignData = new CampaignData(
+      data,
+      uri,
+      auctionData?.buyerCampaign.sellerAuctions,
+    );
     setCampaignData(newCampaignData);
 
     if (!address.length && newCampaignData.buyer) {
@@ -176,11 +167,6 @@ export default function CampaignDetailPage({
   useEffect(() => {
     setIsBuyer(account?.toUpperCase() === campaignData?.buyer.toUpperCase());
   }, [account, campaignData]);
-
-  const handleTabChange = (_: SyntheticEvent, newValue: number) => {
-    alert(newValue);
-    setCurrentTab(newValue);
-  };
 
   return (
     <Container>
@@ -203,8 +189,7 @@ export default function CampaignDetailPage({
             variant="fullWidth"
             aria-label="detail-tabs"
           >
-            <PageTab label="Active Bids" />
-            <PageTab label="History" />
+            <PageTab label="Bids" />
           </PageTabs>
         </TabsWrapper>
       </HeadingSection>
@@ -212,17 +197,15 @@ export default function CampaignDetailPage({
         {currentTab === 0 && (
           <SectionInner>
             <CampaignTableData
-              auctions={auctions || []}
-              name={campaignData?.name ?? ``}
-              format={campaignData?.format ?? ``}
+              campaignAuctions={campaignData?.auctions || []}
             />
           </SectionInner>
         )}
-        {currentTab === 1 && (
+        {/* {currentTab === 1 && (
           <SectionInner>
             <h1>coming soon!</h1>
           </SectionInner>
-        )}
+        )} */}
       </ContentSection>
     </Container>
   );
@@ -238,6 +221,17 @@ export async function getServerSideProps(context: any) {
     },
     fetchPolicy: `network-only`,
   });
+
+  const auctionData = (
+    await client.query({
+      query: GET_AUCTION_BY_CAMPAIGN,
+      variables: {
+        id,
+        first: 27,
+      },
+      fetchPolicy: `network-only`,
+    })
+  ).data;
 
   if (!data.buyerCampaign) {
     return {
@@ -259,6 +253,7 @@ export async function getServerSideProps(context: any) {
       id,
       data,
       uri,
+      auctionData,
       metadata,
     },
   };

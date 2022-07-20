@@ -4,7 +4,7 @@ import { Web3Provider } from '@ethersproject/providers';
 import { getClient } from '@/lib/graphql';
 import { styled } from '@mui/material';
 import Head from 'next/head';
-import { Box, CircularProgress } from '@mui/material';
+import { Box, CircularProgress, Link } from '@mui/material';
 import { useQuery } from '@apollo/client';
 import Button from '@/components/Button';
 
@@ -106,11 +106,16 @@ export default function MyCampaigns() {
         </Button>
       </Header>
       <Container>
-        {!loadingData &&
-          buyerCampaigns?.length > 0 &&
+        {!loadingData && buyerCampaigns?.length > 0 ? (
           buyerCampaigns.map((campaignData, i) => {
             return <CampaignCard key={i} campaignData={campaignData} />;
-          })}
+          })
+        ) : (
+          <h3>
+            No Campaigns here.{` `}
+            <Link href="/create-campaign">Create campaign </Link>
+          </h3>
+        )}
 
         {loadingData && (
           <Box

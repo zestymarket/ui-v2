@@ -8,7 +8,8 @@ import Box from '@mui/material/Box';
 import visuallyHidden from '@mui/utils/visuallyHidden';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import Auction, { AUCTION_STATUS } from '@/utils/classes/Auction';
+import { AUCTION_STATUS } from '@/utils/classes/Auction';
+import Auction from '@/utils/classes/Auction';
 import { styled } from '@mui/material';
 import {
   TableHeadCell,
@@ -224,10 +225,10 @@ const StyledTableRow = styled(TableRow)`
 `;
 
 interface Props {
-  sellerAuctions: Auction[];
+  campaignAuctions: Auction[];
 }
 
-const DataTable: React.FC<Props> = ({ sellerAuctions }) => {
+const DataTable: React.FC<Props> = ({ campaignAuctions }) => {
   const [rows, setRows] = useState<AuctionData[]>([]);
   const theme = useTheme();
   const [campaignUris, setCampaignUris] = useState<any>(new Map());
@@ -247,19 +248,22 @@ const DataTable: React.FC<Props> = ({ sellerAuctions }) => {
   );
 
   useEffect(() => {
-    //if (!auctions) return;
+    if (!campaignAuctions) return;
     const rowOut = [];
-    const row = createData(4990, `1658146533`, `1658146533`, 200, 1);
-    rowOut.push(row);
-    for (let i = 0; i < sellerAuctions.length; i++) {
-      const auction = sellerAuctions[i];
-      const row = createData(4990, `1658146533`, `1658146533`, 200, 1);
-
+    for (let i = 0; i < campaignAuctions.length; i++) {
+      const auction = campaignAuctions[i];
+      const row = createData(
+        auction.id,
+        auction.contractStartDateTime(),
+        auction.contractEndDateTime(),
+        auction.price(),
+        auction.status,
+      );
       rowOut.push(row);
     }
 
     setRows(rowOut);
-  }, [sellerAuctions, addCampaignUri]);
+  }, [campaignAuctions, addCampaignUri]);
 
   const handleRequestSort = (
     event: React.MouseEvent<unknown>,
@@ -360,18 +364,20 @@ const DataTable: React.FC<Props> = ({ sellerAuctions }) => {
           </TableBody>
         </Table>
       </TableContainer>
-      <ActionSection>
-        <CustomPagination count={10} hidePrevButton hideNextButton />
-        <Navigation>
-          <NavigationButton>
-            <NavigateBeforeIcon /> Prev
-          </NavigationButton>
-          <NavigationButton>
-            Next
-            <NavigateNextIcon />
-          </NavigationButton>
-        </Navigation>
-      </ActionSection>
+      {rows.length > 10 && (
+        <ActionSection>
+          <CustomPagination count={10} hidePrevButton hideNextButton />
+          <Navigation>
+            <NavigationButton>
+              <NavigateBeforeIcon /> Prev
+            </NavigationButton>
+            <NavigationButton>
+              Next
+              <NavigateNextIcon />
+            </NavigationButton>
+          </Navigation>
+        </ActionSection>
+      )}
     </Wrapper>
   );
 };
