@@ -1,6 +1,6 @@
 import { convertOldFormats } from '../formats';
 import { formatIpfsUri } from '../helpers';
-
+import Auction from './Auction';
 export default class CampaignData {
   name: string;
   description: string;
@@ -9,8 +9,12 @@ export default class CampaignData {
   image: string;
   buyer: string;
   uri: any;
-
-  constructor(data: { buyerCampaign: CampaignData }, uri: any) {
+  auctions: Auction[];
+  constructor(
+    data: { buyerCampaign: CampaignData },
+    uri: any,
+    sellerAuctions: any,
+  ) {
     this.name = uri.name;
     this.description = uri.description;
     this.url = uri.url;
@@ -18,5 +22,8 @@ export default class CampaignData {
     this.image = formatIpfsUri(uri.image);
     this.buyer = data.buyerCampaign.buyer;
     this.uri = uri;
+    this.auctions = sellerAuctions.map(
+      (sellerAuction: any) => new Auction(sellerAuction),
+    );
   }
 }

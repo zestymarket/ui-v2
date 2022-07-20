@@ -1,4 +1,3 @@
-import { SellerAuction } from '@/lib/types';
 import { BigNumber } from '@ethersproject/bignumber';
 import { formatUnits, formatEther } from '@ethersproject/units';
 import Auction from './classes/Auction';
@@ -77,6 +76,13 @@ export const CHAIN_ID_NAMES: { [key: number]: string } = {
   42: `Kovan`,
   137: `Polygon`,
 };
+
+export enum BID_STATUS {
+  'awaiting_approval',
+  'approved',
+  'rejected',
+  'expired', //auction ended without bid being approved or rejected
+}
 
 export const INFURA_PREFIXES: { [key: number]: string } = {
   1: `mainnet`,
