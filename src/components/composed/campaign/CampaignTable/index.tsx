@@ -5,6 +5,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableRow from '@mui/material/TableRow';
 import TableSortLabel from '@mui/material/TableSortLabel';
 import Box from '@mui/material/Box';
+import Link from '@mui/material/Link';
 import visuallyHidden from '@mui/utils/visuallyHidden';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
@@ -29,6 +30,7 @@ export interface AuctionData {
   contractEndTime: string;
   price: number;
   status: AUCTION_STATUS;
+  spaceId: string | number;
 }
 
 export interface AuctionBasketData {
@@ -47,6 +49,7 @@ function createData(
   contractEndTime: string,
   price: number,
   status: AUCTION_STATUS,
+  spaceId: number | string,
 ): AuctionData {
   return {
     id,
@@ -54,6 +57,7 @@ function createData(
     contractEndTime,
     price,
     status,
+    spaceId,
   };
 }
 
@@ -146,12 +150,12 @@ const headCells: readonly HeadCell[] = [
     disablePadding: true,
     label: `Status`,
   },
-  // {
-  //   id: `billboard`,
-  //   numeric: false,
-  //   disablePadding: true,
-  //   label: `Billboard`,
-  // },
+  {
+    id: `billboard`,
+    numeric: false,
+    disablePadding: true,
+    label: `Billboard`,
+  },
 ];
 
 const DataTableHead: FC<IDataTableHead> = ({
@@ -226,44 +230,52 @@ const StyledTableRow = styled(TableRow)`
 
 interface Props {
   campaignAuctions: Auction[];
+  status: number[];
 }
 
-const DataTable: React.FC<Props> = ({ campaignAuctions }) => {
+const DataTable: React.FC<Props> = ({ campaignAuctions, status }) => {
   const [rows, setRows] = useState<AuctionData[]>([]);
   const theme = useTheme();
-  const [campaignUris, setCampaignUris] = useState<any>(new Map());
+  const [spaceDatas, setSpaceDatas] = useState<any>(new Map());
   const [order, setOrder] = useState<Order>(`asc`);
   const [orderBy, setOrderBy] = useState<keyof AuctionData>(`id`);
 
-  const addCampaignUri = useCallback(
-    (id: number, campaignUri: any) => {
-      if (campaignUris.has(id)) return;
+  const addSpaceData = useCallback(
+    (id: number, spaceData: any) => {
+      if (spaceDatas.has(id)) return;
 
-      const map = new Map(campaignUris);
-      map.set(Number(id), campaignUri);
+      const map = new Map(spaceDatas);
+      map.set(Number(id), spaceData);
 
-      setCampaignUris(map);
+      setSpaceDatas(map);
     },
-    [campaignUris],
+    [spaceDatas],
   );
 
   useEffect(() => {
     if (!campaignAuctions) return;
+    const activeCampaigns = campaignAuctions.filter((auc) =>
+      status.includes(auc.status),
+    );
     const rowOut = [];
-    for (let i = 0; i < campaignAuctions.length; i++) {
-      const auction = campaignAuctions[i];
+    for (let i = 0; i < activeCampaigns.length; i++) {
+      const auction = activeCampaigns[i];
+      if (!auction.spaceId) auction.spaceId = 1;
       const row = createData(
         auction.id,
         auction.contractStartDateTime(),
         auction.contractEndDateTime(),
         auction.price(),
         auction.status,
+        auction.spaceId,
       );
+      auction.getSpaceData(addSpaceData);
       rowOut.push(row);
     }
 
     setRows(rowOut);
-  }, [campaignAuctions, addCampaignUri]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [campaignAuctions]);
 
   const handleRequestSort = (
     event: React.MouseEvent<unknown>,
@@ -356,6 +368,11 @@ const DataTable: React.FC<Props> = ({ campaignAuctions }) => {
                           ? `Finished`
                           : `No Bids`}
                       </span>
+                    </TableBodyCell>
+                    <TableBodyCell align="left">
+                      <Link href={`/space/${row.spaceId}`}>
+                        {spaceDatas && spaceDatas.get(row.id)?.name}
+                      </Link>
                     </TableBodyCell>
                   </StyledTableRow>
                 );

@@ -135,8 +135,6 @@ export default function CampaignDetailPage({
   uri,
   auctionData,
 }: InferGetServerSidePropsType<typeof getServerSideProps>): JSX.Element {
-  const { setPageName } = React.useContext(PageContext);
-  setPageName(``);
   const { account } = useWeb3React<Web3Provider>();
   const [currentTab, setCurrentTab] = useState(0);
   const [campaignData, setCampaignData] = useState<CampaignData | null>(null);
@@ -154,7 +152,6 @@ export default function CampaignDetailPage({
       auctionData?.buyerCampaign.sellerAuctions,
     );
     setCampaignData(newCampaignData);
-
     if (!address.length && newCampaignData.buyer) {
       getENSOrWallet(newCampaignData.buyer).then((addr: any) => {
         setAddress(addr);
@@ -188,7 +185,8 @@ export default function CampaignDetailPage({
             variant="fullWidth"
             aria-label="detail-tabs"
           >
-            <PageTab label="Bids" />
+            <PageTab label="Active" />
+            <PageTab label="History" />
           </PageTabs>
         </TabsWrapper>
       </HeadingSection>
@@ -197,6 +195,15 @@ export default function CampaignDetailPage({
           <SectionInner>
             <CampaignTableData
               campaignAuctions={campaignData?.auctions || []}
+              status={[3]}
+            />
+          </SectionInner>
+        )}
+        {currentTab === 1 && (
+          <SectionInner>
+            <CampaignTableData
+              campaignAuctions={campaignData?.auctions || []}
+              status={[1, 2, 4, 5]}
             />
           </SectionInner>
         )}
@@ -226,7 +233,6 @@ export async function getServerSideProps(context: any) {
       fetchPolicy: `network-only`,
     })
   ).data;
-
   if (!data.buyerCampaign) {
     return {
       props: { id, data },

@@ -145,12 +145,14 @@ export default class Auction {
   status: AUCTION_STATUS;
   contract: Contract;
   id: number;
+  spaceId?: number;
   constructor(sellerAuction: any) {
     this.sellerAuction = sellerAuction;
     this.status = getAuctionStatus(sellerAuction);
     this.buyerCampaign = sellerAuction.buyerCampaigns.slice(-1)[0];
     this.contract = sellerAuction.contract;
     this.id = Number(sellerAuction.id);
+    this.spaceId = Number(sellerAuction?.sellerNFTSetting?.tokenData?.id);
   }
 
   async getBuyercampaignUri(cb: any) {
@@ -164,10 +166,22 @@ export default class Auction {
     }
   }
 
+  async getSpaceData(cb: any) {
+    if (this.sellerAuction.sellerNFTSetting?.tokenData) {
+      const url = formatIpfsUri(
+        this.sellerAuction.sellerNFTSetting?.tokenData.uri,
+      );
+      return fetch(url).then((res) => {
+        res.json().then((tokenData) => {
+          cb(this.sellerAuction.id, tokenData);
+        });
+      });
+    }
+  }
+
   currentTime(): number {
     return Number((Date.now() / 1000).toFixed(0));
   }
-
   price(): number {
     if (this.sellerAuction.buyerCampaignsApproved.slice(-1)[0] !== true) {
       const price = calcPrice(
