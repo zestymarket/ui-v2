@@ -478,7 +478,7 @@ const DataTable: React.FC<Props> = ({ isCreator, auctions, name, format }) => {
                           onClick={() =>
                             dispatch(
                               addAuction({
-                                ...row,
+                                ...getSellerAuctionForBasketFromId(row.id),
                                 name,
                                 format,
                               }),
