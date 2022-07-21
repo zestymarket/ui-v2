@@ -47,7 +47,7 @@ import _ from 'lodash';
 import { useRouter } from 'next/router';
 import {
   calculatePrice,
-  getAuctionDuration,
+  getContractDuration,
   getAuctionStartsIn,
 } from '@/utils/classes/Auction';
 
@@ -441,7 +441,7 @@ const ReviewOrderPage = () => {
                           <TableBodyCell align="left">
                             {getAuctionStartsIn(row.contractTimeStart)}
                           </TableBodyCell>
-                          <TableBodyCell align="left">{`${getAuctionDuration(
+                          <TableBodyCell align="left">{`${getContractDuration(
                             row.contractTimeStart,
                             row.contractTimeEnd,
                           )}`}</TableBodyCell>

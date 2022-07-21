@@ -80,7 +80,7 @@ const getCurrentTime = function (): number {
   return Number((Date.now() / 1000).toFixed(0));
 };
 
-export const getAuctionDuration = function (
+export const getContractDuration = function (
   contractTimeStart: string,
   contractTimeEnd: string,
 ): string {
@@ -230,7 +230,7 @@ export default class Auction {
   }
 
   contractDuration(): string {
-    return getAuctionDuration(
+    return getContractDuration(
       this.sellerAuction.contractTimeStart,
       this.sellerAuction.contractTimeEnd,
     );
