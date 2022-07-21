@@ -21,7 +21,7 @@ import {
   Navigation,
   NavigationButton,
 } from './styles';
-import AuctionDataCampaingCell from './AuctionDataCampaingCell';
+import AuctionDataCampaignCell from './AuctionDataCampaignCell';
 import { useTheme } from '@mui/styles';
 import Image from 'next/image';
 import { addAuction, removeAuctionById } from '@/lib/redux/auctionBasketSlice';
@@ -446,12 +446,12 @@ const DataTable: React.FC<Props> = ({ isCreator, auctions, name, format }) => {
                     {row.contractStartTime}
                   </TableBodyCell>
                   <TableBodyCell align="left">{`${row.duration}`}</TableBodyCell>
-                  <AuctionDataCampaingCell
+                  <AuctionDataCampaignCell
                     align="left"
                     status={row.status}
                     campaignUris={campaignUris}
                     id={row.campaign}
-                  ></AuctionDataCampaingCell>
+                  ></AuctionDataCampaignCell>
                   <TableBodyCell align="left">
                     <b>{row.price.toFixed(2)}</b>USDC
                   </TableBodyCell>

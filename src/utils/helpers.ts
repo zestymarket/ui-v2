@@ -19,6 +19,11 @@ export function calcPrice(
   const timePassed = timeNow.sub(timeStart);
   const timeTotal = timeEndToken.sub(timeStart);
   const reStartPrice = startPrice.mul(100000);
+
+  // return 0 if timeTotal is 0
+  if (timeTotal.eq(BigNumber.from(0))) {
+    return BigNumber.from(0);
+  }
   const gradient = reStartPrice.div(timeTotal);
   const bidPrice = reStartPrice.sub(gradient.mul(timePassed)).div(100000);
 

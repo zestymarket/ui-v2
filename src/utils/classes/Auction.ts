@@ -127,9 +127,9 @@ export const calculatePrice = function (
 ) {
   const price = calcPrice(
     BigNumber.from(getCurrentTime()),
-    BigNumber.from(auctionTimeStart),
-    BigNumber.from(contractTimeEnd),
-    BigNumber.from(priceStart),
+    BigNumber.from(auctionTimeStart || 0),
+    BigNumber.from(contractTimeEnd || 0),
+    BigNumber.from(priceStart || 0),
   );
   return Number(formatUnits(price, 6));
 };
