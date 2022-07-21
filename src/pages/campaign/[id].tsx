@@ -190,24 +190,32 @@ export default function CampaignDetailPage({
           </PageTabs>
         </TabsWrapper>
       </HeadingSection>
-      <ContentSection>
-        {currentTab === 0 && (
+      {campaignData?.auctions.length === 0 ? (
+        <ContentSection>
           <SectionInner>
-            <CampaignTableData
-              campaignAuctions={campaignData?.auctions || []}
-              status={[3]}
-            />
+            <h1>No Auctions </h1>
           </SectionInner>
-        )}
-        {currentTab === 1 && (
-          <SectionInner>
-            <CampaignTableData
-              campaignAuctions={campaignData?.auctions || []}
-              status={[1, 2, 4, 5]}
-            />
-          </SectionInner>
-        )}
-      </ContentSection>
+        </ContentSection>
+      ) : (
+        <ContentSection>
+          {currentTab === 0 && (
+            <SectionInner>
+              <CampaignTableData
+                campaignAuctions={campaignData?.auctions || []}
+                status={[3]}
+              />
+            </SectionInner>
+          )}
+          {currentTab === 1 && (
+            <SectionInner>
+              <CampaignTableData
+                campaignAuctions={campaignData?.auctions || []}
+                status={[1, 2, 4, 5]}
+              />
+            </SectionInner>
+          )}
+        </ContentSection>
+      )}
     </Container>
   );
 }
