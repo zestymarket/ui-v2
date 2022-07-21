@@ -5,7 +5,7 @@ import { removeAuctionById } from '@/lib/redux/auctionBasketSlice';
 import { useDispatch } from 'react-redux';
 import {
   calculatePrice,
-  getAuctionDuration,
+  getContractDuration,
   getAuctionStartsIn,
 } from '@/utils/classes/Auction';
 
@@ -84,7 +84,7 @@ export default function AuctionRow({ auctionData }: { auctionData: any }) {
     contractTimeEnd,
     priceStart,
   ).toFixed(2);
-  const duration = getAuctionDuration(contractTimeStart, contractTimeEnd);
+  const duration = getContractDuration(contractTimeStart, contractTimeEnd);
 
   return (
     <Wrapper>

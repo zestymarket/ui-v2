@@ -80,7 +80,7 @@ const getCurrentTime = function (): number {
   return Number((Date.now() / 1000).toFixed(0));
 };
 
-export const getAuctionDuration = function (
+export const getContractDuration = function (
   contractTimeStart: string,
   contractTimeEnd: string,
 ): string {
@@ -127,15 +127,15 @@ export const calculatePrice = function (
 ) {
   const price = calcPrice(
     BigNumber.from(getCurrentTime()),
-    BigNumber.from(auctionTimeStart),
-    BigNumber.from(contractTimeEnd),
-    BigNumber.from(priceStart),
+    BigNumber.from(auctionTimeStart || 0),
+    BigNumber.from(contractTimeEnd || 0),
+    BigNumber.from(priceStart || 0),
   );
   return Number(formatUnits(price, 6));
 };
 
-export const hasAuctionEnded = function (contractTimeEnd: string): boolean {
-  return Number(contractTimeEnd) <= getCurrentTime();
+export const hasAuctionEnded = function (auctionTimeEnd: string): boolean {
+  return Number(auctionTimeEnd) <= getCurrentTime();
 };
 
 export default class Auction {
@@ -230,7 +230,7 @@ export default class Auction {
   }
 
   contractDuration(): string {
-    return getAuctionDuration(
+    return getContractDuration(
       this.sellerAuction.contractTimeStart,
       this.sellerAuction.contractTimeEnd,
     );
