@@ -207,6 +207,9 @@ const StyledTableRow = styled(TableRow)`
   span.status {
     display: block;
   }
+  span.status-fixed {
+    width: 150px;
+  }
   span.select,
   button.buy {
     display: none;
@@ -457,7 +460,11 @@ const DataTable: React.FC<Props> = ({ isCreator, auctions, name, format }) => {
                   </TableBodyCell>
                   {!idsInCart.includes(row.id) ? (
                     <TableBodyCell align="left" color={getColor(row.status)}>
-                      <span className={canBid ? `status` : ``}>
+                      <span
+                        className={
+                          canSelect ? `status status-fixed` : `status-fixed`
+                        }
+                      >
                         {row.status === AUCTION_STATUS.not_started
                           ? `Yet to start`
                           : row.status === AUCTION_STATUS.active

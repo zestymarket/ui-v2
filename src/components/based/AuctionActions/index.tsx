@@ -213,13 +213,13 @@ const AuctionActions: React.FC<Props> = ({
 
   return (
     <Wrapper>
-      <Button disabled={isCancellable} onClick={handleApprove}>
+      <Button disabled={!isApprovable} onClick={handleApprove}>
         <Image src="/icons/check-mark.svg" alt="cart" height={16} width={16} />
       </Button>
-      <Button disabled={isCancellable} onClick={handleReject}>
+      <Button disabled={!isApprovable} onClick={handleReject}>
         <Image src="/icons/cross.svg" alt="cart" height={16} width={16} />
       </Button>
-      <Button disabled={isApprovable} onClick={handleCancel}>
+      <Button disabled={!isCancellable} onClick={handleCancel}>
         <Image src="/icons/trash.svg" alt="cart" height={16} width={16} />
       </Button>
     </Wrapper>
