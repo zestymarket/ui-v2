@@ -92,11 +92,7 @@ export const NavigationButton = styled(Button)({
   color: `#bdb9c8`,
   marginRight: 10,
   transition: `all 0.3s`,
-  '&:disabled': {
-    opacity: `0.5`,
-    color: `grey`,
-    cursor: `not-allowed`,
-  },
+
   '&:active': {
     background: `linear-gradient(112.17deg, #f89724 0%, #e23f26 100%)`,
     border: `transparent`,

@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
   Skeleton,
   Card,
@@ -12,17 +12,17 @@ import {
   CardActionArea,
   Link,
 } from '@mui/material';
+import { useWeb3React } from '@web3-react/core';
+import { Web3Provider } from '@ethersproject/providers';
 
-import SpaceData from '@/utils/classes/SpaceData';
+import CampaignData from '@/utils/classes/SpaceData';
 import { useRouter } from 'next/router';
 import * as _ from 'lodash';
-import { formatUnits } from '@ethersproject/units';
-import { getLowestAuctionPrice } from '@/utils/helpers';
 
 const CARD_HEIGHT = 354;
 
-interface SpaceCardProps {
-  spaceData?: SpaceData;
+interface CampaignCardProps {
+  campaignData?: CampaignData;
   chainId?: number;
 }
 
@@ -90,20 +90,12 @@ const StyledPriceLabel = styled(Typography)({
   fontSize: 14,
 });
 
-const StyledPriceValue = styled(Typography)({
-  fontSize: 14,
-  fontWeight: `bold`,
-  marginLeft: 4,
-});
-
-const SpaceCard = (props: SpaceCardProps) => {
-  const { spaceData } = props;
+const CampaignCard = (props: CampaignCardProps) => {
+  const { campaignData } = props;
   const router = useRouter();
+  const { chainId } = useWeb3React<Web3Provider>();
 
-  const [lowestPrice, setLowestPrice] = useState(Number.MAX_VALUE);
-  const [price, setPrice] = useState(`No Open Auctions`);
-
-  if (!spaceData) {
+  if (!campaignData) {
     return (
       <StyledCardSkeleton>
         <Skeleton variant="rectangular" height={CARD_HEIGHT * 0.6} />
@@ -112,33 +104,21 @@ const SpaceCard = (props: SpaceCardProps) => {
       </StyledCardSkeleton>
     );
   }
-  useEffect(() => {
-    if (spaceData.hasActiveAuctions) {
-      const lowPrice = getLowestAuctionPrice(spaceData.activeAuctions);
-      if (lowPrice !== Number.MAX_VALUE) {
-        setPrice(`$${parseFloat(formatUnits(lowPrice, 6)).toFixed(0)}`);
-      }
-      setLowestPrice(lowPrice);
-    }
-  }, [spaceData]);
 
   return (
     <StyledCard
       onClick={() => {
-        router.push(`/space/${spaceData.id}`);
+        router.push(`/campaign/${campaignData.id}`);
       }}
     >
       <StyledActionArea>
-        <Link href={`/space/${spaceData.id}`}>
-          <CardMedia
-            component="img"
-            image={spaceData?.image}
-            height={CARD_HEIGHT}
-            sx={{
-              borderRadius: `18px`,
-            }}
-          />
-        </Link>
+        <CardMedia
+          component="img"
+          image={campaignData?.image}
+          height={CARD_HEIGHT}
+          sx={{ borderRadius: `inherit` }}
+        />
+
         <StyledCardContent>
           <Grid
             container
@@ -148,29 +128,20 @@ const SpaceCard = (props: SpaceCardProps) => {
           >
             <Grid item>
               <StyledFormat variant="caption">
-                {spaceData?.format === `Square` ||
-                spaceData?.format === `Tall` ||
-                spaceData?.format === `Wide`
+                {campaignData?.format === `Square` ||
+                campaignData?.format === `Tall` ||
+                campaignData?.format === `Wide`
                   ? `Web/WebXR`
-                  : spaceData?.format}
+                  : campaignData?.format}
               </StyledFormat>
             </Grid>
             <Grid item>
-              <StyledName variant="h5">{spaceData?.name}</StyledName>
+              <StyledName variant="h5">{campaignData?.name}</StyledName>
             </Grid>
 
             <StyledPrice item container>
               <Grid item>
-                <StyledPriceLabel variant="caption">
-                  {lowestPrice === Number.MAX_VALUE
-                    ? `No Open Auctions`
-                    : `Starting at`}
-                </StyledPriceLabel>
-              </Grid>
-              <Grid item>
-                <StyledPriceValue variant="caption">
-                  {lowestPrice == Number.MAX_VALUE ? `` : price}
-                </StyledPriceValue>
+                <StyledPriceLabel variant="caption"></StyledPriceLabel>
               </Grid>
             </StyledPrice>
           </Grid>
@@ -180,4 +151,4 @@ const SpaceCard = (props: SpaceCardProps) => {
   );
 };
 
-export default SpaceCard;
+export default CampaignCard;

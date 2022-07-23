@@ -93,30 +93,10 @@ const ZestyImageUploader: React.FC<Props> = (props) => {
     }
     const file = img[0];
     const imageDataUrl = await readFile(file);
-    if (props.format == SpaceFormats.Twitch && file.type === `image/gif`) {
-      const img = new Image();
-      img.onload = () => {
-        const twitchHeight = getHeightFromFormat(SpaceFormats.Twitch);
-        const twitchAspectRatio = getAspectFromFormat(SpaceFormats.Twitch);
-        const imageAspectRatio = img.width / img.height;
-        // Checks if the image aspects are the same, avoids float rounding issues
-        if (
-          img.height === twitchHeight &&
-          Math.abs(imageAspectRatio - twitchAspectRatio) < EPSILON
-        ) {
-          setImage(imageDataUrl);
-          props.onImageUpdate(imageDataUrl);
-        } else {
-          // error
-          setDropzoneKey(dropzoneKey === `0` ? `1` : `0`);
-        }
-      };
-      img.src = imageDataUrl;
-    } else {
-      setImage(imageDataUrl);
-      setOpenImageDialog(true);
-      props.onImageUpdate(imageDataUrl);
-    }
+
+    setImage(imageDataUrl);
+    setOpenImageDialog(true);
+    props.onImageUpdate(imageDataUrl);
   };
 
   const onImageDelete = () => {

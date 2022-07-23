@@ -11,7 +11,7 @@ export interface ICampaignCell {
   id: number;
 }
 
-const AuctionDataCampaingCell: FC<ICampaignCell> = ({
+const AuctionDataCampaignCell: FC<ICampaignCell> = ({
   align,
   status,
   campaignUris,
@@ -38,4 +38,4 @@ const AuctionDataCampaingCell: FC<ICampaignCell> = ({
   );
 };
 
-export default AuctionDataCampaingCell;
+export default AuctionDataCampaignCell;

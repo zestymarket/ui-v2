@@ -1,4 +1,3 @@
-import { SellerAuction } from '@/lib/types';
 import { BigNumber } from '@ethersproject/bignumber';
 import { formatUnits, formatEther } from '@ethersproject/units';
 import Auction from './classes/Auction';
@@ -20,6 +19,11 @@ export function calcPrice(
   const timePassed = timeNow.sub(timeStart);
   const timeTotal = timeEndToken.sub(timeStart);
   const reStartPrice = startPrice.mul(100000);
+
+  // return 0 if timeTotal is 0
+  if (timeTotal.eq(BigNumber.from(0))) {
+    return BigNumber.from(0);
+  }
   const gradient = reStartPrice.div(timeTotal);
   const bidPrice = reStartPrice.sub(gradient.mul(timePassed)).div(100000);
 
@@ -77,6 +81,13 @@ export const CHAIN_ID_NAMES: { [key: number]: string } = {
   42: `Kovan`,
   137: `Polygon`,
 };
+
+export enum BID_STATUS {
+  'awaiting_approval',
+  'approved',
+  'rejected',
+  'expired', //auction ended without bid being approved or rejected
+}
 
 export const INFURA_PREFIXES: { [key: number]: string } = {
   1: `mainnet`,

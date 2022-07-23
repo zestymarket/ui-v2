@@ -28,6 +28,7 @@ export interface SellerAuction {
   buyerCampaignsPending: boolean[];
   cancelled: boolean;
   rate?: number;
+  sellerNFTSetting?: SellerNFTSetting;
 }
 
 export interface SellerNFTSetting {

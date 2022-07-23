@@ -1,6 +1,13 @@
 import React from 'react';
 import { styled } from '@mui/material';
-import { AuctionData } from '../AuctionDataTable';
+import CloseIcon from '../../../../public/icons/close.svg';
+import { removeAuctionById } from '@/lib/redux/auctionBasketSlice';
+import { useDispatch } from 'react-redux';
+import {
+  calculatePrice,
+  getContractDuration,
+  getAuctionStartsIn,
+} from '@/utils/classes/Auction';
 
 const Wrapper = styled(`div`)`
   display: flex;
@@ -17,12 +24,24 @@ const Wrapper = styled(`div`)`
     flex-direction: column;
     &.id {
       margin-right: 20px;
+      svg {
+        display: none;
+        color: red;
+        cursor: pointer;
+        position: relative;
+        top: 1px;
+      }
       & + div {
         width: 300px;
       }
     }
     &.price {
       text-align: right;
+    }
+  }
+  &:hover {
+    .id > svg {
+      display: block;
     }
   }
   label {
@@ -47,22 +66,44 @@ const Wrapper = styled(`div`)`
   }
 `;
 
-export default function AuctionRow({
-  auctionData,
-}: {
-  auctionData: AuctionData;
-}) {
-  const { id, price, contractStartTime, duration, campaign } = auctionData;
+export default function AuctionRow({ auctionData }: { auctionData: any }) {
+  const {
+    id,
+    priceStart,
+    contractTimeStart,
+    contractTimeEnd,
+    auctionTimeStart,
+    name,
+  } = auctionData;
+
+  const dispatch = useDispatch();
+
+  const startsIn = getAuctionStartsIn(contractTimeStart);
+  const price = calculatePrice(
+    auctionTimeStart,
+    contractTimeEnd,
+    priceStart,
+  ).toFixed(2);
+  const duration = getContractDuration(contractTimeStart, contractTimeEnd);
+
   return (
     <Wrapper>
-      <div className="id lightText">{id}</div>
+      <div className="id lightText">
+        {id}
+        <CloseIcon
+          onClick={() => dispatch(removeAuctionById(id))}
+          className="remove"
+          width={20}
+          height={20}
+        />
+      </div>
       <div className="campaign">
-        <label>{campaign || `None`}</label>
-        <span className="lightText">Starts at {contractStartTime}</span>
+        <label>{name || `None`}</label>
+        <span className="lightText">Starts in {startsIn}</span>
       </div>
       <div className="price">
         <p className="total">
-          <h1>{price.toFixed(2)}</h1>
+          <h1>{price}</h1>
           <small>USDC</small>
         </p>
         <span className="lightText">Duration {duration}</span>

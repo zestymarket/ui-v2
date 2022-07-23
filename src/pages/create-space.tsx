@@ -19,6 +19,7 @@ import {
   Format,
   FormatCategories,
   SpaceFormatResolutions,
+  SpaceFormats,
 } from '@/utils/formats';
 import {
   convertBase64ToFile,
@@ -100,6 +101,7 @@ const CreateSpace = () => {
   const router = useRouter();
 
   const [name, setName] = useState<string>(``);
+  const [uploadFormat] = useState<string>(SpaceFormats.Square);
   const [format, setFormat] = useState<string>(``);
   const [image, setImage] = useState<string | null>(null);
   const [url, setURL] = useState<string>(``);
@@ -146,7 +148,7 @@ const CreateSpace = () => {
 
       await tokenMintRes.wait();
       // showloading
-      router.push(`/`);
+      router.push(`/dashboard`);
     } catch (err) {
       console.log(`Space creation error: `, err);
       // snackbar: `An Error has occured`
@@ -178,13 +180,14 @@ const CreateSpace = () => {
         <Stack {...formFieldProps}>
           <Stack direction="row" alignItems="baseline">
             <StyledLabel>Image</StyledLabel>
-            {format && (
+            {uploadFormat && (
               <StyledSubLabel>
-                ({getWidthFromFormat(format)} x {getHeightFromFormat(format)})
+                ({getWidthFromFormat(uploadFormat)} x{` `}
+                {getHeightFromFormat(uploadFormat)})
               </StyledSubLabel>
             )}
           </Stack>
-          <ZestyImageUploader format={format} onImageUpdate={setImage} />
+          <ZestyImageUploader format={uploadFormat} onImageUpdate={setImage} />
         </Stack>
 
         <Stack {...formFieldProps}>

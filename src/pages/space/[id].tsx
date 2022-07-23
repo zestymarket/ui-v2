@@ -9,7 +9,7 @@ import SpaceFeaturedMedia from '@/components/composed/space/SpaceFeaturedMedia';
 import FeaturedContainer from '@/components/layout/FeaturedContainer';
 import SwitchToggle from '@/components/based/SwitchToggle';
 import AuctionDataTable from '@/components/based/AuctionDataTable';
-import { Button, Grid, Tab, Tabs } from '@mui/material';
+import { Button as muiButton, Grid, Tab, Tabs } from '@mui/material';
 import { styled } from '@mui/system';
 
 import { GET_ONE_ZESTY_NFT } from '@/lib/queries';
@@ -17,7 +17,6 @@ import { getClient } from '@/lib/graphql';
 import SpaceData from '@/utils/classes/SpaceData';
 import { formatIpfsUri, openNewTab } from '@/utils/helpers';
 import SpaceHistoricalChart from '@/components/composed/space/SpaceHistoricalChart';
-import { PageContext } from '@/lib/context/page';
 import SpaceAnalyticsPage from '@/components/composed/space/SpaceAnalyticsPage';
 
 export const Container = styled(`div`)({
@@ -40,7 +39,7 @@ export const TabsWrapper = styled(`div`)({
   marginTop: 66,
 });
 
-export const BuyButton = styled(Button)({
+export const BuyButton = styled(muiButton)({
   fontFamily: `Inter`,
   textTransform: `none`,
   fontStyle: `normal`,
@@ -138,13 +137,12 @@ export default function SpaceDetailPage({
   data,
   uri,
 }: InferGetServerSidePropsType<typeof getServerSideProps>): JSX.Element {
-  const { setPageName } = React.useContext(PageContext);
-  setPageName(``);
   const { account } = useWeb3React<Web3Provider>();
   const [currentTab, setCurrentTab] = useState(0);
   const [spaceData, setSpaceData] = useState<SpaceData | null>(null);
 
-  const [, setIsCreator] = useState<boolean>(false);
+  const [hasActiveAuctions, setHasActiveAuctions] = useState<boolean>(false);
+  const [isCreator, setIsCreator] = useState<boolean>(false);
 
   const [pendingBalance, setPendingBalance] = useState<number>(0);
 
@@ -160,8 +158,11 @@ export default function SpaceDetailPage({
 
     const newSpaceData = new SpaceData(data.tokenData, uri);
 
-    // if (newSpaceData.activeAuctions.length > 0) setHasActiveAuctions(true);
+    if (newSpaceData.activeAuctions.length > 0) setHasActiveAuctions(true);
+    setIsCreator(account?.toUpperCase() === newSpaceData.creator.toUpperCase());
     setSpaceData(newSpaceData);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, uri, id]);
 
   useEffect(() => {
@@ -201,6 +202,8 @@ export default function SpaceDetailPage({
             <SpaceFeaturedContent
               onDepositNFT={handleDepositNFT}
               spaceData={spaceData}
+              isCreator={isCreator}
+              hasActiveAuctions={hasActiveAuctions}
             />
           }
           media={<SpaceFeaturedMedia src={spaceData?.image} />}
@@ -234,21 +237,12 @@ export default function SpaceDetailPage({
         {currentTab === 0 && (
           <SectionInner>
             <ConfigPanel>
-              {/* <OptionButtonGroup
-              options={[
-                { value: 1, label: `THE FRONTPAGE 34` },
-                { value: 2, label: `LEFT SIDEBAR 24` },
-                { value: 3, label: `BOTTOM BAR 0`, disabled: true },
-              ]}
-              allLabel="ALL 123"
-              allOption
-              multiple
-            /> */}
               <SwitchToggle label="Only available" />
             </ConfigPanel>
             <AuctionDataTable
+              isCreator={isCreator}
               auctions={spaceData?.activeAuctions || []}
-              spaceName={spaceData?.name ?? ``}
+              name={spaceData?.name ?? ``}
               format={spaceData?.format ?? ``}
             />
           </SectionInner>
@@ -278,8 +272,9 @@ export default function SpaceDetailPage({
               <Grid item xs={12} pt={6}>
                 <HistoricalHeader>Past Auctions</HistoricalHeader>
                 <AuctionDataTable
+                  isCreator={isCreator}
                   auctions={spaceData?.auctions || []}
-                  spaceName={spaceData?.name ?? ``}
+                  name={spaceData?.name ?? ``}
                   format={spaceData?.format ?? ``}
                 />
               </Grid>
