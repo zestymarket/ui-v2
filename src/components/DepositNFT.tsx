@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import Button from './Button';
 import DepositNFTPopup from './DepositNFTPopup';
+interface DepositNFTProps {
+  spaceId: number;
+}
 
-const DepositNFT = () => {
+const DepositNFT: React.FC<DepositNFTProps> = ({ spaceId }) => {
   const [showPopup, setShowPopup] = useState(false);
 
   const onClosePopup = () => setShowPopup(false);
@@ -11,7 +14,9 @@ const DepositNFT = () => {
   return (
     <>
       <Button onClick={onDepositNFT}>Deposit NFT</Button>
-      {showPopup && <DepositNFTPopup open onClose={onClosePopup} />}
+      {showPopup && (
+        <DepositNFTPopup spaceId={spaceId} open onClose={onClosePopup} />
+      )}
     </>
   );
 };

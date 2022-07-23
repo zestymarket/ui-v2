@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Backdrop,
   Dialog,
@@ -13,11 +13,15 @@ import {
 } from '@mui/material';
 import Image from 'next/image';
 import CloseIcon from '@mui/icons-material/Close';
+import { useWeb3React } from '@web3-react/core';
+import { Web3Provider } from '@ethersproject/providers';
+
 import Button from './Button';
 import { useZestyMarketUSDC, useZestyNFT } from '@/utils/hooks';
 
 interface PopupProps {
   open: boolean;
+  spaceId: number;
   onClose: () => void;
 }
 
@@ -145,7 +149,7 @@ const Step: React.FC<StepProps> = ({
   onSelect,
 }) => {
   return (
-    <StyledStep container onClick={onSelect}>
+    <StyledStep container>
       <Grid className={`imageContainer`} item>
         <StyledStepIcon isCompleted={!!isCompleted}>
           <Image src={icon} alt={title} width={16} height={16} />
@@ -178,25 +182,34 @@ const Step: React.FC<StepProps> = ({
   );
 };
 
-// todo: take from props
-const SPACE_ID = 50;
-const DepositNFTPopup: React.FC<PopupProps> = ({ open, onClose }) => {
+const DepositNFTPopup: React.FC<PopupProps> = ({ open, spaceId, onClose }) => {
   const zestyMarketUSDC = useZestyMarketUSDC(true);
   const zestyNFT = useZestyNFT(true);
-
+  const { account } = useWeb3React<Web3Provider>();
   const [isApproved, setIsApproved] = useState(false);
   const [isDeposited, setIsDeposited] = useState(false);
 
+  useEffect(() => {
+    async function getApproved() {
+      if (spaceId) {
+        const resApproved = await zestyNFT.getApproved(spaceId);
+        if (resApproved === zestyMarketUSDC.address) setIsApproved(true);
+      }
+    }
+    if (spaceId) getApproved();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const onApprove = async () => {
-    const res = await zestyNFT.approve(zestyMarketUSDC.address, SPACE_ID);
-    setIsApproved(true);
+    const res = await zestyNFT.approve(zestyMarketUSDC.address, spaceId);
     await res.wait();
+    setIsApproved(true);
   };
 
   const onDeposit = async () => {
-    const res = await zestyMarketUSDC.sellerNFTDeposit(SPACE_ID, 1);
-    setIsDeposited(true);
+    const res = await zestyMarketUSDC.sellerNFTDeposit(spaceId, 1);
     await res.wait();
+    setIsDeposited(true);
   };
 
   return (
