@@ -30,7 +30,7 @@ const AuctionDataCampaignCell: FC<ICampaignCell> = ({
       status === AUCTION_STATUS.active ||
       status === AUCTION_STATUS.bought ||
       status === AUCTION_STATUS.finished ? (
-        <Link href={`/campaigns/${id}?chainId=${chainId}`}>{name}</Link>
+        <Link href={`/campaign/${id}?chainId=${chainId}`}>{name}</Link>
       ) : (
         `None`
       )}
