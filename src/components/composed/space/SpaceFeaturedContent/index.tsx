@@ -87,7 +87,9 @@ const SpaceFeaturedContent: React.FC<Props> = ({
         >
           {isCreator &&
             !spaceData.burned &&
-            !(hasActiveAuctions || inProgressCount > 0) && <DepositNFT />}
+            !(hasActiveAuctions || inProgressCount > 0) && (
+              <DepositNFT spaceId={spaceData.id} />
+            )}
           {isCreator && !spaceData.withdrawn && (
             <Button
               onClick={() => {
