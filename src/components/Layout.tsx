@@ -14,7 +14,7 @@ const noAuthRoutes = new Set([
   `/`,
   `/space/[id]`,
   `/space/[id]/new-auction`,
-  `/campaigns/[id]`,
+  `/campaign/[id]`,
   `/auth/discord/[id]`,
   `/[id]`,
 ]);
