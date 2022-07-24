@@ -87,7 +87,7 @@ export default function Notifications() {
                 />
               );
             })}
-          {notificationPage > 1 && (
+          {totalPages > 1 && (
             <Pagination
               defaultPage={notificationPage}
               onChange={handleChangePage}

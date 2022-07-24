@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import { useWeb3React } from '@web3-react/core';
 import { useQuery } from '@apollo/client';
+import { PageContext } from '@/lib/context/page';
 
 import TabsContainer from '@/components/TabsContainer';
 import Overview from '@/components/dashboard/FundCards';
@@ -19,6 +20,9 @@ import { formatIpfsUri } from '@/utils/helpers';
 export default function Dashboard() {
   const { account, chainId } = useWeb3React<Web3Provider>();
   const client = chainId ? getClient(chainId) : undefined;
+  const { setPageName } = useContext(PageContext);
+
+  setPageName(``);
   // const zestyMarketUSDC = account ? useZestyMarketUSDC(true) : undefined;
 
   const [totalReceived, setTotalReceived] = useState(0);
