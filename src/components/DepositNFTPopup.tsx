@@ -10,14 +10,15 @@ import {
   Stack,
   styled,
   Typography,
+  Link,
 } from '@mui/material';
 import Image from 'next/image';
 import CloseIcon from '@mui/icons-material/Close';
-import { useWeb3React } from '@web3-react/core';
-import { Web3Provider } from '@ethersproject/providers';
+import Router from 'next/router';
 
 import Button from './Button';
 import { useZestyMarketUSDC, useZestyNFT } from '@/utils/hooks';
+import { NoEncryption } from '@mui/icons-material';
 
 interface PopupProps {
   open: boolean;
@@ -185,7 +186,6 @@ const Step: React.FC<StepProps> = ({
 const DepositNFTPopup: React.FC<PopupProps> = ({ open, spaceId, onClose }) => {
   const zestyMarketUSDC = useZestyMarketUSDC(true);
   const zestyNFT = useZestyNFT(true);
-  const { account } = useWeb3React<Web3Provider>();
   const [isApproved, setIsApproved] = useState(false);
   const [isDeposited, setIsDeposited] = useState(false);
 
@@ -210,6 +210,7 @@ const DepositNFTPopup: React.FC<PopupProps> = ({ open, spaceId, onClose }) => {
     const res = await zestyMarketUSDC.sellerNFTDeposit(spaceId, 1);
     await res.wait();
     setIsDeposited(true);
+    Router.reload();
   };
 
   return (
@@ -258,7 +259,15 @@ const DepositNFTPopup: React.FC<PopupProps> = ({ open, spaceId, onClose }) => {
         <StyledFooterTitle>
           Do you have any questions about depositing?
         </StyledFooterTitle>
-        <StyledFooterLink>See how it works</StyledFooterLink>
+        <StyledFooterLink>
+          <a
+            href="https://docs.zesty.market/guides/for-creators/create-space"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            See how it works
+          </a>
+        </StyledFooterLink>
       </StyledContent>
     </StyledDialog>
   );

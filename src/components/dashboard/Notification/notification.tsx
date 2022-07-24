@@ -1,5 +1,5 @@
 import React from 'react';
-
+import Bid from './Bid';
 import {
   Card,
   CardContent,
@@ -68,16 +68,29 @@ interface PropsNotification {
 
 const LinkToMarkdown: React.FC<PropsMarkdown> = ({ markdown }) => {
   const elements: RegExpMatchArray | null = markdown.match(/\[.*?\)/g);
-  if (elements !== null && elements[0] != null) {
+  if (elements !== null && elements.length > 0 && elements[0] != null) {
     const txt: string = (elements[0].match(/\[(.*?)\]/) as any)[1];
-    const url: string = (elements[0].match(/\((.*?)\)/) as any)[1];
+    let url: string = (elements[0].match(/\((.*?)\)/) as any)[1];
+    url = url.replaceAll(`https://app.zesty.market/`, `/`);
+
     return (
       <NotificationLink href={url} target="_blank" rel="noreferrer">
         {txt}
       </NotificationLink>
     );
   } else {
-    return <div> Some Error Occurred </div>;
+    return <div> {markdown} </div>;
+  }
+};
+
+const returnID = (markdown: string) => {
+  const elements: RegExpMatchArray | null = markdown.match(/\[.*?\)/g);
+  if (elements !== null && elements.length > 0 && elements[0] != null) {
+    let url: string = (elements[0].match(/\((.*?)\)/) as any)[1];
+    url = url.replaceAll(`https://app.zesty.market/`, `/`);
+    return url;
+  } else {
+    return `0`;
   }
 };
 const NotificationCard: React.FC<PropsNotification> = ({
@@ -128,6 +141,222 @@ const NotificationCard: React.FC<PropsNotification> = ({
       );
       break;
     }
+    case `rentalContractCreatedSeller`: {
+      return (
+        <div>
+          <StyledCard>
+            <StyledCardContent>
+              <Grid
+                container
+                spacing={3}
+                direction="row"
+                sx={{ height: `100%` }}
+              >
+                <Grid item>
+                  <StyledStepIcon>
+                    <AddCircleOutline fontSize="medium" />
+                  </StyledStepIcon>
+                </Grid>
+                <Grid item>
+                  <Grid container direction="column" sx={{ height: `100%` }}>
+                    <Grid item>
+                      <NotificationTitle>
+                        New rental contract has been created
+                        <LinkToMarkdown
+                          markdown={notification[`description`]}
+                        ></LinkToMarkdown>
+                      </NotificationTitle>
+                    </Grid>
+                    <Grid item>
+                      <NotificationLink
+                        href={notification[`fields`][2][`value`]}
+                        target="_blank"
+                      >
+                        Transaction Link ➜
+                      </NotificationLink>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </StyledCardContent>
+          </StyledCard>
+        </div>
+      );
+      break;
+    }
+    case `rentalContractCreatedBuyer`: {
+      return (
+        <div>
+          <StyledCard>
+            <StyledCardContent>
+              <Grid
+                container
+                spacing={3}
+                direction="row"
+                sx={{ height: `100%` }}
+              >
+                <Grid item>
+                  <StyledStepIcon>
+                    <AddCircleOutline fontSize="medium" />
+                  </StyledStepIcon>
+                </Grid>
+                <Grid item>
+                  <Grid container direction="column" sx={{ height: `100%` }}>
+                    <Grid item>
+                      <NotificationTitle>
+                        New rental contract has been created
+                        <LinkToMarkdown
+                          markdown={notification[`description`]}
+                        ></LinkToMarkdown>
+                      </NotificationTitle>
+                    </Grid>
+                    <Grid item>
+                      <NotificationLink
+                        href={notification[`fields`][2][`value`]}
+                        target="_blank"
+                      >
+                        Transaction Link ➜
+                      </NotificationLink>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </StyledCardContent>
+          </StyledCard>
+        </div>
+      );
+      break;
+    }
+    case `rentalContractCreatedSeller`: {
+      return (
+        <div>
+          <StyledCard>
+            <StyledCardContent>
+              <Grid
+                container
+                spacing={3}
+                direction="row"
+                sx={{ height: `100%` }}
+              >
+                <Grid item>
+                  <StyledStepIcon>
+                    <AddCircleOutline fontSize="medium" />
+                  </StyledStepIcon>
+                </Grid>
+                <Grid item>
+                  <Grid container direction="column" sx={{ height: `100%` }}>
+                    <Grid item>
+                      <NotificationTitle>
+                        New rental contract has been created
+                        <LinkToMarkdown
+                          markdown={notification[`description`]}
+                        ></LinkToMarkdown>
+                      </NotificationTitle>
+                    </Grid>
+                    <Grid item>
+                      <NotificationLink
+                        href={notification[`fields`][2][`value`]}
+                        target="_blank"
+                      >
+                        Transaction Link ➜
+                      </NotificationLink>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </StyledCardContent>
+          </StyledCard>
+        </div>
+      );
+      break;
+    }
+    case `rentalContractCompletedSeller`: {
+      return (
+        <div>
+          <StyledCard>
+            <StyledCardContent>
+              <Grid
+                container
+                spacing={3}
+                direction="row"
+                sx={{ height: `100%` }}
+              >
+                <Grid item>
+                  <StyledStepIcon>
+                    <AddCircleOutline fontSize="medium" />
+                  </StyledStepIcon>
+                </Grid>
+                <Grid item>
+                  <Grid container direction="column" sx={{ height: `100%` }}>
+                    <Grid item>
+                      <NotificationTitle>
+                        New rental contract has been completed
+                        <LinkToMarkdown
+                          markdown={notification[`description`]}
+                        ></LinkToMarkdown>
+                      </NotificationTitle>
+                    </Grid>
+                    <Grid item>
+                      <NotificationLink
+                        href={notification[`fields`][2][`value`]}
+                        target="_blank"
+                      >
+                        Transaction Link ➜
+                      </NotificationLink>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </StyledCardContent>
+          </StyledCard>
+        </div>
+      );
+      break;
+    }
+    case `rentalContractCompletedBuyer`: {
+      return (
+        <div>
+          <StyledCard>
+            <StyledCardContent>
+              <Grid
+                container
+                spacing={3}
+                direction="row"
+                sx={{ height: `100%` }}
+              >
+                <Grid item>
+                  <StyledStepIcon>
+                    <AddCircleOutline fontSize="medium" />
+                  </StyledStepIcon>
+                </Grid>
+                <Grid item>
+                  <Grid container direction="column" sx={{ height: `100%` }}>
+                    <Grid item>
+                      <NotificationTitle>
+                        New rental contract has been completed
+                        <LinkToMarkdown
+                          markdown={notification[`description`]}
+                        ></LinkToMarkdown>
+                      </NotificationTitle>
+                    </Grid>
+                    <Grid item>
+                      <NotificationLink
+                        href={notification[`fields`][2][`value`]}
+                        target="_blank"
+                      >
+                        Transaction Link ➜
+                      </NotificationLink>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </StyledCardContent>
+          </StyledCard>
+        </div>
+      );
+      break;
+    }
+
     case `tokenMintFrom`: {
       return (
         <div>
@@ -156,7 +385,7 @@ const NotificationCard: React.FC<PropsNotification> = ({
                     </Grid>
                     <Grid item>
                       <NotificationLink
-                        href={notification[`fields`][2][`value`]}
+                        href={notification[`fields`][1][`value`]}
                         target="_blank"
                       >
                         Transaction Link ➜
@@ -257,7 +486,7 @@ const NotificationCard: React.FC<PropsNotification> = ({
       );
       break;
     }
-    case `tokenTransferTo`: {
+    case `campaignCreatedBuyer`: {
       return (
         <div>
           <StyledCard>
@@ -285,7 +514,51 @@ const NotificationCard: React.FC<PropsNotification> = ({
                     </Grid>
                     <Grid item>
                       <NotificationLink
-                        href={notification[`fields`][2][`value`]}
+                        href={notification[`fields`][1][`value`]}
+                        target="_blank"
+                      >
+                        Transaction Link ➜
+                      </NotificationLink>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </StyledCardContent>
+          </StyledCard>
+        </div>
+      );
+      break;
+    }
+    case `tokenTransferTo`: {
+      console.log(notification);
+      return (
+        <div>
+          <StyledCard>
+            <StyledCardContent>
+              <Grid
+                container
+                spacing={3}
+                direction="row"
+                sx={{ height: `100%` }}
+              >
+                <Grid item>
+                  <StyledStepIcon>
+                    <AddCircleOutline fontSize="medium" />
+                  </StyledStepIcon>
+                </Grid>
+                <Grid item>
+                  <Grid container direction="column" sx={{ height: `100%` }}>
+                    <Grid item>
+                      <NotificationTitle>
+                        You have receieved a token
+                        <LinkToMarkdown
+                          markdown={notification[`description`]}
+                        ></LinkToMarkdown>
+                      </NotificationTitle>
+                    </Grid>
+                    <Grid item>
+                      <NotificationLink
+                        href={notification[`fields`][1][`value`]}
                         target="_blank"
                       >
                         Transaction Link ➜
@@ -328,7 +601,7 @@ const NotificationCard: React.FC<PropsNotification> = ({
                     </Grid>
                     <Grid item>
                       <NotificationLink
-                        href={notification[`fields`][2][`value`]}
+                        href={notification[`fields`][1][`value`]}
                         target="_blank"
                       >
                         Transaction Link ➜
@@ -371,7 +644,7 @@ const NotificationCard: React.FC<PropsNotification> = ({
                     </Grid>
                     <Grid item>
                       <NotificationLink
-                        href={notification[`fields`][2][`value`]}
+                        href={notification[`fields`][1][`value`]}
                         target="_blank"
                       >
                         Transaction Link ➜
@@ -457,7 +730,7 @@ const NotificationCard: React.FC<PropsNotification> = ({
                     </Grid>
                     <Grid item>
                       <NotificationLink
-                        href={notification[`fields`][2][`value`]}
+                        href={notification[`fields`][1][`value`]}
                         target="_blank"
                       >
                         Transaction Link ➜
@@ -532,24 +805,16 @@ const NotificationCard: React.FC<PropsNotification> = ({
                   </StyledStepIcon>
                 </Grid>
                 <Grid item>
-                  <Grid container direction="column" sx={{ height: `100%` }}>
-                    <Grid item>
-                      <NotificationTitle>
-                        You have receieved a new auction offer
-                        <LinkToMarkdown
-                          markdown={notification[`description`]}
-                        ></LinkToMarkdown>
-                      </NotificationTitle>
-                    </Grid>
-                    <Grid item>
-                      <NotificationLink
-                        href={notification[`fields`][2][`value`]}
-                        target="_blank"
-                      >
-                        Transaction Link ➜
-                      </NotificationLink>
-                    </Grid>
-                  </Grid>
+                  <Bid
+                    auctionLink={
+                      <LinkToMarkdown
+                        markdown={notification[`description`]}
+                      ></LinkToMarkdown>
+                    }
+                    price={notification[`fields`][1][`value`]}
+                    txLink={notification[`fields`][2][`value`]}
+                    id={returnID(notification[`description`])}
+                  />
                 </Grid>
               </Grid>
             </StyledCardContent>
@@ -601,7 +866,7 @@ const NotificationCard: React.FC<PropsNotification> = ({
       );
       break;
     }
-    case `auctionOfferSeller`: {
+    case `auctionOfferSellerAccepted`: {
       return (
         <div>
           <StyledCard>
@@ -621,7 +886,7 @@ const NotificationCard: React.FC<PropsNotification> = ({
                   <Grid container direction="column" sx={{ height: `100%` }}>
                     <Grid item>
                       <NotificationTitle>
-                        You have sent a new auction offer
+                        Auction Offer Accepted
                         <LinkToMarkdown
                           markdown={notification[`description`]}
                         ></LinkToMarkdown>
@@ -629,7 +894,7 @@ const NotificationCard: React.FC<PropsNotification> = ({
                     </Grid>
                     <Grid item>
                       <NotificationLink
-                        href={notification[`fields`][2][`value`]}
+                        href={notification[`fields`][1][`value`]}
                         target="_blank"
                       >
                         Transaction Link ➜
@@ -644,7 +909,7 @@ const NotificationCard: React.FC<PropsNotification> = ({
       );
       break;
     }
-    case `auctionOfferBuyer`: {
+    case `auctionOfferBuyerAccepted`: {
       return (
         <div>
           <StyledCard>
@@ -664,10 +929,12 @@ const NotificationCard: React.FC<PropsNotification> = ({
                   <Grid container direction="column" sx={{ height: `100%` }}>
                     <Grid item>
                       <NotificationTitle>
-                        You have receieved a new auction offer
+                        Your auction Offer
                         <LinkToMarkdown
                           markdown={notification[`description`]}
                         ></LinkToMarkdown>
+                        {` `}
+                        has been accepted
                       </NotificationTitle>
                     </Grid>
                     <Grid item>
@@ -687,7 +954,7 @@ const NotificationCard: React.FC<PropsNotification> = ({
       );
       break;
     }
-    case `auctionOfferRejected`: {
+    case `auctionOfferRejectedSeller`: {
       return (
         <div>
           <StyledCard>
@@ -715,7 +982,50 @@ const NotificationCard: React.FC<PropsNotification> = ({
                     </Grid>
                     <Grid item>
                       <NotificationLink
-                        href={notification[`fields`][2][`value`]}
+                        href={notification[`fields`][1][`value`]}
+                        target="_blank"
+                      >
+                        Transaction Link ➜
+                      </NotificationLink>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </StyledCardContent>
+          </StyledCard>
+        </div>
+      );
+      break;
+    }
+    case `auctionOfferRejectedBuyer`: {
+      return (
+        <div>
+          <StyledCard>
+            <StyledCardContent>
+              <Grid
+                container
+                spacing={3}
+                direction="row"
+                sx={{ height: `100%` }}
+              >
+                <Grid item>
+                  <StyledStepIcon>
+                    <AddCircleOutline fontSize="medium" />
+                  </StyledStepIcon>
+                </Grid>
+                <Grid item>
+                  <Grid container direction="column" sx={{ height: `100%` }}>
+                    <Grid item>
+                      <NotificationTitle>
+                        Auction Offer rejected by buyer on auction
+                        <LinkToMarkdown
+                          markdown={notification[`description`]}
+                        ></LinkToMarkdown>
+                      </NotificationTitle>
+                    </Grid>
+                    <Grid item>
+                      <NotificationLink
+                        href={notification[`fields`][1][`value`]}
                         target="_blank"
                       >
                         Transaction Link ➜
