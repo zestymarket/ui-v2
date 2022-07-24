@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 // import DoneIcon from '@mui/icons-material/Done';
 // import ClearIcon from '@mui/icons-material/Clear';
 import { Link, Grid, Typography, styled } from '@mui/material';
@@ -6,7 +6,7 @@ import Button from '@/components/Button';
 import { useRouter } from 'next/router';
 
 interface BidProps {
-  auctionLink: Element;
+  auctionLink: ReactElement;
   price: string;
   txLink: string;
   id: string;
