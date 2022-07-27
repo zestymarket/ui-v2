@@ -25,6 +25,7 @@ import {
   AuctionData,
   Order,
   HeadCell,
+  AuctionBasketData,
 } from '@/components/based/AuctionDataTable';
 import { getClient } from '@/lib/graphql';
 import { Web3Provider } from '@ethersproject/providers';
@@ -50,6 +51,8 @@ import {
   getContractDuration,
   getAuctionStartsIn,
 } from '@/utils/classes/Auction';
+import { removeAuctionById } from '@/lib/redux/auctionBasketSlice';
+import { useDispatch } from 'react-redux';
 
 const headCells: readonly HeadCell[] = [
   {
@@ -168,6 +171,7 @@ const ReviewOrderPage = () => {
   const [usdcBalance, setUsdcBalance] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
+  const dispatch = useDispatch();
   const auctions = useSelector(
     (state: RootState) => state.auctionBasketReducer.auctions,
   );
@@ -313,6 +317,9 @@ const ReviewOrderPage = () => {
         res
           .wait()
           .then(() => {
+            groupedAuctions[format].forEach((auctionData: AuctionBasketData) =>
+              dispatch(removeAuctionById(auctionData.id)),
+            );
             enqueueSnackbar(
               `Successfully bought time slot${plural}. Please wait for the creator of the billboard to approve your campaign${plural}.`,
               {
