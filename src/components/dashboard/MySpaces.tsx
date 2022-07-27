@@ -16,6 +16,8 @@ import { Box, CircularProgress } from '@mui/material';
 import FundCards from './FundCards';
 import SpacesRevenueHistory from './SpacesRevenueHistory';
 import { useRouter } from 'next/router';
+import { useSnackbar } from 'notistack';
+import { useZestyMarketUSDC } from '@/utils/hooks';
 
 let lastScrollTop = 0;
 const PAGE_LIMIT = 20;
@@ -63,6 +65,7 @@ interface MySpacesProps {
   totalSent: number;
   totalPending: number;
   totalClaimable: number;
+  idsToWithdraw: number[];
 }
 
 const MySpaces: React.FC<MySpacesProps> = (props) => {
@@ -73,6 +76,45 @@ const MySpaces: React.FC<MySpacesProps> = (props) => {
   const [loadingData, setLoadingData] = useState<boolean>(true);
   const [skip, setSkip] = useState<number>(0);
   const [spacesData, setSpacesData] = useState([] as SpaceData[]);
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const zestyMarketUSDC = useZestyMarketUSDC(true);
+  const { enqueueSnackbar } = useSnackbar();
+  const idsToWithdraw = props.idsToWithdraw;
+  function handleCollect() {
+    if (idsToWithdraw.length === 0) {
+      enqueueSnackbar(`Nothing to collect`, {
+        variant: `error`,
+      });
+      return;
+    }
+
+    zestyMarketUSDC
+      .contractWithdrawBatch(idsToWithdraw)
+      .then((res: any) => {
+        enqueueSnackbar(`Transaction pending...`, {
+          variant: `info`,
+          autoHideDuration: 15000,
+        });
+        res
+          .wait()
+          .then(() => {
+            enqueueSnackbar(`Successfully collected funds`, {
+              variant: `success`,
+            });
+          })
+          .catch((e: any) => {
+            enqueueSnackbar(e.message, {
+              variant: `error`,
+            });
+          });
+      })
+      .catch((e: any) => {
+        enqueueSnackbar(e.message, {
+          variant: `error`,
+        });
+      });
+  }
+  const onClaimFund = props.totalClaimable ? handleCollect : undefined;
   const { data, loading, error } = useQuery(GET_ZESTY_NFT_BY_CREATOR, {
     variables: {
       creator: account,
@@ -147,7 +189,7 @@ const MySpaces: React.FC<MySpacesProps> = (props) => {
           Create Space
         </Button>
       </Header>
-      <FundCards {...props} />
+      <FundCards onClaimFund={onClaimFund} {...props} />
       <Container>
         {!loadingData &&
           spacesData?.length > 0 &&

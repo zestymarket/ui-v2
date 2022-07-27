@@ -141,6 +141,7 @@ export default function Dashboard() {
               totalSent,
               totalPending,
               totalClaimable,
+              idsToWithdraw,
             },
           },
           {
