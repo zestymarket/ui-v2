@@ -1,6 +1,6 @@
 import { Stack } from '@mui/material';
 import { styled } from '@mui/system';
-import Head from 'next/head';
+import Button from '@/components/Button';
 
 const StyledCard = styled(Stack)(({ theme }) => ({
   borderRadius: theme.spacing(),
@@ -33,13 +33,20 @@ interface CardProps {
   title: string;
   amount: number;
   upDownValue?: string;
+  children?: React.ReactNode;
 }
-const FundCard: React.FC<CardProps> = ({ title, amount = 0, upDownValue }) => {
+const FundCard: React.FC<CardProps> = ({
+  title,
+  amount = 0,
+  upDownValue,
+  children,
+}) => {
   const amtValue = `$${amount.toFixed(2)}`;
   return (
     <StyledCard>
       <StyledTitle>{title}</StyledTitle>
       <StyledAmount>{amtValue}</StyledAmount>
+      {children}
       {upDownValue && <StyledUpDown>upDownValue</StyledUpDown>}
     </StyledCard>
   );
@@ -70,6 +77,7 @@ interface OverviewProps {
   totalSent: number;
   totalPending: number;
   totalClaimable: number;
+  onClaimFund?: () => void;
 }
 
 const FundCards: React.FC<OverviewProps> = ({
@@ -77,6 +85,7 @@ const FundCards: React.FC<OverviewProps> = ({
   totalSent,
   totalPending,
   totalClaimable,
+  onClaimFund,
 }) => {
   return (
     <StyledOverview>
@@ -84,7 +93,13 @@ const FundCards: React.FC<OverviewProps> = ({
         <FundCard title="Total Revenue" amount={totalReceived} />
         <FundCard title="Total Spent" amount={totalSent} />
         <FundCard title="Pending" amount={totalPending} />
-        <FundCard title="Claimable" amount={totalClaimable} />
+        <FundCard title="Claimable" amount={totalClaimable}>
+          {onClaimFund && (
+            <Button className="claimFund" onClick={onClaimFund}>
+              Claim Fund
+            </Button>
+          )}
+        </FundCard>
       </StyledCards>
     </StyledOverview>
   );
